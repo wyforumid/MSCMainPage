@@ -1,8 +1,44 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  
 }
 
+.index{
+	background-attachment: fixed;
+  	background-repeat:no-repeat;
+  	background-image: url('/images/MSC.jpg');
+  	BACKGROUND-SIZE:100% 100%;
+}
 a {
   color: #00B7FF;
+}
+.trans{
+	background-color: transparent;
+}
+.process-row{
+	height: 38px;
+}
+.process-spot{
+	border-radius: 50%;
+	border: 1px solid;
+	background-color: transparent;
+	float: left;
+	margin: 10 0 auto 2;
+}
+.process-spot-column{
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.process-spot-moving{
+	background-color: green;
+}
+.process-processer{
+	background: transparent url(/images/bg_processor1e5b3a.png) no-repeat 0 0;
+	line-height: 38px;
+	border: 1px solid
+}
+
+.process-processer-running{
+	background-position: 0 -40px;
 }
