@@ -1,0 +1,53 @@
+<html ng-app="MainApp">
+<head>
+	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+</head>
+<body>
+	<div ng-controller="mapCtrl" style="width:1400px; scroll">
+		<div class="row process-row">
+			<div class="col-md-1 process-processer process-processer-running"> Email </div>
+			<div running-spots="spotDiv" class="col-md-1 process-spot-column">
+			</div>
+			<div class="col-md-1 process-processer process-processer-running"> MH8 </div>
+			<div running-spots="spotDiv2" class="col-md-1 process-spot-column prcess-spot-column-rotate-10">
+			</div>
+			<div running-spots="spotDiv7" class="col-md-1 col-md-offset-3 process-spot-column prcess-spot-column-rotate--10">
+			</div>
+			<div class="col-md-1 process-processer process-processer-running">FeederLoading</div>
+		</div>
+		<div class="row process-row">
+			<div class="col-md-1 col-md-offset-4  process-processer process-processer-running">MSClink</div>
+			<div running-spots="spotDiv5" class="col-md-1 process-spot-column">
+			</div>
+			<div class="col-md-1 process-processer process-processer-running">Vessel/Voyage</div>
+		</div>
+		<div class="row process-row">
+			<div class="col-md-1 process-processer process-processer-running"> Email </div>
+			<div running-spots="spotDiv3" class="col-md-1 process-spot-column">
+			</div>
+			<div class="col-md-1 process-processer process-processer-running"> Efficient Stuff </div>
+			<div running-spots="spotDiv4" class="col-md-1 process-spot-column prcess-spot-column-rotate--10">
+			</div>
+			<div running-spots="spotDiv6" class="col-md-1 col-md-offset-3 process-spot-column prcess-spot-column-rotate-10">
+			</div>
+			<div class="col-md-1 process-processer process-processer-running">AutoLoading</div>
+		</div>
+	</div>
+	
+	<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
+	<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/javascripts/angular.js"></script>
+	<script type="text/javascript" src="/javascripts/angular-route.js"></script>
+	<script type="text/javascript" src="/javascripts/ng-grid.min.js"></script>
+	<script type="text/javascript" src="/javascripts/self-directives.js"></script>
+	<script type="text/javascript">
+		angular.module('MainApp',['selfDirectives'])
+		.controller('mapCtrl',function($scope){
+
+		});
+		
+	</script>
+</body>
+</html>
