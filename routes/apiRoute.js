@@ -2,12 +2,21 @@ var express = require('express');
 var async = require('async');
 var router = express.Router();
 var companyAPI = require('../API/companyInfoAPI');
+var userAPI = require('../API/userAPI');
 
 router.route('/API/company/:actionName')
+.all(function(req,res,next){
+	console.log("in");
+	next();
+})
 .get(function(req,res,next){
+	console.log('in');
 	switch(req.params.actionName.toUpperCase()){
 		case 'ALLOFFICES':
 		getAllOffices(req,res);
+		break;
+		case 'ALLDEPTS' :
+		getAllDepts(req,res);
 		break;
 		default:
 		res.response.writeHead(404);
@@ -16,6 +25,41 @@ router.route('/API/company/:actionName')
 	}
 });
 
+// router.route('/API/user')
+// .get(function(req,res,next){
+
+// })
+// .post(function(req,res,next){
+// 	registUser(req,res);
+// });
+
+
+
+
+
+
+module.exports = router;
+
+
+
+
+
+
+
+// function registUser(req,res){
+// 	getAPIData(req,res,function(cb){
+// 		userAPI.registUser(
+// 			req.body.loginName,
+// 			req.body.fullName,
+// 			req.body.email,
+// 			req.body.office.id,
+// 			req.body.dept.id,
+// 			function(err,data){
+// 				cb(err,data);
+// 			}
+// 		);
+// 	})
+// }
 
 function getAllOffices(req,res){
 	getAPIData(req,res,function(cb){
@@ -25,13 +69,13 @@ function getAllOffices(req,res){
 	});
 }
 
-
-
-
-
-
-
-
+function getAllDepts(req,res){
+	getAPIData(req,res,function(cb){
+		companyAPI.getAllDepartments(function(err,data){
+			cb(err,data);
+		});
+	});
+}
 
 function getAPIData(req,res,getFunc){
 	async.waterfall([

@@ -25,7 +25,7 @@ exports.querySP = function(spName,params,callback){
 			callback(err,null);
 		}
 		var request = new mssql.Request(connection);
-		for(var i = params.length;i--){
+		for(var i = params.length;i--;){
 			var p = params[i];
 			request.input(p.name,p.type,p.value);
 		}

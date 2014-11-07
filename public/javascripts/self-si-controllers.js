@@ -1,4 +1,4 @@
-angular.module('selfControllers',['toggle-switch'])
+angular.module('selfSIControllers',['toggle-switch'])
 .controller('SICtrl',function($scope){
 	$scope.searchingResult = [];
 	$scope.filterResult = [];

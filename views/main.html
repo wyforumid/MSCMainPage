@@ -32,13 +32,14 @@
 	<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
 	<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/javascripts/angular.js"></script>
+	<script type="text/javascript" src="/javascripts/self-services.js"></script>
 	<script type="text/javascript" src="/javascripts/self-si-controllers.js"></script>
 	<script type="text/javascript" src="/javascripts/self-user-controllers.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-route.js"></script>
 	<script type="text/javascript" src="/javascripts/ng-grid.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-toggle-switch.js"></script>
 	<script type="text/javascript">
-		angular.module('SIApp',['ngRoute','ngGrid','selfControllers','toggle-switch'])
+		angular.module('SIApp',['ngRoute','ngGrid','selfControllers','selfSIControllers','selfServices','toggle-switch'])
 		.config(['$routeProvider',function($routeProvider){
 			$routeProvider
 			.when('/SI',{
