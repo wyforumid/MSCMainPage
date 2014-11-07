@@ -13,7 +13,7 @@
 		<ul class="nav navbar-nav">
 			<li><a href="#">{{userInfo.userName}}</a></li>
 			<li class="dropdown">
-				<a href="" class="dropdown-toggle" data-toggle="dropdown">Configure<span  class="caret"></span></a>
+				<a href="" class="dropdown-toggle" data-toggle="dropdown">Function<span  class="caret"></span></a>
 				<ul class="dropdown-menu" role="menu">
 					<li ng-repeat="item in userInfo.menu">
 						<a ng-href="#{{item}}" >{{item}}</a>
@@ -32,7 +32,8 @@
 	<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
 	<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/javascripts/angular.js"></script>
-	<script type="text/javascript" src="/javascripts/self-controllers.js"></script>
+	<script type="text/javascript" src="/javascripts/self-si-controllers.js"></script>
+	<script type="text/javascript" src="/javascripts/self-user-controllers.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-route.js"></script>
 	<script type="text/javascript" src="/javascripts/ng-grid.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-toggle-switch.js"></script>
@@ -45,14 +46,70 @@
 				controller: 'SICtrl',
 				caseInsensitiveMatch: true
 			})
+			.when('/USER/Regist',{
+				templateUrl:'/partialviews/signUp.html',
+				controller: 'UserCtrl',
+				caseInsensitiveMatch:true
+			});
 		}])
 		.controller('navCtrl',function($scope,$rootScope){
 			$rootScope.userInfo = {
-				userName:'Jason',
+				userName:'Manager',				
 				menu:[
 					'SI'
-				]
+				],
+				Role:'Manager',
+				permission:{
+					canFilter:true,
+					canSearch:true,
+					canDispath:true,
+					canAssign:true,
+					canFinish:true
+				}
 			};
+
+			$rootScope.userInfo = {
+				userName:'Indexer',				
+				menu:[
+					'SI'
+				],
+				Role:'Indexer',
+				permission:{
+					canFilter:true,
+					canSearch:true,
+					canDispath:true,
+					canAssign:false,
+					canFinish:false
+				}
+			};
+			$rootScope.userInfo = {
+				userName:'Dispather',				
+				menu:[
+					'SI'
+				],
+				Role:'Dispather',
+				permission:{
+					canFilter:true,
+					canSearch:true,
+					canDispath:false,
+					canAssign:true,
+					canFinish:false
+				}
+			};
+			// $rootScope.userInfo = {
+			// 	userName:'Inputter Jason',				
+			// 	menu:[
+			// 		'SI'
+			// 	],
+			// 	Role:'Inputter',
+			// 	permission:{
+			// 		canFilter:true,
+			// 		canSearch:true,
+			// 		canDispath:false,
+			// 		canAssign:false,
+			// 		canFinish:true
+			// 	}
+			// };
 		})
 	</script>
 </body>

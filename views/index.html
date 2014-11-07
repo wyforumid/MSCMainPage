@@ -31,6 +31,7 @@
 				</div>
 				<div class="form-group">
 					<button class="btn btn-primary btn-lg" ng-click="login()">Login</button>
+					<button class="btn btn-primary btn-lg" ng-click="registUser();">Regist User</button>
 				</div>
 			</div>
 		</p>
@@ -56,7 +57,9 @@
 			//Ajax to validate
 			window.location = '/main';
 		}
-
+		$scope.registUser = function(){
+			window.location = 'main#/USER/Regist';
+		}
 	})
 	</script>
 </body>

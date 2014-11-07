@@ -54,3 +54,17 @@ a {
     -webkit-transform:rotate(10deg);
     -moz-transform:rotate(10deg); 
 }
+
+
+
+
+
+.margin-botton-div{
+	margin-bottom: 5px;
+}
+.header-table-div{
+	font-weight: bolder;
+}
+.fixed-div{
+	position: fixed;
+}

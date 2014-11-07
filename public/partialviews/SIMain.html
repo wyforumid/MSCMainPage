@@ -1,28 +1,294 @@
 <div class="row">
-	<div class="col-md-2">
-		<div class="row">
+	<div data-ng-class="{'col-md-2':listDivClass,'':detailDivClass}" ng-show="listDivClass">
+		<div class="row margin-botton-div" ng-show="hasSelectedSO">
+			<div class="col-md-12 margin-botton-div" ng-show="userInfo.permission.canDispath">
+				<button class="btn btn-primary" >Dispatch checked S/O to TeamGroup</button>
+			</div>
+			<div class="col-md-12 margin-botton-div" ng-show="userInfo.permission.canAssign">
+				<button class="btn btn-primary" >Assign checked S/O to inputter</button>
+			</div>
+			<div class="col-md-12 margin-botton-div" >
+				<button class="btn btn-primary" ng-show="userInfo.permission.canFinish">Change checked S/O status</button>
+			</div>
+		</div>
+		<div class="row margin-botton-div">
 			<div class="col-md-12">
-				<toggle-switch model="zoneStatus" 
-					on-label="Filter"
-					off-label="Search"
-					class="switch-primary" style="height: 30px;">
-				</toggle-switch>
+				<toggle-switch model="isFilterZone" 
+				on-label="Filter"
+				off-label="Search"
+				class="switch-primary" style="height: 30px;">
+			</toggle-switch>
+		</div>
+	</div>
+	<div class="row" id="filterZone" ng-show="isFilterZone">
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.BookingNo" ng-options="Booking for Booking in analyseResult.BookingNo">
+				<option value="">---Booking---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.BLNo" ng-options="BLNo for BLNo in analyseResult.BLNo">
+				<option value="">---BOL---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+
+			<select class="form-control" ng-model="filters.Inputter" ng-options="Inputter for Inputter in analyseResult.Inputter">
+				<option value="">---Inputter---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.Vessel" ng-options="Vessel for Vessel in analyseResult.Vessel">
+				<option value="">---Vessel---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.Voyage" ng-options="Voyage for Voyage in analyseResult.Voyage">
+				<option value="">---Voyage---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.Service" ng-options="Service for Service in analyseResult.Service">
+				<option value="">---Service---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.LoadPort" ng-options="LoadPort for LoadPort in analyseResult.LoadPort">
+				<option value="">---Load Port---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.SIOrigin" ng-options="SIOrigin for SIOrigin in analyseResult.SIOrigin">
+				<option value="">---SI Origin---</option>
+			</select>
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<select class="form-control" ng-model="filters.TeamGroup" ng-options="TeamGroup for TeamGroup in analyseResult.TeamGroup">
+				<option value="">---Team Group---</option>
+			</select>
+		</div>
+		<div class="col-md-12">
+			<button class="btn btn-primary" ng-click="resetFilter();">
+				Reset
+			</button>
+		</div>
+	</div>
+	<div class="row" id="searchZone" ng-hide="isFilterZone">
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Booking" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter BOL" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Inputter" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Vessel" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Voyage" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Service" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Load Port" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter SI Origin" />
+		</div>
+		<div class="col-md-12 margin-botton-div">
+			<input type="text" class="form-control" placeholder="Enter Team Group" />
+		</div>
+		<div class="col-md-6">
+			<button class="btn btn-primary">Search</button>	
+		</div>
+		<div class="col-md-6">
+			<button class="btn btn-primary">Reset</button>	
+		</div>
+	</div>
+		<!-- <div class="row" id="searchZone">
+			<button ng-click="test();">test</button>
+		</div> -->
+	</div>
+	<div ng-class="{'col-md-10':listDivClass,'col-md-2':detailDivClass,'fixed-div':detailDivClass}" id="listDiv">
+		<div id="grid" class="gridStyle" ng-grid="siGrid" ng-style="{'height':tableHeight}">
+		</div>
+		<!-- <div style="background-color: red; width:100%;height: 100%;" ng-click="showDetails();">
+			
+	</div> -->
+</div>
+<div ng-class="{'col-md-10 col-md-offset-2':detailDivClass,'':listDivClass}" id="detailDiv" ng-show="detailDivClass">
+	<div class="row margin-botton-div">
+		<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
+		<button class="btn btn-primary">Add workflow</button>
+	</div>
+	<!-- <div class="well"> -->
+	<div class="well">
+		<div class="row">
+			<div class="col-md-2">
+				<label>BKG Number: </label>
+			</div>
+			<div class="col-md-4">
+				<label>181XXXXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>MBL Number: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXXXXXXX</label>
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-6">
-				<input type="text" class="form-control" placeholder="Enter Booking" />
+			<div class="col-md-2">
+				<label>Trade: </label>
 			</div>
-			<div class="col-md-6">
-				<input type="text" class="form-control" placeholder="Enter BOL" />
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>Service: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>Vessel: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>Voyage: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>DTX Deadline: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>POR Group: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>POL: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>POD: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>Final Destination: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>Booking shipper: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>Contract Holder: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+			<div class="col-md-2">
+				<label>Ref Number: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<label>Indexer: </label>
+			</div>
+			<div class="col-md-4">
+				<label>XXXXXXXXXXXX</label>
 			</div>
 		</div>
 	</div>
-	<div class="col-md-8">
-		<div class="gridStyle" ng-grid="siGrid" ng-style="{'height':tableHeight}">
-		</div>
+	<div class="well">
+		<table class="table table-hover">
+			<thead>
+				<th>Task</th>
+				<th>Operator</th>
+				<th>to</th>
+				<th>Time</th>
+				<th>Remarks</th>
+			</thead>
+			<tbody>
+				<tr>
+					<td>indexing</td>
+					<td>System</td>
+					<td>Wuhan Team</td>
+					<td>2014-01-12 15:59</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Coordination</td>
+					<td>Jason</td>
+					<td>Jason</td>
+					<td>2014-01-12 15:59</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Finished</td>
+					<td>Jason</td>
+					<td></td>
+					<td>2014-01-12 15:59</td>
+					<td>WTF</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
-	<div class="col-md-2">
-		
-	</div>	
+	<div class="well">
+		<table class="table table-hover">
+			<thead>
+				<th>Subject</th>
+				<th>Received Time</th>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a>third</a></td>
+					<td>2014-01-12 17:59</td>
+				</tr>
+				<tr>
+					<td><a>second</a></td>
+					<td>2014-01-12 16:59</td>
+				</tr>
+				<tr>
+					<td><a>first</a></td>
+					<td>2014-01-12 15:59</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- </div> -->
+</div>
 </div>
