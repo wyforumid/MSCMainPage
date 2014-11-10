@@ -4,13 +4,18 @@ var router = express.Router();
 var companyAPI = require('../API/companyInfoAPI');
 var userAPI = require('../API/userAPI');
 
-router.route('/API/company/:actionName')
+// router.route('/')
+// .all(function(req,res,next){
+// 	console.log('in');
+// 	next();
+// })
+router.route('/company/:actionName')
+// router.route('/API/company/ALLOFFICES')
+//router.route('/API/company/')
 .all(function(req,res,next){
-	console.log("in");
 	next();
 })
 .get(function(req,res,next){
-	console.log('in');
 	switch(req.params.actionName.toUpperCase()){
 		case 'ALLOFFICES':
 		getAllOffices(req,res);
@@ -25,13 +30,13 @@ router.route('/API/company/:actionName')
 	}
 });
 
-// router.route('/API/user')
-// .get(function(req,res,next){
+router.route('/user')
+.get(function(req,res,next){
 
-// })
-// .post(function(req,res,next){
-// 	registUser(req,res);
-// });
+})
+.post(function(req,res,next){
+	registUser(req,res);
+});
 
 
 
@@ -46,20 +51,26 @@ module.exports = router;
 
 
 
-// function registUser(req,res){
-// 	getAPIData(req,res,function(cb){
-// 		userAPI.registUser(
-// 			req.body.loginName,
-// 			req.body.fullName,
-// 			req.body.email,
-// 			req.body.office.id,
-// 			req.body.dept.id,
-// 			function(err,data){
-// 				cb(err,data);
-// 			}
-// 		);
-// 	})
-// }
+function registUser(req,res){
+	getAPIData(req,res,function(cb){
+		userAPI.registUser(
+			req.body.loginName,
+			req.body.fullName,
+			req.body.email,
+			req.body.office.id,
+			req.body.dept.id,
+			function(err,data){
+				try{
+					cb(err,data);	
+				}
+				catch(e){
+					cb(e,data);
+				}
+				
+			}
+		);
+	})
+}
 
 function getAllOffices(req,res){
 	getAPIData(req,res,function(cb){

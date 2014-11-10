@@ -20,7 +20,7 @@ angular.module('selfControllers',['selfServices'])
 		function(data,status){
 			alert('Fail to fetch offices.');
 		}
-	);
+		);
 	
 	fundationService.getAllDepts(
 		function(data){
@@ -29,7 +29,7 @@ angular.module('selfControllers',['selfServices'])
 		function(data,status){
 			alert('Fail to fetch departments.');
 		}
-	);
+		);
 	
 
 	$scope.$watch('registUserInfo.email',function(nV,oV){
@@ -42,10 +42,42 @@ angular.module('selfControllers',['selfServices'])
 			url:'/API/user',
 			data:$scope.registUserInfo
 		}).success(function(data,status){
-			alert(data);
+			//alert(data);
+			if(data && data[0]){
+				feedbackRegistPage(data[0].info);
+			}else{
+
+			}
 		}).error(function(data,status){
 			alert(data);
 		})
+	}
+
+	function feedbackRegistPage(msg){
+		if(data[0].info=''){
+			alert('Regist user successfully. The password will be sent to ' + $scope.registUserInfo.email + 'in 1 minuts.');
+			return;
+		}
+
+		var str = data[0].info;
+		if(str.indexOf('login name') != -1){
+			feedbackDiv('loginNameInput');
+		}
+		if(str.indexOf('email') != -1){
+			feedbackDiv('emailInput');
+		}
+		if(str.indexOf('office') != -1){
+			feedbackDiv('officeSelect');
+		}
+		if(str.indexOf('department') != -1){
+			feedbackDiv('deptSelect');
+		}
+
+	}
+
+	function feedbackDiv(id){
+		$('#' + id).addClass('has-error').addClass('has-feedback');
+		$('#' + id + ' span').show();
 	}
 
 	function initialCSS(){

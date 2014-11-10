@@ -1,5 +1,6 @@
 var db = require('../DB/dbutil');
 var Parameter = require('../DB/parameter');
+var mssql = require('mssql');
 
 exports.registUser = function(loginName,fullName,email,officeId,deptId,callback){
 	var params = [];

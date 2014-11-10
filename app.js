@@ -30,7 +30,8 @@ app.use('/users', users);
 //     console.log('in');
 //     next();
 // })
-app.use(/\/API\/\S+/i, apiRoute);
+//app.use(/\/API\/\S+/i, apiRoute);
+app.use('/API',apiRoute);
 
 
 
