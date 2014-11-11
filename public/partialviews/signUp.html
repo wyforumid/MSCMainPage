@@ -47,16 +47,13 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<button class="btn btn-primary btn-lg col-md-2 col-md-offset-9" ng-click="registUser();">Regist</button>
+			<button class="btn btn-primary btn-lg col-md-2 col-md-offset-9" ng-click="registUser();" id='registBtn'>Regist</button>
 		</div>
-		<div class="form-group alert alert-danger alert-dismissible">
+		<!-- add process bar for registing loading. -->
+
+		<div class="form-group alert alert-danger alert-dismissible" id='errorZone'>
 			<ul>
-				<li>
-					user name is existed.
-				</li>
-				<li>
-					office is not existed.
-				</li>
+				<li ng-repeat="item in feedbackInfo">{{item}}</li>
 			</ul>
 		</div>
 	</div>

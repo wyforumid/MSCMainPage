@@ -41,19 +41,22 @@
 	<script type="text/javascript" src="/javascripts/angular.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-route.js"></script>
 	<script type="text/javascript" src="/javascripts/ng-grid.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.cookie.js"></script>
 	<script type="text/javascript">
 	// angular.module('mainApp',['ngRoute'])
 	// .config(['$routeProvider',function($routeProvider){
 
 	// }])
-	angular.module('mainApp',[])
-	.controller('loginCtrl',function($scope,$http,$rootScope){
-		$rootScope.userInfo = {
-			name:'Guest',
-			isLogin:false
-		};
+angular.module('mainApp',[])
+.controller('loginCtrl',function($scope,$http,$rootScope){
+	$rootScope.userInfo = {
+		name:'Guest',
+		isLogin:false
+	};
 
-		$scope.login = function(){
+	$.cookie('user',JSON.stringify($rootScope.userInfo),{expire:7});
+
+	$scope.login = function(){
 			//Ajax to validate
 			window.location = '/main';
 		}
@@ -61,6 +64,6 @@
 			window.location = 'main#/USER/Regist';
 		}
 	})
-	</script>
+</script>
 </body>
 </html>
