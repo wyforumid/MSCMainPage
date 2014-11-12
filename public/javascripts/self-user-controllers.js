@@ -151,3 +151,14 @@ angular.module('selfControllers', ['selfServices'])
 
 		initialCSS();
 	})
+	.controller('UserForgotPassowrdCtrl', function($scope) {
+
+		$scope.email = "";
+
+		$scope.resetPassword = function(email) {
+			
+			
+			
+		};
+
+	});

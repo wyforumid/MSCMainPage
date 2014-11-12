@@ -34,6 +34,9 @@
 					<button class="btn btn-primary btn-lg" ng-click="registUser();">Regist User</button>
 				</div>
 			</div>
+			<div class="form-group">
+				<a href="javascript:void(0);" ng-click="forgotPassword();">Forgot your password?</a>
+			</div>
 		</p>
 	</div>
 	<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
@@ -55,6 +58,10 @@ angular.module('mainApp',[])
 	};
 
 	$.cookie('user',JSON.stringify($rootScope.userInfo),{expire:7});
+
+	$scope.forgotPassword = function(){
+		window.location = 'main#/USER/ForgetPassword';
+	};
 
 	$scope.login = function(){
 			//Ajax to validate
