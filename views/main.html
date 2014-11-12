@@ -62,7 +62,13 @@
 					templateUrl:'/partialviews/signUp.html',
 					controller: 'UserCtrl',
 					caseInsensitiveMatch:true
-				}).when('/Permission/Group',{
+				})
+				.when('/USER/ForgetPassword',{
+					templateUrl:'/partialviews/forgetPassword.html',
+					controller: 'UserForgotPassowrdCtrl',
+					caseInsensitiveMatch:true
+				})
+				.when('/Permission/Group',{
 					templateUrl:'/partialviews/group.html',
 					controller:'permissionGroupCtrl',
 					caseInsensitiveMatch:true
