@@ -30,7 +30,11 @@ exports.querySP = function(spName,params,callback){
 			request.input(p.name,p.type,p.value);
 		}
 		request.execute(spName,function(err,recordsets,returnValue){
-			callback(err,recordsets[0]);
+			if(!recordsets || recordsets.length == 0){
+				callback(err,[]);
+			}else{
+				callback(err,recordsets[0]);
+			}
 		});
 	});
 }
