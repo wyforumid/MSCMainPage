@@ -45,7 +45,11 @@ angular.module('selfServices', [])
 			}
 
 			getAllPermissionCategories: function(successCallback,errorCallback,forceRefresh){
-				//if(forceRefresh || ($.isArray))
+				if(forceRefresh || ($.isArray(allPermissionCategories) && allPermissionCategories.length ==0)){
+					fetchFoundationData('/API/permission/ALLPERMISSIONCATEGORIES',allPermissionCategories,successCallback,errorCallback);
+				}else{
+					return allPermissionCategories;
+				}
 			}
 		}
 
