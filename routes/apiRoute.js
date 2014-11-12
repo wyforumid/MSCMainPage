@@ -3,6 +3,13 @@ var async = require('async');
 var router = express.Router();
 var companyAPI = require('../API/companyInfoAPI');
 var userAPI = require('../API/userAPI');
+var permissionAPI = require('../API/permissionAPI');
+
+router.route('/')
+.get(function(req,res,next){
+	req.params.info;
+	next();
+})
 
 router.route('/company/:actionName')
 	.get(function(req, res, next) {
@@ -51,10 +58,53 @@ function registUser(req, res) {
 	})
 }
 
+router.route('/permission/:actionName')
+.get(function(req,res,next){
+	switch(req.params.actionName.toUpperCase()){
+		case 'CONCERNEDGROUPNAMES':
+			getConcernedGroupNames(req,res);
+			break;
+		case 'ALLPERMISSIONS':
+			getAllPermissions(req,res);
+			break;
+		case 'ALLPERMISSIONCATEGORIES':
+			getAllPermissionCategories(req,res);
+			break;
+		default:
+			res.response.writeHead(404);
+			res.write();
+			res.end();
+	}
+});
+
+function getAllPermissions(req,res){
+	getAPIData(req,res,function(cb){
+		permissionAPI.getAllPermissions(function(err,data){
+			cb(err,data);
+		});
+	});
+}
+
+function getAllPermissionCategories(req,res){
+	getAPIData(req,res,function(cb){
+		permissionAPI.getAllPermissionCategories(function(err,data){
+			cb(err,data);
+		});
+	});
+}
+
 function getAllOffices(req, res) {
 	getAPIData(req, res, function(cb) {
 		companyAPI.getAllOffices(function(err, data) {
 			cb(err, data);
+		});
+	});
+}
+
+function getConcernedGroupNames(req,res){
+	getAPIData(req,res,function(cb){
+		permissionAPI.getConcernedGroupNames(JSON.parse(req.query.info),function(err,data){
+			cb(err,data);
 		});
 	});
 }

@@ -26,7 +26,8 @@ angular.module('selfControllers', ['selfServices'])
 			},
 			function(data, status) {
 				alert('Fail to fetch offices.');
-			}
+			},
+			false
 		);
 
 		fundationService.getAllDepts(
@@ -35,7 +36,8 @@ angular.module('selfControllers', ['selfServices'])
 			},
 			function(data, status) {
 				alert('Fail to fetch departments.');
-			}
+			},
+			false
 		);
 
 
