@@ -6,10 +6,10 @@ var userAPI = require('../API/userAPI');
 var permissionAPI = require('../API/permissionAPI');
 
 router.route('/')
-.get(function(req,res,next){
-	req.params.info;
-	next();
-})
+	.get(function(req, res, next) {
+		req.params.info;
+		next();
+	})
 
 router.route('/company/:actionName')
 	.get(function(req, res, next) {
@@ -28,8 +28,8 @@ router.route('/company/:actionName')
 	});
 
 router.route('/user')
-	.get(function(req, res, next) {
-
+	.put(function(req, res, next) {
+		resetPassword(req, res);
 	})
 	.post(function(req, res, next) {
 		registUser(req, res);
@@ -58,37 +58,57 @@ function registUser(req, res) {
 	})
 }
 
-router.route('/permission/:actionName')
-.get(function(req,res,next){
-	switch(req.params.actionName.toUpperCase()){
-		case 'CONCERNEDGROUPNAMES':
-			getConcernedGroupNames(req,res);
-			break;
-		case 'ALLPERMISSIONS':
-			getAllPermissions(req,res);
-			break;
-		case 'ALLPERMISSIONCATEGORIES':
-			getAllPermissionCategories(req,res);
-			break;
-		default:
-			res.response.writeHead(404);
-			res.write();
-			res.end();
-	}
-});
 
-function getAllPermissions(req,res){
-	getAPIData(req,res,function(cb){
-		permissionAPI.getAllPermissions(function(err,data){
-			cb(err,data);
+function resetPassword(req, res) {
+
+	if (req.body.updateMode === "password") {
+		getAPIData(req, res, function(cb) {
+			userAPI.resetPassword(req.body.user.email, function(err, data) {
+				try {
+					cb(err, data);
+				} catch (e) {
+					cb(e, data);
+				}
+			});
+		});
+	} else if (req.body.updateMode === "all") {
+		//update user of all field 
+	}
+
+}
+
+
+router.route('/permission/:actionName')
+	.get(function(req, res, next) {
+		switch (req.params.actionName.toUpperCase()) {
+			case 'CONCERNEDGROUPNAMES':
+				getConcernedGroupNames(req, res);
+				break;
+			case 'ALLPERMISSIONS':
+				getAllPermissions(req, res);
+				break;
+			case 'ALLPERMISSIONCATEGORIES':
+				getAllPermissionCategories(req, res);
+				break;
+			default:
+				res.response.writeHead(404);
+				res.write();
+				res.end();
+		}
+	});
+
+function getAllPermissions(req, res) {
+	getAPIData(req, res, function(cb) {
+		permissionAPI.getAllPermissions(function(err, data) {
+			cb(err, data);
 		});
 	});
 }
 
-function getAllPermissionCategories(req,res){
-	getAPIData(req,res,function(cb){
-		permissionAPI.getAllPermissionCategories(function(err,data){
-			cb(err,data);
+function getAllPermissionCategories(req, res) {
+	getAPIData(req, res, function(cb) {
+		permissionAPI.getAllPermissionCategories(function(err, data) {
+			cb(err, data);
 		});
 	});
 }
@@ -101,10 +121,10 @@ function getAllOffices(req, res) {
 	});
 }
 
-function getConcernedGroupNames(req,res){
-	getAPIData(req,res,function(cb){
-		permissionAPI.getConcernedGroupNames(JSON.parse(req.query.info),function(err,data){
-			cb(err,data);
+function getConcernedGroupNames(req, res) {
+	getAPIData(req, res, function(cb) {
+		permissionAPI.getConcernedGroupNames(JSON.parse(req.query.info), function(err, data) {
+			cb(err, data);
 		});
 	});
 }
