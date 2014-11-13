@@ -151,14 +151,48 @@ angular.module('selfControllers', ['selfServices'])
 
 		initialCSS();
 	})
-	.controller('UserForgotPassowrdCtrl', function($scope) {
+	.controller('UserForgotPassowrdCtrl', function($scope, $http) {
 
-		$scope.email = "";
+		$scope.formZone = {
+			isDisable: false,
+			resetPasswordButton: {
+				text: "Reset password"
+			},
+			message: ""
+		};
 
 		$scope.resetPassword = function(email) {
-			
-			
-			
+
+			$scope.formZone.isDisable = true;
+			$scope.formZone.resetPasswordButton.text = "Reset password......";
+
+			var updateUser = {
+				updateMode: "password", //updateMode: ["all", "password"]
+				user: {
+					email: email
+				}
+			}
+
+			$http({
+				method: 'PUT',
+				url: '/API/user',
+				data: updateUser
+			}).success(function(data, status) {
+
+				if (data[0].info === "") {
+					alert("Your password already updated, please check your email box.");
+					window.location = "/";
+				} else {
+					$scope.formZone.message = data[0].info;
+				}
+
+				$scope.formZone.isDisable = false;
+				$scope.formZone.resetPasswordButton.text = "Reset password";
+
+			}).error(function(data, status) {
+				alert(data);
+			});
+
 		};
 
 	});

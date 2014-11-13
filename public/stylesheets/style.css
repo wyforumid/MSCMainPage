@@ -133,3 +133,7 @@ a {
 	white-space: nowrap;
 	word-wrap: normal;
 }
+
+.btn-float-right {
+	float: right;
+}

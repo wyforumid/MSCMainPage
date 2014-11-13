@@ -11,3 +11,9 @@ exports.registUser = function(loginName, fullName, email, officeId, deptId, call
 	params.push(new Parameter('deptId', mssql.INT, deptId));
 	db.querySP('SP_RegistUser', params, callback);
 }
+
+exports.resetPassword = function(email,callback){
+	var params = [];
+	params.push(new Parameter('email',mssql.NVarChar(200),email));
+	db.querySP('SP_RetPassword',params,callback);
+}
