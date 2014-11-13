@@ -21,7 +21,7 @@ angular.module('selfServices', [])
 
 		return {
 			getAllOffices: function(successCallback, errorCallback, forceRefresh) {
-				if (forceRefresh || ($.isArray(allOffices) && allOffices.length == 0) {
+				if (forceRefresh || ($.isArray(allOffices) && allOffices.length == 0)) {
 					fetchFoundationData('/API/company/ALLOFFICES', allOffices, successCallback, errorCallback);
 				} else {
 					return allOffices;
@@ -42,7 +42,7 @@ angular.module('selfServices', [])
 				}else{
 					return allPermissions;
 				}
-			}
+			},
 
 			getAllPermissionCategories: function(successCallback,errorCallback,forceRefresh){
 				if(forceRefresh || ($.isArray(allPermissionCategories) && allPermissionCategories.length ==0)){
@@ -52,6 +52,4 @@ angular.module('selfServices', [])
 				}
 			}
 		}
-
-
 	});

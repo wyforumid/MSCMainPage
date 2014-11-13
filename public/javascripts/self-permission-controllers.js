@@ -5,12 +5,39 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 		$('#navTab a:last').tab('show');
 	});
 
-	$scope.currentStep = 1;
+	$scope.currentStep = 0;
 
 	$scope.company = {
 		offices: [],
 		depts: []
 	};
+
+	$scope.permissionInfo ={
+		originPermissions : [],
+		originCategories : [],
+		categoriedPermission : [],
+		categoringPermission : function(){
+			$.each($scope.permissionInfo.originCategories,function(ci,cv){
+				$scope.permissionInfo.categoriedPermission.push({
+					categoryId:cv.id,
+					categoryName:cv.name,
+					permissions:[]
+				});
+				var theOne = $scope.permissionInfo.categoriedPermission[$scope.permissionInfo.categoriedPermission.length-1].permissions;
+				$.each($scope.permissionInfo.originPermissions,function(pi,pv){
+					if(pv.categoryId == cv.id){
+							theOne.push({
+							id:pv.id,
+							name:pv.name,
+							description:pv.description
+						});
+					}
+					
+				});
+			});
+
+		} 
+	}
 
 	$scope.newGroup = {
 		addedDepts: [],
@@ -19,146 +46,243 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 		addedRoles:[]
 	};
 	$scope.existedGroupNames = [];
-		$scope.selectedOffice = {};
-		$scope.selectedDept = {};
-		$scope.newRoleName ='';
+	$scope.selectedOffice = {};
+	$scope.selectedDept = {};
+	$scope.newRoleName ='';
 
-		fundationService.getAllOffices(
-			function(data) {
-				$scope.company.offices = data;
-			},
-			function(data, status) {
-				alert('Fail to fetch offices.');
-			},
-			false
-			);
+	var step = {
+			1:{
+				initialCSS:function(){
+					initialStepCSS(1);
+				},
+				initialData:function(){
+					fundationService.getAllOffices(
+						function(data) {
+							$scope.company.offices = data;
+						},
+						function(data, status) {
+							alert('Fail to fetch offices.');
+						},
+						false
+						);
 
-		fundationService.getAllDepts(
-			function(data) {
-				$scope.company.depts = data;
-			},
-			function(data, status) {
-				alert('Fail to fetch departments.');
-			},
-			false
-			);
-
-		$scope.addDept = function() {
-			if ($scope.selectedOffice && $scope.selectedDept && $scope.selectedOffice.id && $scope.selectedDept.id) {
-				var isExisted = false;
-				$.each($scope.newGroup.addedDepts, function(i, v) {
-					if (v.office.id == $scope.selectedOffice.id && v.dept.id == $scope.selectedDept.id) {
-						isExisted = true;
+					fundationService.getAllDepts(
+						function(data) {
+							$scope.company.depts = data;
+						},
+						function(data, status) {
+							alert('Fail to fetch departments.');
+						},
+						false
+						);
+				},
+				validateBeforeNext:function(){
+					if ($scope.newGroup.addedDepts && $scope.newGroup.addedDepts.length > 0) {
+						return true;
+					} else {
+						alert('You need add some depertment which this new group belongs to.');
 						return false;
 					}
-				});
-
-				if (isExisted) {
-					alert('This department is already selected.');
-					return;
 				}
-
-				$scope.newGroup.addedDepts.push({
-					office: {
-						id: $scope.selectedOffice.id,
-						name: $scope.selectedOffice.name
-					},
-					dept: {
-						id: $scope.selectedDept.id,
-						name: $scope.selectedDept.name
+			},
+			2:{
+				initialCSS:function(){
+					$('#newGroupNameDiv').removeClass('has-error').removeClass('has-feedback');
+					$('#newGroupNameDiv span').hide();
+					$('div[class*="alert"]').hide();
+					initialStepCSS(2);
+				},
+				initialData:function(){
+					getConcernedGroupName();
+				},
+				validateBeforeNext:function(){
+					var isValidate = true,
+					msg = 'Something wrong. Please check these point: ';
+					if($scope.newGroup.groupName == ''){
+						isValidate = false;
+						msg += ' ~the group name is neccessary for new group.';
 					}
-				});
-				$scope.newGroup.addedDeptsChanged = true;
-			} else {
-				alert('Please select office and department first.');
+					if(isExistedName()){
+						isValidate = false;
+						msg +='  ~the group name is existed.';
+					}
+					if($scope.newGroup.addedRoles.length == 0){
+						isValidate = false;
+						msg +=' ~the role is neccessary for new group.';
+					}
+					if(!isValidate){
+						alert(msg);
+					}
+					return isValidate;
+				}
+			},
+			3:{
+				initialCSS:function(){
+					initialStepCSS(3);
+				},
+				initialData:function(){
+					async.parallel([
+						function(callback){
+							fundationService.getAllPermissions(
+								function(data){
+									$scope.permissionInfo.originPermissions = data;
+									callback(null,data);
+								},
+								function(data,status){
+									alert('Fail to fetch all permissions.');
+									callback(data,status);
+								},
+								false
+							);
+						},
+						function(callback){
+							fundationService.getAllPermissionCategories(
+								function(data){
+									$scope.permissionInfo.originCategories = data;
+									callback(null,data);
+								},
+								function(data,status){
+									alert('Fail to fetch all categories.');
+									callback(data,status);
+								},
+								false
+							);
+						}
+					],
+					function(err,results){
+						$scope.permissionInfo.categoringPermission();
+					})
+					
+
+					
+				},
+				validateBeforeNext:function(){
+					return true;
+				}
+			},
+			4:{
+				initialCSS:function(){
+					initialStepCSS(4);
+				},
+				initialData:function(){},
+				validateBeforeNext:function(){
+					return true;
+				}
 			}
 		}
 
-		$scope.addRoleName = function(){
-			if($scope.newRoleName == ''){
-				alert('The role name is null.');
-				return;
-			}
+	$scope.addDept = function() {
+		if ($scope.selectedOffice && $scope.selectedDept && $scope.selectedOffice.id && $scope.selectedDept.id) {
 			var isExisted = false;
-			$.each($scope.newGroup.addedRoles,function(i,v){
-				if(v.name.toUpperCase() == $scope.newRoleName.toUpperCase()){					
+			$.each($scope.newGroup.addedDepts, function(i, v) {
+				if (v.office.id == $scope.selectedOffice.id && v.dept.id == $scope.selectedDept.id) {
 					isExisted = true;
 					return false;
 				}
 			});
-			if(isExisted){
-				alert('The role of \'' + $scope.newRoleName + '\' is already existed.');
+
+			if (isExisted) {
+				alert('This department is already selected.');
 				return;
 			}
 
-			$scope.newGroup.addedRoles.push({
-				name:$scope.newRoleName,
-				permission:[]
+			$scope.newGroup.addedDepts.push({
+				office: {
+					id: $scope.selectedOffice.id,
+					name: $scope.selectedOffice.name
+				},
+				dept: {
+					id: $scope.selectedDept.id,
+					name: $scope.selectedDept.name
+				}
 			});
-			$scope.newRoleName = '';
+			$scope.newGroup.addedDeptsChanged = true;
+		} else {
+			alert('Please select office and department first.');
 		}
+	}
 
-		$scope.minusDept = function(index) {
-			if ($scope.newGroup.addedDepts && $scope.newGroup.addedDepts.length >= index) {
-				$scope.newGroup.addedDepts.splice(index, 1);
-				$scope.newGroup.addedDeptsChanged = true;
-			} else {
-				alert('Something is wrong. Please reset it and start over.');
-			}
+	$scope.addRoleName = function(){
+		if($scope.newRoleName == ''){
+			alert('The role name is null.');
+			return;
 		}
-
-		$scope.minusRole = function(index){
-			if($scope.newGroup.addedRoles && $scope.newGroup.addedRoles.length >= index){
-				$scope.newGroup.addedRoles.splice(index,1);
-			}else{
-				alert('Something is wrong. Please reset it and start over.');
-			}
-		}
-
-		$scope.pre = function() {
-			initialStepCSS(--$scope.currentStep);
-		}
-
-		$scope.next = function() {
-			if (validateStep($scope.currentStep)) {
-				initialStepCSS(++$scope.currentStep);
-			}
-
-		}
-
-		$scope.checkExistedName = function() {
-			if($scope.newGroup.groupName == ''){
+		var isExisted = false;
+		$.each($scope.newGroup.addedRoles,function(i,v){
+			if(v.name.toUpperCase() == $scope.newRoleName.toUpperCase()){					
+				isExisted = true;
 				return false;
 			}
-			if (!$scope.newGroup.addedDeptsChanged) {
-				isExistedName();
-			} else {
-				$http({
-					method: 'GET',
-					url: '/API/permission/CONCERNEDGROUPNAMES',
-					cache: false,
-					params: {info : JSON.stringify($scope.newGroup.addedDepts)} //JSON.stringify($scope.addedDepts)
-				}).success(function(data, status) {
-					$scope.existedGroupNames = data;
-					$scope.newGroup.addedDeptsChanged = false;
-					isExistedName();
-				}).error(function(data, status) {
-					alert(data);
-				});
-			}
+		});
+		if(isExisted){
+			alert('The role of \'' + $scope.newRoleName + '\' is already existed.');
+			return;
 		}
+
+		$scope.newGroup.addedRoles.push({
+			name:$scope.newRoleName,
+			permission:[]
+		});
+		$scope.newRoleName = '';
+	}
+
+	$scope.minusDept = function(index) {
+		if ($scope.newGroup.addedDepts && $scope.newGroup.addedDepts.length >= index) {
+			$scope.newGroup.addedDepts.splice(index, 1);
+			$scope.newGroup.addedDeptsChanged = true;
+		} else {
+			alert('Something is wrong. Please reset it and start over.');
+		}
+	}
+
+	$scope.minusRole = function(index){
+		if($scope.newGroup.addedRoles && $scope.newGroup.addedRoles.length >= index){
+			$scope.newGroup.addedRoles.splice(index,1);
+		}else{
+			alert('Something is wrong. Please reset it and start over.');
+		}
+	}
+
+	$scope.pre = function() {
+		//initialStepCSS(--$scope.currentStep);
+		step[(--$scope.currentStep).toString()].initialCSS();
+	}
+
+	$scope.next = function() {
+		if(step[$scope.currentStep.toString()].validateBeforeNext()){
+			step[(++$scope.currentStep).toString()].initialCSS();
+			step[$scope.currentStep.toString()].initialData();
+		}
+
+	}
+
+
+
+	function getConcernedGroupName(){
+		$http({
+			method: 'GET',
+			url: '/API/permission/CONCERNEDGROUPNAMES',
+			cache: false,
+				params: {info : JSON.stringify($scope.newGroup.addedDepts)} //JSON.stringify($scope.addedDepts)
+			}).success(function(data, status) {
+				$scope.existedGroupNames = data;
+				$scope.newGroup.addedDeptsChanged = false;
+			}).error(function(data, status) {
+				alert(data);
+		});
+	}
 
 		function isExistedName(){
 			var isExisted = false;
 			$.each($scope.existedGroupNames, function(i, v) {
-					if (v.GroupName.toUpperCase() == $scope.newGroup.groupName.toUpperCase()) {
-						$('#newGroupNameDiv').addClass('has-error').addClass('has-feedback');
-						$('#newGroupNameDiv span').show();
-						$('div[class*="alert"]').show();
-						isExisted = true;
-						return false;
-					}
-				});
+				if (v.GroupName.toUpperCase() == $scope.newGroup.groupName.toUpperCase()) {
+					$('#newGroupNameDiv').addClass('has-error').addClass('has-feedback');
+					$('#newGroupNameDiv span').show();
+					$('div[class*="alert"]').show();
+					isExisted = true;
+					return false;
+				}
+			});
 			if(!isExisted){
 				$('#newGroupNameDiv').removeClass('has-error').removeClass('has-feedback');
 				$('#newGroupNameDiv span').hide();
@@ -176,7 +300,6 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 				$('#nextBtn').prop('disabled', false);
 				break;
 				case 2:
-				initialStep2CSS();
 				case 3:
 				$('#preBtn').prop('disabled', false);
 				$('#nextBtn').prop('disabled', false);
@@ -207,95 +330,56 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 			}
 		}
 
-		function initialStep2CSS() {
-			$('#newGroupNameDiv').removeClass('has-error').removeClass('has-feedback');
-			$('#newGroupNameDiv span').hide();
-			$('div[class*="alert"]').hide();
-		}
-
 		function validateStep(stepNo) {
-			switch (stepNo) {
-				case 1:
-				return validateSelectedDepts();
-				case 2:
-				return validateGroupInfo();
-				case 3:
-				return validateRolePermission();
-				case 4:
-				return finalValidate();
-				default:
-				return false;
-
-			}
-		}
-
-		function validateSelectedDepts() {
-			if ($scope.newGroup.addedDepts && $scope.newGroup.addedDepts.length > 0) {
-				return true;
-			} else {
-				alert('You need add some depertment which this new group belongs to.');
-				return false;
-			}
-		}
-
-		function validateGroupInfo() {
-			var isValidate = true,
-				msg = 'Something wrong. Please check these point: ';
-			if($scope.newGroup.groupName == ''){
-				isValidate = false;
-				msg += ' ~the group name is neccessary for new group.';
-			}
-			if(isExistedName()){
-				isValidate = false;
-				msg +='  ~the group name is existed.';
-			}
-			if($scope.newGroup.addedRoles.length == 0){
-				isValidate = false;
-				msg +=' ~the role is neccessary for new group.';
-			}
-			if(!isValidate){
-				alert(msg);
-			}
-			return isValidate;
-
-		}
-
-		function validateRolePermission() {
-			return true;
-		}
-
-		function finalValidate() {
-			return true;
+			return step[stepNo].validateBeforeNext();
 		}
 
 		function Test(step){
-			$scope.newGroup = {
+			
+		}
+
+		Test(3)
+		
+		function initialProcess(stepNo){
+			if(!stepNo){
+				$scope.currentStep = 1;
+				
+			}else{
+				$scope.newGroup = {
 					addedDepts: [
-						{
-							office: {id:19,name:'kc'},
-							dept: {id:4,name:'IT'}
-						}
+					{
+						office: {id:19,name:'kc'},
+						dept: {id:4,name:'IT'}
+					}
 					],
 					addedDeptsChanged: true,
 					groupName: '',
 					addedRoles:[
-						{
-							name:'Manager',
-							permission:[]
-						},
-						{
-							name:'programmer',
-							permission:[]
-						}
+					{
+						name:'Manager',
+						permission:[]
+					},
+					{
+						name:'programmer',
+						permission:[]
+					}
 					]
-			};
+				};
 
-			$scope.currentStep = step;
+				$scope.currentStep = stepNo;
+			}
+
+			step[$scope.currentStep.toString()].initialCSS();
+			step[$scope.currentStep.toString()].initialData();
 		}
+		
 
-		Test(3)
+		//initialStepCSS($scope.currentStep);
+		
+		initialProcess(3);
+		
 
-		initialStepCSS($scope.currentStep);
+		
 
 
 	});

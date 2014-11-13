@@ -21,9 +21,9 @@ exports.getConcernedGroupNames = function(info, callback) {
 }
 
 exports.getAllPermissionCategories = function(callback){
-	db.querySQL('SELECT * FROM PermissionCategories',callback);
+	db.querySQL('SELECT Id AS id, Name AS name, Description AS description FROM PermissionCategories',callback);
 }
 
 exports.getAllPermissions = function(callback){
-	db.querySQL('SELECT * FROM Permissions',callback);
+	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, CategoryId AS categoryId FROM Permissions',callback);
 }

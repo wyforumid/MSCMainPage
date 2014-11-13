@@ -131,7 +131,7 @@ function getAPIData(req, res, getFunc) {
 			}
 		],
 		function(err, result) {
-			res.writeHead(200);
+			res.writeHead(404);
 			res.write(err ? err.toString() : '');
 			res.end();
 		});
