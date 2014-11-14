@@ -90,12 +90,23 @@ router.route('/permission/:actionName')
 			case 'ALLPERMISSIONCATEGORIES':
 				getAllPermissionCategories(req, res);
 				break;
+			case 'OWNPERMISSIONS':
+				getOwnPermission(req,res);
+				break;
 			default:
 				res.response.writeHead(404);
 				res.write();
 				res.end();
 		}
 	});
+
+function getOwnPermission(req,res){
+	getAPIData(req,res,function(cb){
+		permissionAPI.getOwnPermission(req.query.id,function(err,data){
+			cb(err,data);
+		})
+	});
+}
 
 function getAllPermissions(req, res) {
 	getAPIData(req, res, function(cb) {

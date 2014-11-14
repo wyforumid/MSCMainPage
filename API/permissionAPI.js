@@ -21,9 +21,18 @@ exports.getConcernedGroupNames = function(info, callback) {
 }
 
 exports.getAllPermissionCategories = function(callback){
-	db.querySQL('SELECT Id AS id, Name AS name, Description AS description FROM PermissionCategories',callback);
+	db.querySQL('SELECT Id AS id, Name AS name, Description AS description FROM PermissionCategory',callback);
 }
 
 exports.getAllPermissions = function(callback){
-	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, CategoryId AS categoryId FROM Permissions',callback);
+	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, CategoryId AS categoryId FROM Permission',callback);
+}
+
+exports.getOwnPermission = function(userId, callback){
+	var params = [];
+	if(!userId){
+		return null;
+	}
+	params.push(new Parameter('userId',mssql.Int,userId));
+	db.querySP('SP_GetOwnPermission',params,callback);
 }
