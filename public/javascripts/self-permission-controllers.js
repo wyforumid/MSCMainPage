@@ -387,11 +387,11 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 				case 2:
 				case 3:
 				$('#preBtn').prop('disabled', false);
-				$('#nextBtn').prop('disabled', false);
+				$('#nextBtn').text('next step').prop('disabled', false);
 				break;
 				case 4:
 				$('#preBtn').prop('disabled', false);
-				$('#nextBtn').prop('disabled', true);
+				$('#nextBtn').text('Finish').prop('disabled', false);
 				break;
 			}
 			var i = 1,
