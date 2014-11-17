@@ -27,16 +27,42 @@ router.route('/company/:actionName')
 		}
 	});
 
-router.route('/user')
+router.route('/user/:actionName')
 	.put(function(req, res, next) {
 		resetPassword(req, res);
 	})
 	.post(function(req, res, next) {
-		registUser(req, res);
+		switch(req.params.actionName.toUpperCase()){
+			case 'LOGIN':
+			Login(req,res);
+			break;
+			case 'REGIST':
+			registUser(req, res);
+			break;
+		}
+		
+	})
+	.get(function(req,res,next){
+		if(req.params){
+
+		}else{
+
+		}
 	});
 
 module.exports = router;
 
+
+
+function Login(req,res){
+	async.waterfall([
+		function(cb){
+			userAPI.login(req.body.userName,req.body.password,req.ip,cb);
+		}
+	],function(err,data){
+
+	});
+}
 
 function registUser(req, res) {
 	getAPIData(req, res, function(cb) {
