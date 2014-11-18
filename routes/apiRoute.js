@@ -32,20 +32,20 @@ router.route('/user/:actionName')
 		resetPassword(req, res);
 	})
 	.post(function(req, res, next) {
-		switch(req.params.actionName.toUpperCase()){
+		switch (req.params.actionName.toUpperCase()) {
 			case 'LOGIN':
-			Login(req,res);
-			break;
+				Login(req, res);
+				break;
 			case 'REGIST':
-			registUser(req, res);
-			break;
+				registUser(req, res);
+				break;
 		}
-		
-	})
-	.get(function(req,res,next){
-		if(req.params){
 
-		}else{
+	})
+	.get(function(req, res, next) {
+		if (req.params) {
+
+		} else {
 
 		}
 	});
@@ -54,14 +54,25 @@ module.exports = router;
 
 
 
-function Login(req,res){
-	async.waterfall([
-		function(cb){
-			userAPI.login(req.body.userName,req.body.password,req.ip,cb);
-		}
-	],function(err,data){
+function Login(req, res) {
 
-	});
+	getAPIData(req, res, function(cb) {
+		userAPI.login(req.body.userName, req.body.password, req.ip, function(err, data) {
+			try {
+				cb(err, data);
+			} catch (e) {
+				cb(e, data);
+			}
+		});
+	})
+
+	// async.waterfall([
+	// 	function(cb){
+	// 		userAPI.login(req.body.userName,req.body.password,req.ip,cb);
+	// 	}
+	// ],function(err,data){
+
+	// });
 }
 
 function registUser(req, res) {
@@ -133,7 +144,7 @@ router.route('/permission/:actionName')
 				getAllPermissionCategories(req, res);
 				break;
 			case 'OWNPERMISSIONS':
-				getOwnPermission(req,res);
+				getOwnPermission(req, res);
 				break;
 			default:
 				res.response.writeHead(404);
@@ -142,10 +153,10 @@ router.route('/permission/:actionName')
 		}
 	});
 
-function getOwnPermission(req,res){
-	getAPIData(req,res,function(cb){
-		permissionAPI.getOwnPermission(req.query.id,function(err,data){
-			cb(err,data);
+function getOwnPermission(req, res) {
+	getAPIData(req, res, function(cb) {
+		permissionAPI.getOwnPermission(req.query.id, function(err, data) {
+			cb(err, data);
 		})
 	});
 }

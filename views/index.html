@@ -59,32 +59,44 @@ angular.module('mainApp',[])
 	$scope.userName = '';
 	$scope.password = '';
 
-	//$.cookie('user',JSON.stringify($rootScope.userInfo),{expire:7});
+		$scope.forgotPassword = function(){
+			window.location = 'main#/USER/ForgetPassword';
+		};
 
-	$scope.forgotPassword = function(){
-		window.location = 'main#/USER/ForgetPassword';
-	};
 
-	$scope.login = function(){
-			//Ajax to validate
+		$scope.login = function() {
+
 			$http({
 				method:'POST',
 				url:'/API/user/LOGIN',
 				data:{
-						userName:$scope.userName,
-						password:$scope.password
+					userName:$scope.userName,
+					password:$scope.password
 				},
 				cache:false
-			}).succsess(function(data,status){
-				alert(data);
-			}).error(function(data,status){
+			}).success(function(data, status) {
+
+				//console.log(data);
+				switch (data[0].result) {
+					case 1:
+						$.cookie('user',JSON.stringify({ userName: $scope.userName, cacheId:data[0].cacheId }), {expire:7});
+						window.location = '/main';
+						break;
+					default:
+						alert(data[0].msg);	
+						break;
+				}
+
+			}).error(function(data, status) {
 				alert(data);
 			});
-			window.location = '/main';
-		}
+		};
+
+
 		$scope.registUser = function(){
 			window.location = 'main#/USER/Regist';
-		}
+		};
+
 	})
 </script>
 </body>

@@ -31,5 +31,5 @@ exports.login = function(userName, password,ip,callback){
 	params.push(new Parameter('userName',mssql.NVarChar(15),_s.trim(userName)));
 	params.push(new Parameter('password',mssql.NVarChar(32),_s.trim(password)));
 	params.push(new Parameter('ip',mssql.NVarChar(15),_s.trim(ip)));
-	db.querySP('SP_GetUserPasswordByName',params, callback);
+	db.querySP('SP_Login',params, callback);
 }
