@@ -12,8 +12,15 @@ exports.registUser = function(loginName, fullName, email, officeId, deptId, call
 	db.querySP('SP_RegistUser', params, callback);
 }
 
-exports.resetPassword = function(email,callback){
+exports.resetPassword = function(email, callback) {
 	var params = [];
-	params.push(new Parameter('email',mssql.NVarChar(200),email));
-	db.querySP('SP_RetPassword',params,callback);
+	params.push(new Parameter('email', mssql.NVarChar(200), email));
+	db.querySP('SP_ResetPassword', params, callback);
+}
+
+exports.forceResetPassword = function(loginName, newPassword, callback) {
+	var params = [];
+	params.push(new Parameter('loginName', mssql.NVarChar(15), loginName));
+	params.push(new Parameter('newPassword', mssql.NVarChar(32), newPassword));
+	db.querySP('SP_ForceResetPassword', params, callback);
 }

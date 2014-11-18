@@ -163,11 +163,10 @@ angular.module('selfControllers', ['selfServices'])
 
 		$scope.resetPassword = function(email) {
 
-			$scope.formZone.isDisable = true;
-			$scope.formZone.resetPasswordButton.text = "Reset password......";
+			setResetPasswordStyle("processing");
 
 			var updateUser = {
-				updateMode: "password", //updateMode: ["all", "password"]
+				updateMode: "password", //updateMode: ["all", "force", "password"]
 				user: {
 					email: email
 				}
@@ -186,13 +185,84 @@ angular.module('selfControllers', ['selfServices'])
 					$scope.formZone.message = data[0].info;
 				}
 
-				$scope.formZone.isDisable = false;
-				$scope.formZone.resetPasswordButton.text = "Reset password";
+				setResetPasswordStyle("processed");
 
 			}).error(function(data, status) {
-				alert(data);
+				$scope.formZone.message = status + " - " + data;
 			});
 
 		};
+
+		function setResetPasswordStyle(currentAction) {
+			switch (currentAction) {
+				case "processing":
+					$scope.formZone.isDisable = true;
+					$scope.formZone.resetPasswordButton.text = "Reset password......";
+					break;
+				case "processed":
+					$scope.formZone.isDisable = false;
+					$scope.formZone.resetPasswordButton.text = "Reset password";
+					break;
+			}
+		}
+
+	})
+	.controller('UserForceResetPasswordCtrl', function($scope, $http, $rootScope) {
+
+		$scope.formZone = {
+			isDisable: false,
+			confirmPasswordButton: {
+				text: "Confirm"
+			},
+			message: ""
+		};
+
+
+		$scope.forceResetPassword = function(newPassword) {
+
+			setForceResetPasswordStyle("processing");
+
+			var updateUser = {
+				updateMode: "force", //updateMode: ["all", "force", "password"]
+				user: {
+					loginName: $rootScope.userInfo.userName,
+					newPassword: newPassword
+				}
+			}
+	
+			$http({
+				method: 'PUT',
+				url: '/API/user',
+				data: updateUser
+			}).success(function(data, status) {
+
+				if (data[0].info === "") {
+					alert("Your password already updated, please re-login.");
+					window.location = "/";
+				} else {
+					$scope.formZone.message = data[0].info;
+				}
+
+				setForceResetPasswordStyle("processed");
+
+			}).error(function(data, status) {
+				$scope.formZone.message = status + " - " + data;
+			});
+
+		};
+
+
+		function setForceResetPasswordStyle(currentAction) {
+			switch (currentAction) {
+				case "processing":
+					$scope.formZone.isDisable = true;
+					$scope.formZone.confirmPasswordButton.text = "Confirm......";
+					break;
+				case "processed":
+					$scope.formZone.isDisable = false;
+					$scope.formZone.confirmPasswordButton.text = "Confirm";
+					break;
+			}
+		}
 
 	});

@@ -61,18 +61,34 @@ function registUser(req, res) {
 
 function resetPassword(req, res) {
 
-	if (req.body.updateMode === "password") {
-		getAPIData(req, res, function(cb) {
-			userAPI.resetPassword(req.body.user.email, function(err, data) {
-				try {
-					cb(err, data);
-				} catch (e) {
-					cb(e, data);
-				}
+	switch (req.body.updateMode) {
+		case "force":
+			getAPIData(req, res, function(cb) {
+				userAPI.forceResetPassword(req.body.user.loginName, req.body.user.newPassword,
+					function(err, data) {
+						try {
+							cb(err, data);
+						} catch (e) {
+							cb(e, data);
+						}
+					}
+				);
 			});
-		});
-	} else if (req.body.updateMode === "all") {
-		//update user of all field 
+			break;
+		case "password":
+			getAPIData(req, res, function(cb) {
+				userAPI.resetPassword(req.body.user.email, function(err, data) {
+					try {
+						cb(err, data);
+					} catch (e) {
+						cb(e, data);
+					}
+				});
+			});
+			break;
+		case "all":
+
+			break;
 	}
 
 }

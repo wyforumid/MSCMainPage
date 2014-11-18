@@ -69,6 +69,11 @@
 					controller: 'UserForgotPassowrdCtrl',
 					caseInsensitiveMatch:true
 				})
+				.when('/USER/ForceResetPassword', {
+					templateUrl:'/partialviews/forceResetPassword.html',
+					controller: 'UserForceResetPasswordCtrl',
+					caseInsensitiveMatch:true
+				})
 				.when('/Permission/Group',{
 					templateUrl:'/partialviews/permission/group.html',
 					controller:'permissionGroupCtrl',
@@ -77,7 +82,9 @@
 			}])
 			.controller('navCtrl',function($scope,$rootScope){
 				$rootScope.userInfo = {
-					userName:'Manager',				
+					fullName:'Lyle Zhan',
+					email:'lzhan@sprc.mschkg.com',
+					userName:'lzhan',
 					menu:[
 					'SI'
 					],
@@ -91,34 +98,34 @@
 					}
 				};
 
-				$rootScope.userInfo = {
-					userName:'Indexer',				
-					menu:[
-					'SI'
-					],
-					Role:'Indexer',
-					permission:{
-						canFilter:true,
-						canSearch:true,
-						canDispath:true,
-						canAssign:false,
-						canFinish:false
-					}
-				};
-				$rootScope.userInfo = {
-					userName:'Dispather',				
-					menu:[
-					'SI'
-					],
-					Role:'Dispather',
-					permission:{
-						canFilter:true,
-						canSearch:true,
-						canDispath:false,
-						canAssign:true,
-						canFinish:false
-					}
-				};
+				// $rootScope.userInfo = {
+				// 	userName:'Indexer',				
+				// 	menu:[
+				// 	'SI'
+				// 	],
+				// 	Role:'Indexer',
+				// 	permission:{
+				// 		canFilter:true,
+				// 		canSearch:true,
+				// 		canDispath:true,
+				// 		canAssign:false,
+				// 		canFinish:false
+				// 	}
+				// };
+				// $rootScope.userInfo = {
+				// 	userName:'Dispather',				
+				// 	menu:[
+				// 	'SI'
+				// 	],
+				// 	Role:'Dispather',
+				// 	permission:{
+				// 		canFilter:true,
+				// 		canSearch:true,
+				// 		canDispath:false,
+				// 		canAssign:true,
+				// 		canFinish:false
+				// 	}
+				// };
 
 				// if(JSON.parse($.cookie('user')).name == 'Guest'){
 				// 	$rootScope.userInfo ={
