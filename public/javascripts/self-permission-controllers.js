@@ -16,6 +16,8 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 		originPermissions : [],
 		originCategories : [],
 		categoriedPermission : [],
+		displayedPermission : [],
+		ownPermissions :[],
 		categoringPermission : function(){
 			$.each($scope.permissionInfo.originCategories,function(ci,cv){
 				$scope.permissionInfo.categoriedPermission.push({
@@ -29,13 +31,25 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 							theOne.push({
 							id:pv.id,
 							name:pv.name,
-							description:pv.description
+							description:pv.description,
+							disabled: ($scope.permissionInfo.ownPermissions.indexOf(pv.id) == -1),
+							checked:false
 						});
 					}
 					
 				});
 			});
 
+			$scope.permissionInfo.displayedPermission = $scope.permissionInfo.categoriedPermission;
+
+			$.each($scope.newGroup.addedRoles,function(i,v){
+				if(v.permission && v.permission.length > 0){
+					return true;
+				}else{
+					v.permission = copyCategoryPermission();
+
+				}
+			});
 		} 
 	}
 
@@ -49,7 +63,7 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 	$scope.selectedOffice = {};
 	$scope.selectedDept = {};
 	$scope.newRoleName ='';
-
+	$scope.selectedRoleIndex = 0;
 	var step = {
 			1:{
 				initialCSS:function(){
@@ -147,14 +161,34 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 								},
 								false
 							);
+						},
+						function(callback){
+							$http({
+								method:'GET',
+								url:'/API/permission/OWNPERMISSIONS',
+								cache:false,
+								params:{id:1365},
+
+							}).success(function(data,status){
+								$scope.permissionInfo.ownPermissions =  $.map(data,function(v,i){
+									return v.PermissionId;
+								});
+								callback(null,data);
+							}).error(function(data,status){
+								alert('Fail to fetch your own permissions.');
+								callback(data,status);
+							});
 						}
 					],
 					function(err,results){
-						$scope.permissionInfo.categoringPermission();
+						if(err){
+							alert('Loading data is error. Please pre and then next to this step again.');
+						}else{
+							$scope.permissionInfo.categoringPermission();
+							$scope.selectedRoleIndex = 0;
+							initialRolePermission();
+						}
 					})
-					
-
-					
 				},
 				validateBeforeNext:function(){
 					return true;
@@ -170,6 +204,21 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 				}
 			}
 		}
+
+
+	$scope.showRolePermission = function(index){
+		$scope.selectedRoleIndex = index;
+		initialRolePermission();
+	}
+
+	$scope.changedPermissionCount = function(value){
+		if(value){
+			$scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount++;	
+		}else{
+			$scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount--;
+		}
+		
+	}
 
 	$scope.addDept = function() {
 		if ($scope.selectedOffice && $scope.selectedDept && $scope.selectedOffice.id && $scope.selectedDept.id) {
@@ -256,6 +305,42 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 
 	}
 
+	function initialRolePermission(){
+		if($scope.newGroup.addedRoles[$scope.selectedRoleIndex]){
+			$scope.permissionInfo.displayedPermission = $scope.newGroup.addedRoles[$scope.selectedRoleIndex].permission;
+			$.each($scope.newGroup.addedRoles,function(i,v){
+				if(i != $scope.selectedRoleIndex){
+					v.edit = false;
+				}else{
+					v.edit = true;
+				}
+			});
+		}else{
+			$scope.selectedRoleIndex = 0;
+		}
+	}
+
+	function copyCategoryPermission(){
+		var temp = [];
+		$.each($scope.permissionInfo.categoriedPermission,function(ci,cv){
+			temp.push({
+				categoryId:cv.categoryId,
+				categoryName:cv.categoryName,
+				permissions:[]
+			});
+			var theOne = temp[temp.length-1];
+			$.each(cv.permissions,function(pi,pv){
+				theOne.permissions.push({
+					id:pv.id,
+					name:pv.name,
+					description:pv.description,
+					disabled:pv.disabled,
+					checked:pv.checked
+				});
+			});
+		});
+		return temp;
+	}
 
 
 	function getConcernedGroupName(){
@@ -302,11 +387,11 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 				case 2:
 				case 3:
 				$('#preBtn').prop('disabled', false);
-				$('#nextBtn').prop('disabled', false);
+				$('#nextBtn').text('next step').prop('disabled', false);
 				break;
 				case 4:
 				$('#preBtn').prop('disabled', false);
-				$('#nextBtn').prop('disabled', true);
+				$('#nextBtn').text('Finish').prop('disabled', false);
 				break;
 			}
 			var i = 1,
@@ -353,15 +438,19 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 					}
 					],
 					addedDeptsChanged: true,
-					groupName: '',
+					groupName: 'Test',
 					addedRoles:[
 					{
 						name:'Manager',
-						permission:[]
+						edit:false,
+						permission:[],
+						selectedCount : 0
 					},
 					{
 						name:'programmer',
-						permission:[]
+						edit:false,
+						permission:[],
+						selectedCount : 0
 					}
 					]
 				};

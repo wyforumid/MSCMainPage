@@ -56,7 +56,7 @@ angular.module('selfControllers', ['selfServices'])
 
 			$http({
 				method: 'POST',
-				url: '/API/user',
+				url: '/API/user/REGIST',
 				data: $scope.registUserInfo
 			}).success(function(data, status) {
 				//alert(data);
