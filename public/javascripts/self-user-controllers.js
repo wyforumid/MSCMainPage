@@ -174,7 +174,7 @@ angular.module('selfControllers', ['selfServices'])
 
 			$http({
 				method: 'PUT',
-				url: '/API/user',
+				url: '/API/user/RESETPWD',
 				data: updateUser
 			}).success(function(data, status) {
 
@@ -232,7 +232,7 @@ angular.module('selfControllers', ['selfServices'])
 	
 			$http({
 				method: 'PUT',
-				url: '/API/user',
+				url: '/API/user/MODIFYPWD',
 				data: updateUser
 			}).success(function(data, status) {
 
