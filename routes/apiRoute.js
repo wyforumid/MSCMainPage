@@ -33,9 +33,9 @@ router.route('/user/:actionName')
 	})
 	.post(function(req, res, next) {
 		switch(req.params.actionName.toUpperCase()){
-			case 'LOGIN':
-			Login(req,res);
-			break;
+			// case 'LOGIN':
+			// Login(req,res);
+			// break;
 			case 'REGIST':
 			registUser(req, res);
 			break;
