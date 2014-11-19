@@ -18,19 +18,19 @@ var app = express();
 
 
 passport.use('local', new passportLocal({
-    passReqToCallback : true,
-    usernameField : 'userName',
-    passwordField : 'password'
-},
-function(req,username,password,verified){
-    async.waterfall([
-        function(cb){
-            userAPI.login(username,password,req.ip,cb);
-        }
-    ],function(err,data){
-        verified(err,data,null);
-    });
-}));
+        passReqToCallback: true,
+        usernameField: 'userName',
+        passwordField: 'password'
+    },
+    function(req, username, password, verified) {
+        async.waterfall([
+            function(cb) {
+                userAPI.login(username, password, req.ip, cb);
+            }
+        ], function(err, data) {
+            verified(err, data, null);
+        });
+    }));
 
 
 
@@ -45,10 +45,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(session({
-    secret:'Just kidding you',
-    resave:true,
-    saveUninitialized:true,
-    cookie:{
+    secret: 'Just kidding you',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
         maxAge: 10 * 60 * 60 * 1000
     }
 }));
@@ -57,14 +57,43 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+
+passport.serializeUser(function(user,done){
+    done(null,JSON.stringify(user));
+});
+
+passport.deserializeUser(function(id,done){
+    done(null,id);
+});
+
 app.use('/', freeRoutes);
-app.use('/API/user/LOGIN',passport.authenticate('local'))
-app.use('/',function(req,res,next){
-    if(req.isAuthenticated()){
-        next();
+app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
+    if (arguments.length == 4) {
+        req.logIn(
+            data[0].cacheId
+        , function() {res.redirect('/main')});
+        // res.writeHead(200, {
+        //     "Content-Type": "application/json"
+        // });
+        // res.write(JSON.stringify(data[0].cacheId));
+        // res.end();
+    } else {
+        res.writeHead(200, {
+            "Content-Type": "application/json"
+        });
+        res.write('');
+        res.end();
     }
 
-    res.redirect('/');
+}));
+app.use('/', function(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
+    }else{
+        res.redirect('/');    
+    }
+
+    
 });
 app.use('/main', routes);
 app.use('/API', apiRoute);
