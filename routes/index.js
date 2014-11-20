@@ -11,6 +11,11 @@ router.get('/', function(req, res) {
 	res.render('main.html');
 });
 
+router.get('/Logout',function(req,res){
+	req.logout();
+	res.redirect('/');
+});
+
 
 
 module.exports = router;

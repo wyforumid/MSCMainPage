@@ -58,20 +58,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-passport.serializeUser(function(user,done){
-    done(null,JSON.stringify(user));
+passport.serializeUser(function(user, done) {
+    done(null, JSON.stringify(user));
 });
 
-passport.deserializeUser(function(id,done){
-    done(null,id);
+passport.deserializeUser(function(id, done) {
+    done(null, id);
 });
 
 app.use('/', freeRoutes);
 app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
     if (arguments.length == 4) {
+        res.cookie('userInfo', JSON.stringify({
+            loginName: req.body.userName
+        }));
         req.logIn(
-            data[0].cacheId
-        , function() {res.redirect('/main')});
+            data[0].cacheId,
+            function() {
+                res.redirect('/main')
+            });
         // res.writeHead(200, {
         //     "Content-Type": "application/json"
         // });
@@ -89,11 +94,11 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
 app.use('/', function(req, res, next) {
     if (req.isAuthenticated()) {
         next();
-    }else{
-        res.redirect('/');    
+    } else {
+        res.redirect('/');
     }
 
-    
+
 });
 app.use('/main', routes);
 app.use('/API', apiRoute);

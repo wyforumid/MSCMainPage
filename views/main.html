@@ -31,8 +31,8 @@
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="#">{{userInfo.userName}}</a></li>
-				<li><a href='#' style="margin-right: 50px;">Logout</a></li>
+				<li><a href="#">{{userInfo.loginName}}</a></li>
+				<li><a href='/main/logout' style="margin-right: 50px;">Logout</a></li>
 			</ul>
 		</nav>
 		<div ng-view>
@@ -81,22 +81,23 @@
 				});
 			}])
 			.controller('navCtrl',function($scope,$rootScope){
-				$rootScope.userInfo = {
-					fullName:'Lyle Zhan',
-					email:'lzhan@sprc.mschkg.com',
-					userName:'lzhan',
-					menu:[
-					'SI'
-					],
-					Role:'Manager',
-					permission:{
-						canFilter:true,
-						canSearch:true,
-						canDispath:true,
-						canAssign:true,
-						canFinish:true
-					}
-				};
+				$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
+				// $rootScope.userInfo = {
+				// 	fullName:'Lyle Zhan',
+				// 	email:'lzhan@sprc.mschkg.com',
+				// 	userName:'lzhan',
+				// 	menu:[
+				// 	'SI'
+				// 	],
+				// 	Role:'Manager',
+				// 	permission:{
+				// 		canFilter:true,
+				// 		canSearch:true,
+				// 		canDispath:true,
+				// 		canAssign:true,
+				// 		canFinish:true
+				// 	}
+				// };
 
 				// $rootScope.userInfo = {
 				// 	userName:'Indexer',				
