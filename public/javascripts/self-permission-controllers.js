@@ -13,6 +13,7 @@ angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 	};
 
 	$scope.permissionInfo ={
+		// displayedPermissionSelectedCount : 0,
 		originPermissions : [],
 		originCategories : [],
 		categoriedPermission : [],
@@ -308,6 +309,7 @@ angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 	function initialRolePermission(){
 		if($scope.newGroup.addedRoles[$scope.selectedRoleIndex]){
 			$scope.permissionInfo.displayedPermission = $scope.newGroup.addedRoles[$scope.selectedRoleIndex].permission;
+			// $scope.permissionInfo.displayedPermissionSelectedCount = $scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount;
 			$.each($scope.newGroup.addedRoles,function(i,v){
 				if(i != $scope.selectedRoleIndex){
 					v.edit = false;

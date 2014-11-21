@@ -82,9 +82,12 @@ angular.module('selfDirectives', [])
 			// 			}, true)
 			// },
 			scope: {
-				data: '=categoriedpermissions'
+				data: '=categoriedpermissions',
+				selectedCount : '=selectedcount',
+				changedPermissionCount : '&selectedcountchange'
 			},
 			restrict: 'A',
-			templateUrl: '/partialviews/permission/permissionTemplate.html'
+			templateUrl: '/partialviews/permission/permissionTemplate.html',
+			
 		}
 	});
