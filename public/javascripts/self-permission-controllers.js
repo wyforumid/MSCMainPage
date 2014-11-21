@@ -1,4 +1,4 @@
-angular.module('selfPermissionCtrls', ['selfServices'])
+angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 .controller('permissionGroupCtrl', function($scope, fundationService, $http) {
 	$('#navTab a').click(function(e) {
 		e.preventDefault();
