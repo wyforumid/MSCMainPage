@@ -28,7 +28,11 @@ passport.use('local', new passportLocal({
                 userAPI.login(username, password, req.ip, cb);
             }
         ], function(err, data) {
-            verified(err, data, null);
+            if (data[0].cacheId == '') {
+                verified(null, null, 'Wrong login name or wrong password.');
+            } else {
+                verified(err, data, null);
+            }
         });
     }));
 
@@ -75,7 +79,10 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
         req.logIn(
             data[0].cacheId,
             function() {
-                res.redirect('/main')
+                //res.redirect('/main')
+                res.writeHead(200);
+                res.write('1');
+                res.end();
             });
         // res.writeHead(200, {
         //     "Content-Type": "application/json"
@@ -83,11 +90,10 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
         // res.write(JSON.stringify(data[0].cacheId));
         // res.end();
     } else {
-        res.writeHead(200, {
-            "Content-Type": "application/json"
-        });
-        res.write('');
+        res.writeHead(200);
+        res.write('0');
         res.end();
+        // res.redirect('?loginName='+req.body.userName);
     }
 
 }));
