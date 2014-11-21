@@ -170,8 +170,337 @@
 							</div>
 						</div>
 					</div>
+
+
+
 					<div style="margin-top: 20px; height: 400px; display:none" id="step4Container">
-						step4
+
+					<div class="col-md-5" style="float:left;">
+						<div class="form-inline" >
+							<div class="form-group">
+							    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+									<option value="">---Offices---</option>
+								</select>
+						  	</div>
+						  	<div class="form-group">
+						  		<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+									<option value="">---Departments---</option>
+								</select>
+						  	</div>
+						  	<div class="form-group">
+						  		<button class="btn btn-primary btn-sm">Search</button>
+						  	</div>
+						</div>
+						<div style="overflow-y:auto; height: 100%; width: 100%;">
+							<table class="table table-condensed" style="font-size: x-small;">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Full Name</th>
+										<th>Email</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+									<tr>
+										<td>1</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>+</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+						
+					<div class="col-md-7">
+						<div class="form-inline">
+							<table class="table table-condensed" style="font-size: x-small;">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Full Name</th>
+										<th>Email</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>-</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>
+											<lable for="ManagerId">Manager</lable>
+											<input type="checkbox" id="ManagerId" />
+											<lable for="programmerId">programmer</lable>
+											<input type="checkbox" id="programmerId" />
+										</td>
+									</tr>
+								</tbody>
+							</table>	
+						</div>
+					</div>
+					
+						
+					
+						<!-- <div class="form-horizontal col-md-5" style="border-right: 1px solid #cecece; height: 100%">
+							<div class="form-inline">
+								<div class="form-group col-md-4">
+									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+										<option value="">---Offices---</option>
+									</select>
+								</div>
+								<div class="form-group col-md-6">
+									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+										<option value="">---Departments---</option>
+									</select>
+								</div>
+								<div class="form-group col-md-2">
+									<button class="btn btn-primary btn-sm">Search</button>
+								</div>
+							</div>
+
+							<div class="form-inline" style="overflow: scroll; height: 100px; width: 100px;">
+								<table class="table table-condensed" style="font-size: x-small;">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Full Name</th>
+											<th>Email</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+										<tr>
+											<td>1</td>
+											<td>Mark Otto</td>
+											<td>test@gmail.com</td>
+											<td>+</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+						</div>
+
+						<div class="form-horizontal col-md-6">
+							<table class="table table-condensed" style="font-size: x-small;">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Full Name</th>
+										<th>Email</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>-</td>
+										<td>Mark Otto</td>
+										<td>test@gmail.com</td>
+										<td>
+											<lable for="ManagerId">Manager</lable>
+											<input type="checkbox" id="ManagerId" />
+											<lable for="programmerId">programmer</lable>
+											<input type="checkbox" id="programmerId" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div> -->
 					</div>
 					<div>
 						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn">pre step</button>
