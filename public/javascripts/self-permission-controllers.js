@@ -181,7 +181,7 @@ angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 						function(callback){
 							$http({
 								method:'GET',
-								url:'/API/permission/OWNPERMISSIONS',
+								url:'/restfulAPI/permission/OWNPERMISSIONS',
 								cache:false,
 								params:{id:1365},
 
@@ -363,7 +363,7 @@ angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 	function getConcernedGroupName(){
 		$http({
 			method: 'GET',
-			url: '/API/permission/CONCERNEDGROUPNAMES',
+			url: '/restfulAPI/permission/CONCERNEDGROUPNAMES',
 			cache: false,
 				params: {info : JSON.stringify($scope.newGroup.addedDepts)} //JSON.stringify($scope.addedDepts)
 			}).success(function(data, status) {

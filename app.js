@@ -12,6 +12,8 @@ var async = require('async');
 var routes = require('./routes/index');
 var freeRoutes = require('./routes/freeRoute');
 var apiRoute = require('./routes/apiRoute');
+var restfullRoute = require('./routes/RESTfulRoute');
+
 var userAPI = require('./API/userAPI');
 
 var app = express();
@@ -97,18 +99,19 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
     }
 
 }));
-app.use('/', function(req, res, next) {
-    if (req.isAuthenticated()) {
-        next();
-    } else {
-        res.redirect('/');
-    }
+// app.use('/', function(req, res, next) {
+//     if (req.isAuthenticated()) {
+//         next();
+//     } else {
+//         res.redirect('/');
+//     }
 
 
-});
+// });
+
 app.use('/main', routes);
 app.use('/API', apiRoute);
-
+app.use('/restfulAPI', restfullRoute);
 
 
 /// catch 404 and forward to error handler
