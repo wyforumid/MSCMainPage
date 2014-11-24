@@ -1,4 +1,4 @@
-angular.module('selfControllers', ['selfServices'])
+angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 	.controller('UserCtrl', function($scope, fundationService, $http) {
 		$scope.registUserInfo = {
 			fullName: '',
@@ -229,7 +229,7 @@ angular.module('selfControllers', ['selfServices'])
 					newPassword: newPassword
 				}
 			}
-	
+
 			$http({
 				method: 'PUT',
 				url: '/API/user/MODIFYPWD',
@@ -265,4 +265,27 @@ angular.module('selfControllers', ['selfServices'])
 			}
 		}
 
+	})
+	.controller('mainCtrl', function($scope) {
+
+	})
+	.controller('calendarCtrl', function($scope) {
+		$scope.calendarConfig = {
+			calendar: {
+				// height: 100 % ,
+				height: 500,
+				editable: false,
+				header: {
+					left: 'month',
+					center: 'title',
+					right: 'today prev next'
+				},
+				//dayClick: $scope.dayClick
+				dayClick: function(date, jsEvent, view) {
+					alert(date.format('YYYYMMDD'));
+				}
+			}
+		}
+
+		$scope.colleagueSource = [];
 	});

@@ -1,0 +1,40 @@
+<div class="col-md-offset-1 col-md-10 main-container">	
+	<div class="panel-group" id="permission" role="tablist" aria-multiselectable="true">
+		<div class="panel panel-default">
+			<div class="panel-heading" role="tab" id="category">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-target="#categoryArea" aria-expanded="true" aria-controls="categoryArea">
+						Add category
+					</a>
+				</h4>
+			</div>
+			<div id="categoryArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="category">
+				<div class="panel-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label class="col-md-2 control-label">Category Name :</label>
+							<div class="col-md-6">
+								<input type="text" class="form-control" ng-model="newCategoryName">
+							</div>
+							<button class="btn btn-primary btn-lg" ng-click="AddCategory()">Add</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading" role="tab" id="permission">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-target="#permissionArea" aria-expanded="true" aria-controls="categoryArea">
+						Permission
+					</a>
+				</h4>
+			</div>
+			<div id="permissionArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="permission">
+				<div class="panel-body">
+					Permissions
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -26,13 +26,14 @@
 					<a href="" class="dropdown-toggle" data-toggle="dropdown">Permission System<span  class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-							<a ng-href="#Permission/Group" >Group</a>
+							<a href="#Permission/Group" >Group</a>
+							<a href="#Permission/ModifyPermission">Permission</a>
 						</li>
 					</ul>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="#">{{userInfo.loginName}}</a></li>
+				<li><a href="/user#/calendar">{{userInfo.loginName}}</a></li>
 				<li><a href='/main/logout' style="margin-right: 50px;">Logout</a></li>
 			</ul>
 		</nav>
@@ -54,109 +55,114 @@
 		<script type="text/javascript" src="/javascripts/async.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery.cookie.js"></script>
 		<script type="text/javascript">
-			angular.module('SIApp',['ngRoute','ngGrid','selfControllers','selfSIControllers','selfServices','selfPermissionCtrls','toggle-switch'])
-			.config(['$routeProvider',function($routeProvider){
-				$routeProvider
-				.when('/SI',{
-					templateUrl: '/partialviews/SIMain.html',
-					controller: 'SICtrl',
-					caseInsensitiveMatch: true
-				})
-				.when('/USER/Regist',{
-					templateUrl:'/partialviews/signUp.html',
-					controller: 'UserCtrl',
-					caseInsensitiveMatch:true
-				})
-				.when('/USER/ForgetPassword',{
-					templateUrl:'/partialviews/forgetPassword.html',
-					controller: 'UserForgotPassowrdCtrl',
-					caseInsensitiveMatch:true
-				})
-				.when('/USER/ForceResetPassword', {
-					templateUrl:'/partialviews/forceResetPassword.html',
-					controller: 'UserForceResetPasswordCtrl',
-					caseInsensitiveMatch:true
-				})
-				.when('/Permission/Group',{
-					templateUrl:'/partialviews/permission/group.html',
-					controller:'permissionGroupCtrl',
-					caseInsensitiveMatch:true
-				});
-			}])
-			.controller('navCtrl',function($scope,$rootScope){
-				$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
-				// $rootScope.userInfo = {
-				// 	fullName:'Lyle Zhan',
-				// 	email:'lzhan@sprc.mschkg.com',
-				// 	userName:'lzhan',
-				// 	menu:[
-				// 	'SI'
-				// 	],
-				// 	Role:'Manager',
-				// 	permission:{
-				// 		canFilter:true,
-				// 		canSearch:true,
-				// 		canDispath:true,
-				// 		canAssign:true,
-				// 		canFinish:true
-				// 	}
-				// };
+			angular.module('SIApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSIControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch'])
+				.config(['$routeProvider', function($routeProvider) {
+					$routeProvider
+						.when('/SI', {
+							templateUrl: '/partialviews/SIMain.html',
+							controller: 'SICtrl',
+							caseInsensitiveMatch: true
+						})
+						.when('/USER/Regist', {
+							templateUrl: '/partialviews/signUp.html',
+							controller: 'UserCtrl',
+							caseInsensitiveMatch: true
+						})
+						.when('/USER/ForgetPassword', {
+							templateUrl: '/partialviews/forgetPassword.html',
+							controller: 'UserForgotPassowrdCtrl',
+							caseInsensitiveMatch: true
+						})
+						.when('/USER/ForceResetPassword', {
+							templateUrl: '/partialviews/forceResetPassword.html',
+							controller: 'UserForceResetPasswordCtrl',
+							caseInsensitiveMatch: true
+						})
+						.when('/Permission/Group', {
+							templateUrl: '/partialviews/permission/group.html',
+							controller: 'permissionGroupCtrl',
+							caseInsensitiveMatch: true
+						})
+						.when('/Permission/ModifyPermission', {
+							templateUrl: '/partialviews/permission/ModifyPermission.html',
+							controller: 'permissionCtrl',
+							caseInsensitiveMatch: true
+						});
+				}])
+				.controller('navCtrl', function($scope, $rootScope) {
+					$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
+					// $rootScope.userInfo = {
+					// 	fullName:'Lyle Zhan',
+					// 	email:'lzhan@sprc.mschkg.com',
+					// 	userName:'lzhan',
+					// 	menu:[
+					// 	'SI'
+					// 	],
+					// 	Role:'Manager',
+					// 	permission:{
+					// 		canFilter:true,
+					// 		canSearch:true,
+					// 		canDispath:true,
+					// 		canAssign:true,
+					// 		canFinish:true
+					// 	}
+					// };
 
-				// $rootScope.userInfo = {
-				// 	userName:'Indexer',				
-				// 	menu:[
-				// 	'SI'
-				// 	],
-				// 	Role:'Indexer',
-				// 	permission:{
-				// 		canFilter:true,
-				// 		canSearch:true,
-				// 		canDispath:true,
-				// 		canAssign:false,
-				// 		canFinish:false
-				// 	}
-				// };
-				// $rootScope.userInfo = {
-				// 	userName:'Dispather',				
-				// 	menu:[
-				// 	'SI'
-				// 	],
-				// 	Role:'Dispather',
-				// 	permission:{
-				// 		canFilter:true,
-				// 		canSearch:true,
-				// 		canDispath:false,
-				// 		canAssign:true,
-				// 		canFinish:false
-				// 	}
-				// };
+					// $rootScope.userInfo = {
+					// 	userName:'Indexer',				
+					// 	menu:[
+					// 	'SI'
+					// 	],
+					// 	Role:'Indexer',
+					// 	permission:{
+					// 		canFilter:true,
+					// 		canSearch:true,
+					// 		canDispath:true,
+					// 		canAssign:false,
+					// 		canFinish:false
+					// 	}
+					// };
+					// $rootScope.userInfo = {
+					// 	userName:'Dispather',				
+					// 	menu:[
+					// 	'SI'
+					// 	],
+					// 	Role:'Dispather',
+					// 	permission:{
+					// 		canFilter:true,
+					// 		canSearch:true,
+					// 		canDispath:false,
+					// 		canAssign:true,
+					// 		canFinish:false
+					// 	}
+					// };
 
-				// if(JSON.parse($.cookie('user')).name == 'Guest'){
-				// 	$rootScope.userInfo ={
-				// 		userName:'Guest',
-				// 		menu:[],
-				// 		Role:'Guest',
-				// 		permission:{}
-				// 	}
-				// }
-				
+					// if(JSON.parse($.cookie('user')).name == 'Guest'){
+					// 	$rootScope.userInfo ={
+					// 		userName:'Guest',
+					// 		menu:[],
+					// 		Role:'Guest',
+					// 		permission:{}
+					// 	}
+					// }
 
-				
-			// $rootScope.userInfo = {
-			// 	userName:'Inputter Jason',				
-			// 	menu:[
-			// 		'SI'
-			// 	],
-			// 	Role:'Inputter',
-			// 	permission:{
-			// 		canFilter:true,
-			// 		canSearch:true,
-			// 		canDispath:false,
-			// 		canAssign:false,
-			// 		canFinish:true
-			// 	}
-			// };
-		})
+
+
+					// $rootScope.userInfo = {
+					// 	userName:'Inputter Jason',				
+					// 	menu:[
+					// 		'SI'
+					// 	],
+					// 	Role:'Inputter',
+					// 	permission:{
+					// 		canFilter:true,
+					// 		canSearch:true,
+					// 		canDispath:false,
+					// 		canAssign:false,
+					// 		canFinish:true
+					// 	}
+					// };
+				})
 </script>
 </body>
 </html>
