@@ -155,80 +155,81 @@
 
 					<div style="margin-top: 20px; height: 400px; display:none" id="step4Container">
 
-					<div class="col-md-5" style="float:left;">
-						<div class="form-inline" >
-							<div class="form-group">
-							    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
-									<option value="">---Offices---</option>
-								</select>
-						  	</div>
-						  	<div class="form-group">
-						  		<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
-									<option value="">---Departments---</option>
-								</select>
-						  	</div>
-						  	<div class="form-group">
-						  		<button class="btn btn-primary btn-sm">Search</button>
-						  	</div>
+						<div class="col-md-5" style="float:left;">
+							<div class="form-inline" >
+								<div class="form-group">
+									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+										<option value="">---Offices---</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+										<option value="">---Departments---</option>
+									</select>
+								</div>
+								<div class="form-group">
+								<!-- onclick="SearchUserByOfficeAndDepartment(selectedOffice, selectedDept);"  -->
+									<button class="btn btn-primary btn-sm" >
+									Search
+									</button>
+								</div>
+							</div>
+							<div style="overflow-y:auto; height: 100%; width: 100%;">
+								<table class="table table-condensed" style="font-size: x-small;">
+									<thead>
+										<tr>
+											<th>Full Name</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr data-ng-repeat="searchUser in step4SearchUsers">
+											<td>{{searchUser.userFullName}}</td>
+											<td><a href="javascript:void(0);" ng-click="addToTempList($index)">add to list</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</div>
-						<div style="overflow-y:auto; height: 100%; width: 100%;">
-							<table class="table table-condensed" style="font-size: x-small;">
-								<thead>
-									<tr>
-										<th>Full Name</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>Mark Otto</td>
-										<td>+</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
 
 						
-					<div class="col-md-7">
-						<div class="form-inline">
-							<table class="table table-condensed" style="font-size: x-small;">
-								<thead>
-									<tr>
-										<th>#</th>
-										<th>Full Name</th>
-										<th>Email</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>-</td>
-										<td>Mark Otto</td>
-										<td>test@gmail.com</td>
-										<td>
-											<lable for="ManagerId">Manager</lable>
-											<input type="checkbox" id="ManagerId" />
-											<lable for="programmerId">programmer</lable>
-											<input type="checkbox" id="programmerId" />
-										</td>
-									</tr>
-								</tbody>
-							</table>	
-						</div>
-					</div>
-					
-						
-					
-					</div>
-					<div>
-						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn">pre step</button>
-						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn">next step</button>
+						<div class="col-md-7">
+							<div class="form-inline">
+								<table class="table table-condensed" >
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Full Name</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr data-ng-repeat="tempUser in step4TempUserList">
+											<td>-</td>
+											<td>{{tempUser.userFullName}}</td>
+											<td>
+												<ui-select multiple ng-model="tempUser.roles" theme="bootstrap" ng-disbaled="disabled" close-on-select="false" style="width:400px; ">
+													<ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
+													<ui-select-choices repeat="role in newGroup.addedRoles | filter:$select.search">
+													{{role.name}}
+													</ui-select-choices>
+												</ui-select>
+											</td>
+										</tr>
+									</tbody>
+								</table>	
 					</div>
 				</div>
 			</div>
+			<div>
+				<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn">pre step</button>
+				<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn">next step</button>
+			</div>
+			
 		</div>
 	</div>
+</div>
+</div>
 </div>
 <div class="col-md-1">
 </div>
