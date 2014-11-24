@@ -66,7 +66,18 @@ angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 	$scope.newRoleName ='';
 	$scope.selectedRoleIndex = 0;
 
-	$scope.step4SearchUsers = [];
+	$scope.step4SearchUsers = [
+		{userFullName:"test 1", email:"test1@a.com"},
+		{userFullName:"test 2", email:"test2@a.com"},
+		{userFullName:"test 3", email:"test3@a.com"},
+		{userFullName:"test 4", email:"test4@a.com"},
+		{userFullName:"test 5", email:"test5@a.com"},
+		{userFullName:"test 6", email:"test6@a.com"},
+		{userFullName:"test 7", email:"test7@a.com"},
+		{userFullName:"test 8", email:"test8@a.com"},
+		{userFullName:"test 9", email:"test9@a.com"},
+		{userFullName:"test 10", email:"test10@a.com"}
+	];
 	
 
 	var step = {
