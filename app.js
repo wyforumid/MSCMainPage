@@ -109,7 +109,7 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
 
 // });
 
-app.use('/main', routes);
+app.use('/', routes);
 app.use('/API', apiRoute);
 app.use('/restfulAPI', restfullRoute);
 

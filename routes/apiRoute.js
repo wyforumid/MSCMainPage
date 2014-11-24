@@ -11,21 +11,21 @@ router.route('/')
 		next();
 	})
 
-router.route('/company/:actionName')
-	.get(function(req, res, next) {
-		switch (req.params.actionName.toUpperCase()) {
-			case 'ALLOFFICES':
-				getAllOffices(req, res);
-				break;
-			case 'ALLDEPTS':
-				getAllDepts(req, res);
-				break;
-			default:
-				res.response.writeHead(404);
-				res.write();
-				res.end();
-		}
-	});
+// router.route('/company/:actionName')
+// 	.get(function(req, res, next) {
+// 		switch (req.params.actionName.toUpperCase()) {
+// 			case 'ALLOFFICES':
+// 				getAllOffices(req, res);
+// 				break;
+// 			case 'ALLDEPTS':
+// 				getAllDepts(req, res);
+// 				break;
+// 			default:
+// 				res.response.writeHead(404);
+// 				res.write();
+// 				res.end();
+// 		}
+// 	});
 
 router.route('/user/:actionName')
 	.put(function(req, res, next) {
@@ -131,75 +131,75 @@ function resetPassword(req, res) {
 }
 
 
-router.route('/permission/:actionName')
-	.get(function(req, res, next) {
-		switch (req.params.actionName.toUpperCase()) {
-			case 'CONCERNEDGROUPNAMES':
-				getConcernedGroupNames(req, res);
-				break;
-			case 'ALLPERMISSIONS':
-				getAllPermissions(req, res);
-				break;
-			case 'ALLPERMISSIONCATEGORIES':
-				getAllPermissionCategories(req, res);
-				break;
-			case 'OWNPERMISSIONS':
-				getOwnPermission(req, res);
-				break;
-			default:
-				res.response.writeHead(404);
-				res.write();
-				res.end();
-		}
-	});
+// router.route('/permission/:actionName')
+// 	.get(function(req, res, next) {
+// 		switch (req.params.actionName.toUpperCase()) {
+// 			case 'CONCERNEDGROUPNAMES':
+// 				getConcernedGroupNames(req, res);
+// 				break;
+// 			case 'ALLPERMISSIONS':
+// 				getAllPermissions(req, res);
+// 				break;
+// 			case 'ALLPERMISSIONCATEGORIES':
+// 				getAllPermissionCategories(req, res);
+// 				break;
+// 			case 'OWNPERMISSIONS':
+// 				getOwnPermission(req, res);
+// 				break;
+// 			default:
+// 				res.response.writeHead(404);
+// 				res.write();
+// 				res.end();
+// 		}
+// 	});
 
-function getOwnPermission(req, res) {
-	getAPIData(req, res, function(cb) {
-		permissionAPI.getOwnPermission(req.query.id, function(err, data) {
-			cb(err, data);
-		})
-	});
-}
+// function getOwnPermission(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		permissionAPI.getOwnPermission(req.query.id, function(err, data) {
+// 			cb(err, data);
+// 		})
+// 	});
+// }
 
-function getAllPermissions(req, res) {
-	getAPIData(req, res, function(cb) {
-		permissionAPI.getAllPermissions(function(err, data) {
-			cb(err, data);
-		});
-	});
-}
+// function getAllPermissions(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		permissionAPI.getAllPermissions(function(err, data) {
+// 			cb(err, data);
+// 		});
+// 	});
+// }
 
-function getAllPermissionCategories(req, res) {
-	getAPIData(req, res, function(cb) {
-		permissionAPI.getAllPermissionCategories(function(err, data) {
-			cb(err, data);
-		});
-	});
-}
+// function getAllPermissionCategories(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		permissionAPI.getAllPermissionCategories(function(err, data) {
+// 			cb(err, data);
+// 		});
+// 	});
+// }
 
-function getAllOffices(req, res) {
-	getAPIData(req, res, function(cb) {
-		companyAPI.getAllOffices(function(err, data) {
-			cb(err, data);
-		});
-	});
-}
+// function getAllOffices(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		companyAPI.getAllOffices(function(err, data) {
+// 			cb(err, data);
+// 		});
+// 	});
+// }
 
-function getConcernedGroupNames(req, res) {
-	getAPIData(req, res, function(cb) {
-		permissionAPI.getConcernedGroupNames(JSON.parse(req.query.info), function(err, data) {
-			cb(err, data);
-		});
-	});
-}
+// function getConcernedGroupNames(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		permissionAPI.getConcernedGroupNames(JSON.parse(req.query.info), function(err, data) {
+// 			cb(err, data);
+// 		});
+// 	});
+// }
 
-function getAllDepts(req, res) {
-	getAPIData(req, res, function(cb) {
-		companyAPI.getAllDepartments(function(err, data) {
-			cb(err, data);
-		});
-	});
-}
+// function getAllDepts(req, res) {
+// 	getAPIData(req, res, function(cb) {
+// 		companyAPI.getAllDepartments(function(err, data) {
+// 			cb(err, data);
+// 		});
+// 	});
+// }
 
 function getAPIData(req, res, getFunc) {
 	async.waterfall([
