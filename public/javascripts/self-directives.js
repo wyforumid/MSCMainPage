@@ -71,4 +71,23 @@ angular.module('selfDirectives', [])
 			})(attrs['runningSpots']);
 
 		}
+	})
+	.directive('permissionArea', function() {
+		return {
+			// link: function(scope, element, attrs) {
+			// 	scope.permissionAreadata = {};
+			// 	scope.$watch('permissionInfo.displayedPermission',
+			// 			function(nV, oV) {
+			// 				scope.permissionAreadata = nV;
+			// 			}, true)
+			// },
+			scope: {
+				data: '=categoriedpermissions',
+				selectedCount : '=selectedcount',
+				changedPermissionCount : '&selectedcountchange'
+			},
+			restrict: 'A',
+			templateUrl: '/partialviews/permission/permissionTemplate.html',
+			
+		}
 	});

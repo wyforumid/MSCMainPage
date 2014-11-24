@@ -1,4 +1,4 @@
-angular.module('selfPermissionCtrls', ['selfServices'])
+angular.module('selfPermissionCtrls', ['selfServices','selfDirectives'])
 .controller('permissionGroupCtrl', function($scope, fundationService, $http) {
 	$('#navTab a').click(function(e) {
 		e.preventDefault();
@@ -13,6 +13,7 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 	};
 
 	$scope.permissionInfo ={
+		// displayedPermissionSelectedCount : 0,
 		originPermissions : [],
 		originCategories : [],
 		categoriedPermission : [],
@@ -312,6 +313,7 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 	function initialRolePermission(){
 		if($scope.newGroup.addedRoles[$scope.selectedRoleIndex]){
 			$scope.permissionInfo.displayedPermission = $scope.newGroup.addedRoles[$scope.selectedRoleIndex].permission;
+			// $scope.permissionInfo.displayedPermissionSelectedCount = $scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount;
 			$.each($scope.newGroup.addedRoles,function(i,v){
 				if(i != $scope.selectedRoleIndex){
 					v.edit = false;

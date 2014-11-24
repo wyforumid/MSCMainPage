@@ -147,27 +147,7 @@
 							</div>
 						</div>
 						<div class="col-md-9">
-							<div class="panel-group" id="permissions" role="tablist" aria-multiselectable="true">
-								<div class="panel panel-default" ng-repeat="item in permissionInfo.displayedPermission">
-									<div class="panel-heading" role="tab" id="cate_{{item.categoryId}}">
-										<h4 class="panel-title">
-											<a data-toggle="collapse" data-target="#cate_collapse{{item.categoryId}}" aria-expanded="true" aria-controls="cate_collapse{{item.categoryId}}">
-												{{item.categoryName}}
-											</a>
-										</h4>
-									</div>
-									<div id="cate_collapse{{item.categoryId}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="cate_{{item.categoryId}}">
-										<div class="panel-body">
-											<div class="checkbox col-md-4" ng-repeat="permission in item.permissions">
-												<label>
-													<input type="checkbox" ng-model="permission.checked" ng-disabled="permission.disabled" ng-change="changedPermissionCount(permission.checked)" >
-													{{permission.name}}
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+							<div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(checked)"></div>
 						</div>
 					</div>
 
