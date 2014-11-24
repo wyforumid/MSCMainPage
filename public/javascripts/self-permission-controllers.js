@@ -64,6 +64,10 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 	$scope.selectedDept = {};
 	$scope.newRoleName ='';
 	$scope.selectedRoleIndex = 0;
+
+	$scope.step4SearchUsers = [];
+	
+
 	var step = {
 			1:{
 				initialCSS:function(){
@@ -415,9 +419,9 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 			}
 		}
 
-		function validateStep(stepNo) {
-			return step[stepNo].validateBeforeNext();
-		}
+		// function validateStep(stepNo) {
+		// 	return step[stepNo].validateBeforeNext();
+		// }
 
 		function Test(step){
 			
@@ -426,10 +430,12 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 		Test(3)
 		
 		function initialProcess(stepNo){
+
 			if(!stepNo){
-				$scope.currentStep = 1;
+
 				
 			}else{
+
 				$scope.newGroup = {
 					addedDepts: [
 					{
@@ -456,6 +462,14 @@ angular.module('selfPermissionCtrls', ['selfServices'])
 				};
 
 				$scope.currentStep = stepNo;
+
+				var i = 1;
+				while (stepNo > i)
+				{
+					step[i].initialData();
+					i++;
+				}
+
 			}
 
 			step[$scope.currentStep.toString()].initialCSS();
