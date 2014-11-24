@@ -11,7 +11,7 @@
 			<div class="panel-body">
 				<div class="checkbox col-md-4" ng-repeat="permission in item.permissions">
 					<label>
-						<input type="checkbox" ng-model="permission.checked" ng-disabled="permission.disabled" ng-change="changedPermissionCount(permission.checked)" >
+						<input type="checkbox" ng-model="permission.checked" ng-disabled="permission.disabled" ng-change="changedPermissionCount({checked : permission.checked})" >
 						{{permission.name}}
 					</label>
 				</div>
