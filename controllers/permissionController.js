@@ -32,10 +32,22 @@ module.exports = function() {
 					cb(err, data);
 				})
 			});
+		},
+		SEARCHUSERBYOFFICEANDDEPARTMENT: function(req, res) {
+			getAPIData(req, res, function(cb) {
+				permissionAPI.searchUserByOfficeAndDepartment(req.query.officeId, req.query.departmentId, function(err, data) {
+					cb(err, data);
+				})
+			});
 		}
 	};
 
-	this.POST = {};
+	this.POST = {
+		ADDGROUP: function(req, res) {
+
+			
+		}
+	};
 
 	this.PUT = {};
 

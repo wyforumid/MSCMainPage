@@ -64,7 +64,8 @@
   angular.module('ui.select', [])
 
   .constant('uiSelectConfig', {
-    theme: 'bootstrap',
+    //theme: 'bootstrap',
+    theme: '',
     searchEnabled: true,
     placeholder: '', // Empty by default, like HTML tag <select>
     refreshDelay: 1000, // In milliseconds
@@ -614,7 +615,8 @@
       restrict: 'EA',
       templateUrl: function(tElement, tAttrs) {
         var theme = tAttrs.theme || uiSelectConfig.theme;
-        return theme + (angular.isDefined(tAttrs.multiple) ? '/select-multiple.tpl.html' : '/select.tpl.html');
+        // return theme + (angular.isDefined(tAttrs.multiple) ? '/partialviews/ui-select/select-multiple.tpl.html' : '/partialviews/ui-select/select.tpl.html');
+        return (angular.isDefined(tAttrs.multiple) ? '/partialviews/ui-select/select-multiple.tpl.html' : '/partialviews/ui-select/select.tpl.html');
       },
       replace: true,
       transclude: true,
@@ -887,7 +889,8 @@
       templateUrl: function(tElement) {
         // Gets theme attribute from parent (ui-select)
         var theme = tElement.parent().attr('theme') || uiSelectConfig.theme;
-        return theme + '/choices.tpl.html';
+        // return theme + '/partialviews/ui-select/choices.tpl.html';
+        return '/partialviews/ui-select/choices.tpl.html';
       },
 
       compile: function(tElement, tAttrs) {
@@ -961,7 +964,8 @@
         // Gets theme attribute from parent (ui-select)
         var theme = tElement.parent().attr('theme') || uiSelectConfig.theme;
         var multi = tElement.parent().attr('multiple');
-        return theme + (multi ? '/match-multiple.tpl.html' : '/match.tpl.html');
+        // return theme + (multi ? '/partialviews/ui-select/match-multiple.tpl.html' : '/partialviews/ui-select/match.tpl.html');
+        return (multi ? '/partialviews/ui-select/match-multiple.tpl.html' : '/partialviews/ui-select/match.tpl.html');
       },
       link: function(scope, element, attrs, $select) {
         $select.lockChoiceExpression = attrs.uiLockChoice;

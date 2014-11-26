@@ -28,11 +28,22 @@ exports.getAllPermissions = function(callback){
 	db.querySQL('SELECT Permission_Id AS id, Permission_Name AS name, Description AS description, Permission_Category_id AS categoryId FROM Permission',callback);
 }
 
-exports.getOwnPermission = function(userId, callback){
+exports.getOwnPermission = function(userId, callback) {
 	var params = [];
-	if(!userId){
+	if (!userId) {
 		return null;
 	}
-	params.push(new Parameter('userId',mssql.Int,userId));
-	db.querySP('SP_GetOwnPermission',params,callback);
+	params.push(new Parameter('userId', mssql.Int, userId));
+	db.querySP('SP_GetOwnPermission', params, callback);
+}
+
+exports.searchUserByOfficeAndDepartment = function(officeId, departmentId, callback) {
+	var params = [];
+	params.push(new Parameter('OfficeId', mssql.Int, officeId));
+	params.push(new Parameter('DepartmentId', mssql.Int, departmentId));
+	db.querySP('SP_SearchUserByOfficeAndDepartment', params, callback);
+}
+
+exports.newGroup = function(newGroup, callback) {
+
 }
