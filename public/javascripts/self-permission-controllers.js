@@ -67,37 +67,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		$scope.selectedRoleIndex = 0;
 
 
-		$scope.step4SearchUsers = [{
-			userId: 1,
-			userFullName: "test 1",
-			roles: {}
-		}, {
-			userId: 2,
-			userFullName: "test 2",
-			roles: {}
-		}, {
-			userId: 3,
-			userFullName: "test 3",
-			roles: {}
-		}, {
-			userId: 4,
-			userFullName: "test 4",
-			roles: {}
-		}, {
-			userId: 5,
-			userFullName: "test 5",
-			roles: {}
-		}, {
-			userId: 6,
-			userFullName: "test 6",
-			roles: {}
-		}, {
-			userId: 7,
-			userFullName: "test 7",
-			roles: {}
-		}];
+		$scope.step4SearchUsers = [];
 
 		$scope.step4TempUserList = [];
+
+		// $scope.$watch('step4TempUserList', function(nV, oV) {
+		// 	alert($scope.step4TempUserList);
+		// 	console.log($scope.step4TempUserList);
+		// 	//$scope.registUserInfo.loginName = $scope.registUserInfo.email.replace(/@\S*/i, '');
+		// }, true);
 
 
 		var step = {
@@ -133,6 +111,9 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						alert('You need add some depertment which this new group belongs to.');
 						return false;
 					}
+				},
+				formatData: function() {
+					
 				}
 			},
 			2: {
@@ -164,6 +145,9 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						alert(msg);
 					}
 					return isValidate;
+				},
+				formatData: function() {
+					
 				}
 			},
 			3: {
@@ -230,6 +214,9 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				},
 				validateBeforeNext: function() {
 					return true;
+				},
+				formatData: function() {
+					
 				}
 			},
 			4: {
@@ -241,6 +228,26 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				},
 				validateBeforeNext: function() {
 					return true;
+				},
+				formatData: function() {
+
+					for (var i = $scope.newGroup.addedRoles.length; i--;) {
+
+						for (var j = $scope.step4TempUserList.length; j--;) {
+
+							for (var k = $scope.step4TempUserList[j].roles.length; k--;) {
+
+								if ($scope.newGroup.addedRoles[i].name == $scope.step4TempUserList[j].roles[k]) {
+
+									if (!$scope.newGroup.addedRoles[i].hasOwnProperty("userIds")) {
+										$scope.newGroup.addedRoles[i].userIds = [];
+									}
+
+									$scope.newGroup.addedRoles[i].userIds.push($scope.step4TempUserList[j].userId);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -338,40 +345,58 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		}
 
 		$scope.next = function() {
-			if (step[$scope.currentStep.toString()].validateBeforeNext()) {
+			if (step[$scope.currentStep.toString()].validateBeforeNext() && $scope.currentStep < 4) {
+				step[$scope.currentStep.toString()].formatData();
 				step[(++$scope.currentStep).toString()].initialCSS();
 				step[$scope.currentStep.toString()].initialData();
+			} else if (step[$scope.currentStep.toString()].validateBeforeNext() && $scope.currentStep == 4) {
+				step[$scope.currentStep.toString()].formatData();
+
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/permission/ADDGROUP',
+					data:{
+						newGroup:$scope.newGroup;
+					}
+				}).success(function(data, status) {
+					$scope.step4SearchUsers = data;
+				}).error(function(data, status) {
+					alert(data);
+				});
+
+				//console.log($scope.newGroup);
 			}
 
 		}
 
-		$scope.SearchUserByOfficeAndDepartment = function(office, department) {
-
-			alert(office + " --- " + department);
-
-			// $http({
-			// 	method: 'GET',
-			// 	url: '/permission/SEARCHUSERBYOFFICEANDDEPARTMENT',
-			// 	data: {
-			// 		officeId: office,
-			// 		departmentId: department
-			// 	}
-			// }).success(function(data, status) {
+		$scope.searchUserByOfficeAndDepartment = function(office, department) {
 
 
-
-			// }).error(function(data, status) {
-				
-			// });
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/permission/SEARCHUSERBYOFFICEANDDEPARTMENT',
+				params:{
+					officeId: office.id,
+					departmentId: department.id
+				}
+			}).success(function(data, status) {
+				$scope.step4SearchUsers = data;
+			}).error(function(data, status) {
+				alert(data);
+			});
 
 		}
 
 		$scope.addToTempList = function(index) {
 
 			if (!checkUserIsExists($scope.step4SearchUsers[index], $scope.step4TempUserList)) {
-				// $scope.step4SearchUsers[index].roles = {};
+				$scope.step4SearchUsers[index].roles = {};
 				$scope.step4TempUserList.push($scope.step4SearchUsers[index]);
 			}
+		}
+
+		$scope.deleteCurrentUser = function(index) {
+			$scope.step4TempUserList.splice(index, 1);
 		}
 
 		function checkUserIsExists(user, checkUserList) {

@@ -43,3 +43,7 @@ exports.searchUserByOfficeAndDepartment = function(officeId, departmentId, callb
 	params.push(new Parameter('DepartmentId', mssql.Int, departmentId));
 	db.querySP('SP_SearchUserByOfficeAndDepartment', params, callback);
 }
+
+exports.newGroup = function(newGroup, callback) {
+
+}

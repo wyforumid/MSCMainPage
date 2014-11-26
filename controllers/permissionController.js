@@ -42,7 +42,12 @@ module.exports = function() {
 		}
 	};
 
-	this.POST = {};
+	this.POST = {
+		ADDGROUP: function(req, res) {
+
+			
+		}
+	};
 
 	this.PUT = {};
 

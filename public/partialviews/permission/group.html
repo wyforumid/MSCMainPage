@@ -168,8 +168,7 @@
 									</select>
 								</div>
 								<div class="form-group">
-								<!-- onclick="SearchUserByOfficeAndDepartment(selectedOffice, selectedDept);"  -->
-									<button class="btn btn-primary btn-sm" >
+									<button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment(selectedOffice, selectedDept);" >
 									Search
 									</button>
 								</div>
@@ -184,8 +183,8 @@
 									</thead>
 									<tbody>
 										<tr data-ng-repeat="searchUser in step4SearchUsers">
-											<td>{{searchUser.userFullName}}</td>
-											<td><a href="javascript:void(0);" ng-click="addToTempList($index)">add to list</a></td>
+											<td>{{searchUser.FullName}}</td>
+											<td><a href="javascript:void(0);" ng-click="addToTempList($index);">add to list</a></td>
 										</tr>
 									</tbody>
 								</table>
@@ -204,13 +203,13 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr data-ng-repeat="tempUser in step4TempUserList">
-											<td>-</td>
-											<td>{{tempUser.userFullName}}</td>
+										<tr data-ng-repeat="user in step4TempUserList">
+											<td><a href="javascript:void(0);" ng-click="deleteCurrentUser($index);">del</a></td>
+											<td>{{user.FullName}}</td>
 											<td>
-												<ui-select multiple ng-model="tempUser.roles" theme="bootstrap" ng-disbaled="disabled" close-on-select="false" style="width:400px; ">
+												<ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disbaled="disabled" close-on-select="false" style="width:400px; ">
 													<ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
-													<ui-select-choices repeat="role in newGroup.addedRoles | filter:$select.search">
+													<ui-select-choices repeat="role.name as role in newGroup.addedRoles | filter:$select.search">
 													{{role.name}}
 													</ui-select-choices>
 												</ui-select>
@@ -218,14 +217,13 @@
 										</tr>
 									</tbody>
 								</table>	
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
 			<div>
 				<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn">pre step</button>
 				<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn">next step</button>
 			</div>
-			
 		</div>
 	</div>
 </div>
