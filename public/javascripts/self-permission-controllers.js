@@ -356,7 +356,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					method: 'POST',
 					url: '/restfulAPI/permission/ADDGROUP',
 					data:{
-						newGroup:$scope.newGroup;
+						newGroup:$scope.newGroup
 					}
 				}).success(function(data, status) {
 					$scope.step4SearchUsers = data;
