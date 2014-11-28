@@ -71,11 +71,6 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.step4TempUserList = [];
 
-		// $scope.$watch('step4TempUserList', function(nV, oV) {
-		// 	alert($scope.step4TempUserList);
-		// 	console.log($scope.step4TempUserList);
-		// 	//$scope.registUserInfo.loginName = $scope.registUserInfo.email.replace(/@\S*/i, '');
-		// }, true);
 
 
 		var step = {
@@ -227,6 +222,16 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				},
 				validateBeforeNext: function() {
+
+					for (var i = $scope.step4TempUserList.length; i--;) {
+
+						if ($scope.step4TempUserList[i].roles.length <= 0) {
+							
+							alert($scope.step4TempUserList[i].fullName + " has not been set role.");
+							return false;
+						}
+					}
+
 					return true;
 				},
 				formatData: function() {
@@ -259,6 +264,11 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		}
 
 		$scope.changedPermissionCount = function(value) {
+
+			if (!$scope.newGroup.addedRoles[$scope.selectedRoleIndex].hasOwnProperty('selectedCount')) {
+				$scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount = 0;
+			}
+
 			if (value) {
 				$scope.newGroup.addedRoles[$scope.selectedRoleIndex].selectedCount++;
 			} else {
@@ -350,7 +360,12 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				step[(++$scope.currentStep).toString()].initialCSS();
 				step[$scope.currentStep.toString()].initialData();
 			} else if (step[$scope.currentStep.toString()].validateBeforeNext() && $scope.currentStep == 4) {
+
 				step[$scope.currentStep.toString()].formatData();
+
+					$('#preBtn').prop('disabled', true);
+					$('#nextBtn').prop('disabled', true);
+					console.log($scope.newGroup);
 
 				$http({
 					method: 'POST',
@@ -359,9 +374,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						newGroup:$scope.newGroup
 					}
 				}).success(function(data, status) {
-					$scope.step4SearchUsers = data;
+
+
+
+					$('#preBtn').prop('disabled', false);
+					$('#nextBtn').prop('disabled', false);
 				}).error(function(data, status) {
 					alert(data);
+					$('#preBtn').prop('disabled', false);
+					$('#nextBtn').prop('disabled', true);
 				});
 
 				//console.log($scope.newGroup);
@@ -527,17 +548,11 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		// 	return step[stepNo].validateBeforeNext();
 		// }
 
-		function Test(step) {
-
-		}
-
-		Test(3)
 
 		function initialProcess(stepNo) {
 
 			if (!stepNo) {
-
-
+				stepNo = 1;
 			} else {
 
 				$scope.newGroup = {
@@ -575,7 +590,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				}
 
 			}
-
+			$scope.currentStep = stepNo;
 			step[$scope.currentStep.toString()].initialCSS();
 			step[$scope.currentStep.toString()].initialData();
 		}
@@ -583,7 +598,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		//initialStepCSS($scope.currentStep);
 
-		initialProcess(3);
+		initialProcess();
 		//console.log($scope.newGroup);
 
 

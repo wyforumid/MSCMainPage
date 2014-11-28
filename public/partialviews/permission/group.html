@@ -183,8 +183,12 @@
 									</thead>
 									<tbody>
 										<tr data-ng-repeat="searchUser in step4SearchUsers">
-											<td>{{searchUser.FullName}}</td>
-											<td><a href="javascript:void(0);" ng-click="addToTempList($index);">add to list</a></td>
+											<td>{{searchUser.fullName}}</td>
+											<td>
+											<a>
+												<span class="glyphicon glyphicon-plus" ng-click="addToTempList($index)"></span>
+											</a>
+											</td>
 										</tr>
 									</tbody>
 								</table>
@@ -204,8 +208,12 @@
 									</thead>
 									<tbody>
 										<tr data-ng-repeat="user in step4TempUserList">
-											<td><a href="javascript:void(0);" ng-click="deleteCurrentUser($index);">del</a></td>
-											<td>{{user.FullName}}</td>
+											<td>
+												<a>
+													<span class="glyphicon glyphicon-minus" ng-click="deleteCurrentUser($index);"></span>
+												</a>
+											</td>
+											<td>{{user.fullName}}</td>
 											<td>
 												<ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disbaled="disabled" close-on-select="false" style="width:400px; ">
 													<ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>

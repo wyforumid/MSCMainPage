@@ -21,11 +21,11 @@ exports.getConcernedGroupNames = function(info, callback) {
 }
 
 exports.getAllPermissionCategories = function(callback){
-	db.querySQL('SELECT Permission_Category_id AS id, Name AS name, Description AS description FROM Permission_Category',callback);
+	db.querySQL('SELECT PermissionCategoryid AS id, Name AS name, Description AS description FROM PermissionCategory',callback);
 }
 
 exports.getAllPermissions = function(callback){
-	db.querySQL('SELECT Permission_Id AS id, Permission_Name AS name, Description AS description, Permission_Category_id AS categoryId FROM Permission',callback);
+	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, PermissionCategoryid AS categoryId FROM Permission',callback);
 }
 
 exports.getOwnPermission = function(userId, callback) {
