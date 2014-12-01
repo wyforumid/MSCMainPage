@@ -108,7 +108,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					}
 				},
 				formatData: function() {
-					
+
 				}
 			},
 			2: {
@@ -142,7 +142,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					return isValidate;
 				},
 				formatData: function() {
-					
+
 				}
 			},
 			3: {
@@ -211,7 +211,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					return true;
 				},
 				formatData: function() {
-					
+
 				}
 			},
 			4: {
@@ -226,7 +226,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					for (var i = $scope.step4TempUserList.length; i--;) {
 
 						if ($scope.step4TempUserList[i].roles.length <= 0) {
-							
+
 							alert($scope.step4TempUserList[i].fullName + " has not been set role.");
 							return false;
 						}
@@ -363,15 +363,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				step[$scope.currentStep.toString()].formatData();
 
-					$('#preBtn').prop('disabled', true);
-					$('#nextBtn').prop('disabled', true);
-					console.log($scope.newGroup);
+				$('#preBtn').prop('disabled', true);
+				$('#nextBtn').prop('disabled', true);
+				console.log($scope.newGroup);
 
 				$http({
 					method: 'POST',
 					url: '/restfulAPI/permission/ADDGROUP',
-					data:{
-						newGroup:$scope.newGroup
+					data: {
+						newGroup: $scope.newGroup
 					}
 				}).success(function(data, status) {
 
@@ -396,7 +396,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$http({
 				method: 'GET',
 				url: '/restfulAPI/permission/SEARCHUSERBYOFFICEANDDEPARTMENT',
-				params:{
+				params: {
 					officeId: office.id,
 					departmentId: department.id
 				}
@@ -602,4 +602,33 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		//console.log($scope.newGroup);
 
 
+	}).controller('permissionCtrl', function($scope, fundationService, $http) {
+
+		$scope.permissionCategories = [];
+
+		fundationService.getAllPermissionCategories(
+			function(data) {
+				$scope.permissionCategories = data;
+			}, function(data, status) {
+				alert('Fail to fetch PermissionCategories.');
+			}, false);
+
+		$scope.AddCategory = function() {
+
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/permission/CONCERNEDGROUPNAMES',
+				cache: false,
+				params: {
+					info: JSON.stringify($scope.newGroup.addedDepts)
+				} //JSON.stringify($scope.addedDepts)
+			}).success(function(data, status) {
+				$scope.existedGroupNames = data;
+				$scope.newGroup.addedDeptsChanged = false;
+			}).error(function(data, status) {
+				alert(data);
+			});
+
+			alert($scope.addCategory.newCategoryName);
+		}
 	});

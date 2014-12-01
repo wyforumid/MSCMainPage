@@ -8,19 +8,36 @@
 					</a>
 				</h4>
 			</div>
-			<div id="categoryArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="category">
-				<div class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<label class="col-md-2 control-label">Category Name :</label>
-							<div class="col-md-6">
-								<input type="text" class="form-control" ng-model="newCategoryName">
+			<form name="addCategory" novalidate >
+				<div id="categoryArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="category">
+					<div class="panel-body">
+						<div class="form-horizontal">
+							<div class="form-group" ng-class="{'has-error has-feedback': addCategory.$dirty && addCategory.$invalid}">
+								<label class="col-md-2 control-label" for="newCategoryName">Category Name</label>
+								<div class="col-md-6">
+									<input type="text" 
+										   id="newCategoryName" 
+										   class="form-control" 
+										   placeholder="Enter category name"
+										   name="newCategoryName"
+										   ng-model="newCategoryName"
+										   required >
+								</div>
+								<button class="btn btn-primary" 
+										ng-click="AddCategory();" 
+										ng-disabled="addCategory.$invalid">
+								Add
+								</button>
+								<!-- <p>
+									<pre>
+									{{addCategory | json}}
+									</pre>
+								</p> -->
 							</div>
-							<button class="btn btn-primary btn-lg" ng-click="AddCategory();">Add</button>
 						</div>
 					</div>
 				</div>
-			</div>
+			</form>
 		</div>
 		<div class="panel panel-default">
 			<div class="panel-heading" role="tab" id="permission">
@@ -32,7 +49,25 @@
 			</div>
 			<div id="permissionArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="permission">
 				<div class="panel-body">
-					Permissions
+					<div class="form-horizontal">
+						<div class="form-group">
+							<div class="col-md-2">
+								<select class="form-control" 
+										ng-model="selectPermissionCategory" 
+										ng-options="category.name for category in permissionCategories">
+									<option value="">-- choose category --</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<button class="btn btn-primary btn-sm" ng-click="searchPermissionByCategory();">
+								Search
+								</button>
+							</div>
+						</div>
+						<div class="form-group">
+							records . . . 
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
