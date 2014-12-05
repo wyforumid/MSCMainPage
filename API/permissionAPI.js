@@ -47,3 +47,8 @@ exports.searchUserByOfficeAndDepartment = function(officeId, departmentId, callb
 exports.newGroup = function(newGroup, callback) {
 
 }
+
+exports.addPermissionCategory = function(categoryName) {
+	var params = [];
+	
+}

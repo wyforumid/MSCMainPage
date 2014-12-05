@@ -45,13 +45,37 @@ module.exports = function() {
 	this.POST = {
 		ADDGROUP: function(req, res) {
 
-			
+
+		},
+		ADDCATEGORY: function(req, res) {
+
+			async.waterfall([
+				function(callback) {
+					
+				}, function(data, callback) {
+					res.writeHead(200, {"Content-Type": "application/json"});
+					res.write(JSON.stringify(data));
+					res.end();
+				}
+			], function (error, result) {
+				res.writeHead(404);
+				res.write(error ? error.toString() : '');
+				res.end();
+			});
 		}
 	};
 
 	this.PUT = {};
 
 	this.DELETE = {};
+
+
+	function errorOccurred(request, response, error, result) {
+		response.writeHead(404);
+		response.write(error ? error.toString() : '');
+		response.end();
+	}
+
 
 	function getAPIData(req, res, getFunc) {
 		async.waterfall([
