@@ -48,7 +48,9 @@ exports.newGroup = function(newGroup, callback) {
 
 }
 
-exports.addPermissionCategory = function(categoryName) {
+exports.addPermissionCategory = function(categoryName, categoryDescription, callback) {
 	var params = [];
-	
+	params.push(new Parameter('permissionCategoryName', mssql.NVarChar(60), categoryName));
+	params.push(new Parameter('permissionCategoryDescription', mssql.NVarChar(255), categoryDescription));
+	db.querySP('SP_AddCategory', params, callback);
 }

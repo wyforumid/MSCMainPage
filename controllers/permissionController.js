@@ -51,7 +51,7 @@ module.exports = function() {
 
 			async.waterfall([
 				function(callback) {
-					
+					permissionAPI.addPermissionCategory(req.body.categoryName, req.body.categoryDescription, callback);
 				}, function(data, callback) {
 					res.writeHead(200, {"Content-Type": "application/json"});
 					res.write(JSON.stringify(data));

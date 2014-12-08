@@ -605,6 +605,18 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 	}).controller('permissionCtrl', function($scope, fundationService, $http) {
 
 		$scope.permissionCategories = [];
+		$scope.formStyle = {
+			addCategory:{
+				submitting:function(){
+					$scope.formStyle.addCategory.submitButtonText = "Add...";
+				},
+				submitted:function() {
+					$scope.formStyle.addCategory.submitButtonText = "Add";
+				},
+				feedbackMessage:"",
+				submitButtonText:"Add"
+			}
+		};
 
 		fundationService.getAllPermissionCategories(
 			function(data) {
@@ -615,20 +627,25 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.AddCategory = function() {
 
+			$scope.formStyle.addCategory.submitting();
+
 			$http({
-				method: 'GET',
-				url: '/restfulAPI/permission/CONCERNEDGROUPNAMES',
+
+				method: 'POST',
+				url: '/restfulAPI/permission/ADDCATEGORY',
 				cache: false,
-				params: {
-					info: JSON.stringify($scope.newGroup.addedDepts)
-				} //JSON.stringify($scope.addedDepts)
+				data: {
+					categoryName:$scope.CategoryName,
+					categoryDescription:$scope.CategoryDescription
+				}
+
 			}).success(function(data, status) {
-				$scope.existedGroupNames = data;
-				$scope.newGroup.addedDeptsChanged = false;
+				$scope.formStyle.addCategory.submitted();
+				$scope.formStyle.addCategory.feedbackMessage = data[0].info;
+				
 			}).error(function(data, status) {
 				alert(data);
 			});
 
-			alert($scope.addCategory.newCategoryName);
 		}
 	});
