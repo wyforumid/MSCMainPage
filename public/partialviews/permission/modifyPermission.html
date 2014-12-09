@@ -21,6 +21,8 @@
 										   placeholder="Enter category name"
 										   name="newCategoryName"
 										   ng-model="CategoryName"
+										   ng-readonly="formStyle.addCategory.isSubmitting"
+										   ng-change="changeCategoryInput()"
 										   required />
 								</div>
 								<div class="col-md-6" ng-show="formStyle.addCategory.feedbackMessage != ''" >
@@ -35,12 +37,15 @@
 										   class="form-control" 
 										   placeholder="Enter description"
 										   name="newCategoryDescription"
-										   ng-model="CategoryDescription" />
+										   ng-model="CategoryDescription"
+										   ng-readonly="formStyle.addCategory.isSubmitting"
+										   ng-change="changeCategoryInput()"
+										   />
 								</div>
 								<div class="col-md-6">
 									<button class="btn btn-primary" 
-											ng-click="AddCategory();" 
-											ng-disabled="addCategory.$invalid">
+											ng-click="addCategory();" 
+											ng-disabled="formStyle.addCategory.isSubmitting || addCategory.$invalid">
 									{{formStyle.addCategory.submitButtonText}}
 									</button>
 								</div>
@@ -62,21 +67,37 @@
 				<div class="panel-body">
 					<div class="form-horizontal">
 						<div class="form-group">
-							<div class="col-md-2">
+							<div class="col-md-3">
 								<select class="form-control" 
 										ng-model="selectPermissionCategory" 
-										ng-options="category.name for category in permissionCategories">
+										ng-options="category.name for category in permissionCategories"
+										ng-change="changeSelectPermissionCategory()">
 									<option value="">-- choose category --</option>
 								</select>
 							</div>
-							<div class="col-md-2">
-								<button class="btn btn-primary btn-sm" ng-click="searchPermissionByCategory();">
-								Search
-								</button>
-							</div>
 						</div>
 						<div class="form-group">
-							records . . . 
+							<div class="col-md-6">
+								<table class="table table-condensed" >
+									<thead>
+										<tr>
+											<th>Permission Name</th>
+											<th>Description</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-show="searchPermission.length <= 0">
+											<td colspan="3">No records...</td>
+										</tr>
+										<tr data-ng-repeat="permission in searchPermission">
+											<td>{{permission.permissionName}}</td>
+											<td>{{permission.description}}</td>
+											<td><a href="javascript:void(0);" ng-click="modifyPermission(permission);">modify</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
