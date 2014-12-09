@@ -39,13 +39,6 @@ module.exports = function() {
 					cb(err, data);
 				})
 			});
-		},
-		SEARCHPERMISSIONBYCATEGORY: function(req, res) {
-			getAPIData(req, res, function(cb) {
-				permissionAPI.getPermissionByCategoryId(req.query.permissionCategoryId, function(err, data) {
-					cb(err, data);
-				})
-			});
 		}
 	};
 

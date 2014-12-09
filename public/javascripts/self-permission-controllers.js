@@ -605,6 +605,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 	}).controller('permissionCtrl', function($scope, fundationService, $http) {
 
 		$scope.permissionCategories = [];
+		$scope.permissions = [];
 		$scope.searchPermission = [];
 		$scope.formStyle = {
 			addCategory:{
@@ -629,31 +630,33 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				alert('Fail to fetch PermissionCategories.');
 			}, false);
 
+		fundationService.getAllPermissions(
+			function(data) {
+				$scope.permissions = data;
+			}, function(data, status) {
+				alert('Fail to fetch all permissions.');
+			},false);
+
 		$scope.changeCategoryInput = function() {
 			$scope.formStyle.addCategory.feedbackMessage = "";
 		}
 
 		$scope.changeSelectPermissionCategory = function () {
 
-			$http({
-				method:"GET",
-				url:'/restfulAPI/permission/SEARCHPERMISSIONBYCATEGORY',
-				cache:false,
-				params:{
-					permissionCategoryId: $scope.selectPermissionCategory.id
+			$scope.searchPermission = [];
+
+			for (var i = $scope.permissions.length; i--;) {
+				if ($scope.permissions[i].categoryId == $scope.selectPermissionCategory.id) {
+					$scope.searchPermission.push($scope.permissions[i]);
 				}
-			}).success(function(data, status) {
-				$scope.searchPermission = data;
-			}).error(function(data, status) {
-				alert(data);
-			});
+			}
 		}
 
 		$scope.modifyPermission = function(permission) {
 			alert(permission.permissionId);
 		}
 
-		$scope.addCategory = function() {
+		$scope.AddCategory = function() {
 
 			$scope.formStyle.addCategory.submitting();
 

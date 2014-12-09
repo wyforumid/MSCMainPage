@@ -44,7 +44,7 @@
 								</div>
 								<div class="col-md-6">
 									<button class="btn btn-primary" 
-											ng-click="addCategory();" 
+											ng-click="AddCategory();" 
 											ng-disabled="formStyle.addCategory.isSubmitting || addCategory.$invalid">
 									{{formStyle.addCategory.submitButtonText}}
 									</button>
@@ -91,7 +91,7 @@
 											<td colspan="3">No records...</td>
 										</tr>
 										<tr data-ng-repeat="permission in searchPermission">
-											<td>{{permission.permissionName}}</td>
+											<td>{{permission.name}}</td>
 											<td>{{permission.description}}</td>
 											<td><a href="javascript:void(0);" ng-click="modifyPermission(permission);">modify</a></td>
 										</tr>
