@@ -39,6 +39,13 @@ module.exports = function() {
 					cb(err, data);
 				})
 			});
+		},
+		SEARCHPERMISSIONBYCATEGORY: function(req, res) {
+			getAPIData(req, res, function(cb) {
+				permissionAPI.getPermissionByCategoryId(req.query.permissionCategoryId, function(err, data) {
+					cb(err, data);
+				})
+			});
 		}
 	};
 
@@ -52,12 +59,15 @@ module.exports = function() {
 			async.waterfall([
 				function(callback) {
 					permissionAPI.addPermissionCategory(req.body.categoryName, req.body.categoryDescription, callback);
-				}, function(data, callback) {
-					res.writeHead(200, {"Content-Type": "application/json"});
+				},
+				function(data, callback) {
+					res.writeHead(200, {
+						"Content-Type": "application/json"
+					});
 					res.write(JSON.stringify(data));
 					res.end();
 				}
-			], function (error, result) {
+			], function(error, result) {
 				res.writeHead(404);
 				res.write(error ? error.toString() : '');
 				res.end();

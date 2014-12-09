@@ -54,3 +54,9 @@ exports.addPermissionCategory = function(categoryName, categoryDescription, call
 	params.push(new Parameter('permissionCategoryDescription', mssql.NVarChar(255), categoryDescription));
 	db.querySP('SP_AddCategory', params, callback);
 }
+
+exports.getPermissionByCategoryId = function(categoryId, callback) {
+	var params = [];
+	params.push(new Parameter('permissionCategoryId', mssql.Int, categoryId));
+	db.querySP('SP_GetPermissionByCategoryId', params, callback);
+}

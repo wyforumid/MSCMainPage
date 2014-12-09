@@ -605,16 +605,20 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 	}).controller('permissionCtrl', function($scope, fundationService, $http) {
 
 		$scope.permissionCategories = [];
+		$scope.searchPermission = [];
 		$scope.formStyle = {
 			addCategory:{
-				submitting:function(){
+				submitting:function() {
 					$scope.formStyle.addCategory.submitButtonText = "Add...";
+					$scope.formStyle.addCategory.isSubmitting = true;
 				},
 				submitted:function() {
 					$scope.formStyle.addCategory.submitButtonText = "Add";
+					$scope.formStyle.addCategory.isSubmitting = false;
 				},
 				feedbackMessage:"",
-				submitButtonText:"Add"
+				submitButtonText:"Add",
+				isSubmitting:false
 			}
 		};
 
@@ -625,7 +629,31 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				alert('Fail to fetch PermissionCategories.');
 			}, false);
 
-		$scope.AddCategory = function() {
+		$scope.changeCategoryInput = function() {
+			$scope.formStyle.addCategory.feedbackMessage = "";
+		}
+
+		$scope.changeSelectPermissionCategory = function () {
+
+			$http({
+				method:"GET",
+				url:'/restfulAPI/permission/SEARCHPERMISSIONBYCATEGORY',
+				cache:false,
+				params:{
+					permissionCategoryId: $scope.selectPermissionCategory.id
+				}
+			}).success(function(data, status) {
+				$scope.searchPermission = data;
+			}).error(function(data, status) {
+				alert(data);
+			});
+		}
+
+		$scope.modifyPermission = function(permission) {
+			alert(permission.permissionId);
+		}
+
+		$scope.addCategory = function() {
 
 			$scope.formStyle.addCategory.submitting();
 
@@ -641,7 +669,14 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 			}).success(function(data, status) {
 				$scope.formStyle.addCategory.submitted();
-				$scope.formStyle.addCategory.feedbackMessage = data[0].info;
+
+				if (data[0].hasOwnProperty('info')) {
+					$scope.formStyle.addCategory.feedbackMessage = data[0].info;
+				} else {
+					$scope.formStyle.addCategory.feedbackMessage = "";
+					$scope.permissionCategories.push(data[0]);
+					alert("successful");
+				}
 				
 			}).error(function(data, status) {
 				alert(data);
