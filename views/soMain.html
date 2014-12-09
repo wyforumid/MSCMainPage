@@ -1,5 +1,5 @@
 <DOCTYPE html>
-	<html ng-app="SIApp">
+	<html ng-app="SOApp">
 	<head>
 		<title>MSC</title>
 		<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
@@ -10,33 +10,6 @@
 		<link rel="stylesheet" type="text/css" href="/stylesheets/angular-toggle-switch-bootstrap-3.css">
 	</head>
 	<body style="padding-top: 70px; background: #e7e8eb">
-		<!-- <nav class="navbar navbar-default navbar-fixed-top" role="navigation" data-ng-controller="navCtrl">
-			<ul class="nav navbar-nav">
-				<li><a href="/">Main</a></li>
-				<li class="dropdown">
-					<a href="" class="dropdown-toggle" data-toggle="dropdown">Function<span  class="caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						<li ng-repeat="item in userInfo.menu">
-							<a ng-href="#{{item}}" >{{item}}</a>
-						</li>
-					</ul>
-				</li>
-				<li><a href="#setPermission"></a></li>
-				<li class="dropdown">
-					<a href="" class="dropdown-toggle" data-toggle="dropdown">Permission System<span  class="caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						<li>
-							<a href="#Permission/Group" >Group</a>
-							<a href="#Permission/ModifyPermission">Permission</a>
-						</li>
-					</ul>
-				</li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/user#/calendar">{{userInfo.loginName}}</a></li>
-				<li><a href='/main/logout' style="margin-right: 50px;">Logout</a></li>
-			</ul>
-		</nav> -->
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation" data-ng-controller="navCtrl">
 			<ul class="nav navbar-nav">
 				<li><a href="/">Main</a></li>
@@ -67,7 +40,6 @@
 				<li><a href='/main/logout' style="margin-right: 50px;">Logout</a></li>
 			</ul>
 		</nav>
-		<!-- <menu ng-controller="navCtrl" menu-info="userInfo" /> -->
 		<div ng-view>
 
 		</div>
@@ -77,7 +49,7 @@
 		<script type="text/javascript" src="/javascripts/select.js"></script>
 		<script type="text/javascript" src="/javascripts/self-services.js"></script>
 		<script type="text/javascript" src="/javascripts/self-directives.js"></script>
-		<script type="text/javascript" src="/javascripts/self-si-controllers.js"></script>
+		<script type="text/javascript" src="/javascripts/self-so-controllers.js"></script>
 		<script type="text/javascript" src="/javascripts/self-user-controllers.js"></script>
 		<script type="text/javascript" src="/javascripts/self-permission-controllers.js"></script>
 		<script type="text/javascript" src="/javascripts/angular-route.js"></script>
@@ -87,9 +59,14 @@
 		<script type="text/javascript" src="/javascripts/jquery.cookie.js"></script>
 		<script type="text/javascript" src="/javascripts/calendar.js"></script>
 		<script type="text/javascript">
-			angular.module('SIApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSIControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch','selfDirectives'])
+			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch'])
 				.config(['$routeProvider', function($routeProvider) {
 					$routeProvider
+						.when('/main',{
+							templateUrl:'partialviews/so/main.html',
+							controller:'SOCtrl',
+							caseInsensitiveMatch:true
+						})
 						.when('/SI', {
 							templateUrl: '/partialviews/SIMain.html',
 							controller: 'SICtrl',
@@ -123,77 +100,6 @@
 				}])
 				.controller('navCtrl', function($scope, $rootScope) {
 					$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
-					// $rootScope.userInfo = {
-					// 	fullName:'Lyle Zhan',
-					// 	email:'lzhan@sprc.mschkg.com',
-					// 	userName:'lzhan',
-					// 	menu:[
-					// 	'SI'
-					// 	],
-					// 	Role:'Manager',
-					// 	permission:{
-					// 		canFilter:true,
-					// 		canSearch:true,
-					// 		canDispath:true,
-					// 		canAssign:true,
-					// 		canFinish:true
-					// 	}
-					// };
-
-					// $rootScope.userInfo = {
-					// 	userName:'Indexer',				
-					// 	menu:[
-					// 	'SI'
-					// 	],
-					// 	Role:'Indexer',
-					// 	permission:{
-					// 		canFilter:true,
-					// 		canSearch:true,
-					// 		canDispath:true,
-					// 		canAssign:false,
-					// 		canFinish:false
-					// 	}
-					// };
-					// $rootScope.userInfo = {
-					// 	userName:'Dispather',				
-					// 	menu:[
-					// 	'SI'
-					// 	],
-					// 	Role:'Dispather',
-					// 	permission:{
-					// 		canFilter:true,
-					// 		canSearch:true,
-					// 		canDispath:false,
-					// 		canAssign:true,
-					// 		canFinish:false
-					// 	}
-					// };
-
-					// if(JSON.parse($.cookie('user')).name == 'Guest'){
-					// 	$rootScope.userInfo ={
-					// 		userName:'Guest',
-					// 		menu:[],
-					// 		Role:'Guest',
-					// 		permission:{}
-					// 	}
-					// }
-
-
-
-					// $rootScope.userInfo = {
-					// 	userName:'Inputter Jason',				
-					// 	menu:[
-					// 		'SI'
-					// 	],
-					// 	Role:'Inputter',
-					// 	permission:{
-					// 		canFilter:true,
-					// 		canSearch:true,
-					// 		canDispath:false,
-					// 		canAssign:false,
-					// 		canFinish:true
-					// 	}
-					// };
 				})
 </script>
 </body>
