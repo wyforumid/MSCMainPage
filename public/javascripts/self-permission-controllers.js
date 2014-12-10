@@ -602,58 +602,75 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		//console.log($scope.newGroup);
 
 
-	}).controller('permissionCtrl', function($scope, fundationService, $http) {
+	}).controller('permissionCtrl', function($scope, fundationService, $http, $filter) {
 
 		$scope.permissionCategories = [];
 		$scope.permissions = [];
+		$scope.selectPermissionCategory = {
+			id: 0
+		};
 		$scope.searchPermission = [];
+		$scope.permissionAction = {
+			title: "",
+			permissionModel: {}
+		};
 		$scope.formStyle = {
-			addCategory:{
-				submitting:function() {
+			addCategory: {
+				submitting: function() {
 					$scope.formStyle.addCategory.submitButtonText = "Add...";
 					$scope.formStyle.addCategory.isSubmitting = true;
 				},
-				submitted:function() {
+				submitted: function() {
 					$scope.formStyle.addCategory.submitButtonText = "Add";
 					$scope.formStyle.addCategory.isSubmitting = false;
 				},
-				feedbackMessage:"",
-				submitButtonText:"Add",
-				isSubmitting:false
+				feedbackMessage: "",
+				submitButtonText: "Add",
+				isSubmitting: false
 			}
 		};
 
 		fundationService.getAllPermissionCategories(
 			function(data) {
 				$scope.permissionCategories = data;
-			}, function(data, status) {
+			},
+			function(data, status) {
 				alert('Fail to fetch PermissionCategories.');
 			}, false);
 
 		fundationService.getAllPermissions(
 			function(data) {
 				$scope.permissions = data;
-			}, function(data, status) {
+			},
+			function(data, status) {
 				alert('Fail to fetch all permissions.');
-			},false);
+			}, false);
 
 		$scope.changeCategoryInput = function() {
 			$scope.formStyle.addCategory.feedbackMessage = "";
 		}
 
-		$scope.changeSelectPermissionCategory = function () {
+		$scope.changeSelectPermissionCategory = function() {
 
-			$scope.searchPermission = [];
-
-			for (var i = $scope.permissions.length; i--;) {
-				if ($scope.permissions[i].categoryId == $scope.selectPermissionCategory.id) {
-					$scope.searchPermission.push($scope.permissions[i]);
-				}
-			}
+			// if ($scope.selectPermissionCategory) {
+			// 	$scope.searchPermission = $filter("filter")($scope.permissions, {categoryId:$scope.selectPermissionCategory.id});
+			// } else {
+			// 	$scope.searchPermission = [];
+			// }
 		}
 
-		$scope.modifyPermission = function(permission) {
-			alert(permission.permissionId);
+		$scope.permissionAction = function(model, permission) {
+
+			switch (model) {
+				case "add":
+					$scope.permissionAction.title = "Add permission";
+					$scope.permissionAction.permissionModel = {};
+					break;
+				case "edit":
+					$scope.permissionAction.title = "Edit permission";
+					$scope.permissionAction.permissionModel = permission;
+					break;
+			}
 		}
 
 		$scope.AddCategory = function() {
@@ -666,8 +683,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				url: '/restfulAPI/permission/ADDCATEGORY',
 				cache: false,
 				data: {
-					categoryName:$scope.CategoryName,
-					categoryDescription:$scope.CategoryDescription
+					categoryName: $scope.CategoryName,
+					categoryDescription: $scope.CategoryDescription
 				}
 
 			}).success(function(data, status) {
@@ -680,10 +697,28 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					$scope.permissionCategories.push(data[0]);
 					alert("successful");
 				}
-				
+
 			}).error(function(data, status) {
 				alert(data);
 			});
 
+		}
+	})
+	.filter('testFilter',function(){
+		return function(arr, categoryId){
+
+			
+
+			for (var i = arr.length; i--;) {
+				
+			}
+
+			if(!categoryId){
+				return item;
+			}else if(item.categoryId == categoryId){
+				return item;
+			}else{
+
+			}
 		}
 	});
