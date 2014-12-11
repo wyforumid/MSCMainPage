@@ -604,14 +604,18 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 	}).controller('permissionCtrl', function($scope, fundationService, $http, $filter) {
 
+
 		$scope.permissionCategories = [];
 		$scope.permissions = [];
+
 		$scope.selectPermissionCategory = {
 			id: 0
 		};
 		$scope.searchPermission = [];
 		$scope.permissionAction = {
 			title: "",
+			model: "",
+			buttonText: "",
 			permissionModel: {}
 		};
 		$scope.formStyle = {
@@ -629,6 +633,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				isSubmitting: false
 			}
 		};
+
 
 		fundationService.getAllPermissionCategories(
 			function(data) {
@@ -650,28 +655,32 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$scope.formStyle.addCategory.feedbackMessage = "";
 		}
 
-		$scope.changeSelectPermissionCategory = function() {
-
-			// if ($scope.selectPermissionCategory) {
-			// 	$scope.searchPermission = $filter("filter")($scope.permissions, {categoryId:$scope.selectPermissionCategory.id});
-			// } else {
-			// 	$scope.searchPermission = [];
-			// }
-		}
-
 		$scope.permissionAction = function(model, permission) {
+
+			$scope.permissionAction.model = model;
 
 			switch (model) {
 				case "add":
-					$scope.permissionAction.title = "Add permission";
+					$scope.permissionAction.title = "Add Permission";
+					$scope.permissionAction.buttonText = "Submit";
 					$scope.permissionAction.permissionModel = {};
 					break;
 				case "edit":
-					$scope.permissionAction.title = "Edit permission";
-					$scope.permissionAction.permissionModel = permission;
+					$scope.permissionAction.title = "Edit Permission";
+					$scope.permissionAction.buttonText = "Save changes";
+					$scope.permissionAction.permissionModel = $.extend(true, {}, permission);
 					break;
 			}
 		}
+
+		$scope.permissionActionSubmit = function() {
+			switch ($scope.permissionAction.model) {
+				case "add":
+					break;
+				case "edit":
+					break;
+			}
+		};
 
 		$scope.AddCategory = function() {
 
@@ -704,21 +713,21 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		}
 	})
-	.filter('testFilter',function(){
-		return function(arr, categoryId){
+	.filter('filterPermissionById', function() {
+		return function(arr, categoryId) {
 
-			
+			var filterArray = [];
 
-			for (var i = arr.length; i--;) {
-				
-			}
+			if (!categoryId) {
+				return filterArray;
+			} else {
 
-			if(!categoryId){
-				return item;
-			}else if(item.categoryId == categoryId){
-				return item;
-			}else{
-
+				for (var i = arr.length; i--;) {
+					if (arr[i].categoryId == categoryId) {
+						filterArray.push(arr[i]);
+					}
+				}
+				return filterArray;
 			}
 		}
 	});

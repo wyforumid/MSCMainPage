@@ -70,8 +70,7 @@
 							<div class="col-md-3">
 								<select class="form-control" 
 										ng-model="selectPermissionCategory" 
-										ng-options="category.name for category in permissionCategories"
-										ng-change="changeSelectPermissionCategory();">
+										ng-options="category.name for category in permissionCategories">
 									<option value="">-- choose category --</option>
 								</select>
 							</div>
@@ -87,25 +86,10 @@
 										</tr>
 									</thead>
 									<tbody>
-										<!-- <tr ng-show="searchPermission.length <= 0">
+										<tr ng-show="searchPermission.length <= 0">
 											<td colspan="3">No records...</td>
 										</tr>
-										<tr data-ng-repeat="permission in searchPermission">
-											<td>{{permission.name}}</td>
-											<td>{{permission.description}}</td>
-											<td>
-												<a href=""
-												   data-toggle="modal" 
-												   data-target="#myModal"
-												   ng-click="permissionAction('edit', permission);" >
-											    edit
-											    </a>
-											</td>
-										</tr> -->
-										<!-- <tr ng-show="searchPermission.length <= 0">
-											<td colspan="3">No records...</td>
-										</tr> -->
-										<tr data-ng-repeat="permission in permissions | testFilter:selectPermissionCategory.id ">
+										<tr data-ng-repeat="permission in permissions | filterPermissionById:selectPermissionCategory.id | orderBy:'id' as searchPermission">
 											<td>{{permission.name}}</td>
 											<td>{{permission.description}}</td>
 											<td>
@@ -166,7 +150,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary" ng-click="permissionActionSubmit();">{{permissionAction.buttonText}}</button>
       </div>
     </div>
   </div>
