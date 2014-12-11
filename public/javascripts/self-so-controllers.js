@@ -1,20 +1,17 @@
-angular.module('selfSOControllers', ['toggle-switch'])
-	.controller('SOCtrl', function($scope) {
+angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
+	.controller('SOCtrl', function($scope, $http) {
 		$scope.searchingResult = [];
 		$scope.filterResult = [];
 		$scope.analyseResult = {};
-		$scope.allTeamGroups = [];
 		// $scope.searchCondition = {BookingNo:[]};
 		$scope.filters = {
-			BookingNo: null,
-			BLNo: null,
-			Inputter: null,
-			Vessel: null,
-			Voyage: null,
+			OriginalType: null,
+			FinalStatusName: null,
+			Executor: null,
+			Executee: null,
 			Service: null,
-			LoadPort: null,
-			SIOrigin: null,
-			TeamGroup: null
+			POL: null,
+			IsPreAssign: null
 		};
 		$scope.tableHeight = '600px';
 		$scope.isFilterZone = true;
@@ -43,17 +40,22 @@ angular.module('selfSOControllers', ['toggle-switch'])
 			},
 			true);
 
+		$scope.showStatus = function(item) {
+			if (item.JobStatusName) {
+				return item.JobStatusName;
+			} else {
+				return item.MainStatusName;
+			}
+		}
+
 		$scope.resetFilter = function() {
-			$scope.filters.BookingNo = null;
-			$scope.filters.BLNo = null;
-			$scope.filters.Inputter = null;
-			$scope.filters.Vessel = null;
-			$scope.filters.Voyage = null;
+			$scope.filters.OriginalType = null;
+			$scope.filters.FinalStatusName = null;
+			$scope.filters.Executor = null;
+			$scope.filters.Executee = null;
 			$scope.filters.Service = null;
-			$scope.filters.LoadPort = null;
-			$scope.filters.SIOrigin = null;
-			$scope.filters.TeamGroup = null;
-			$scope.hasSelectedSO = false;
+			$scope.filters.POL = null;
+			$scope.filters.IsPreAssign = null;
 			copySearchingResultToFilterResult();
 		}
 
@@ -115,354 +117,29 @@ angular.module('selfSOControllers', ['toggle-switch'])
 			})
 		}
 
-		function loadTestData() {
-
-			$scope.searchingResult = [{
-				BookingNo: '18100000000000001',
-				BLNo: '000001',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000002',
-				BLNo: '000002',
-				Vessel: 'Vessel02',
-				Voyage: 'Voyage07',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000003',
-				BLNo: '000003',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage07',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Manual',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000004',
-				BLNo: '000004',
-				Vessel: 'Vessel03',
-				Voyage: 'Voyage08',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000005',
-				BLNo: '000005',
-				Vessel: 'Vessel04',
-				Voyage: 'Voyage09',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000006',
-				BLNo: '000006',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000007',
-				BLNo: '000007',
-				Vessel: 'Vessel05',
-				Voyage: 'Voyage07',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '2014-10-05',
-				Inputter: 'Jason',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000008',
-				BLNo: '000008',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage08',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Manual',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000009',
-				BLNo: '000009',
-				Vessel: 'Vessel02',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000010',
-				BLNo: '000010',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage08',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'Shenzhen Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000011',
-				BLNo: '000011',
-				Vessel: 'Vessel03',
-				Voyage: 'Voyage09',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000012',
-				BLNo: '000012',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000013',
-				BLNo: '000013',
-				Vessel: 'Vessel04',
-				Voyage: 'Voyage09',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000014',
-				BLNo: '000014',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage08',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000015',
-				BLNo: '000015',
-				Vessel: 'Vessel04',
-				Voyage: 'Voyage07',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000016',
-				BLNo: '000016',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Manual',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000017',
-				BLNo: '000017',
-				Vessel: 'Vessel05',
-				Voyage: 'Voyage09',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'SI Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000081',
-				BLNo: '000018',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage09',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000091',
-				BLNo: '000019',
-				Vessel: 'Vessel02',
-				Voyage: 'Voyage08',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000020',
-				BLNo: '000020',
-				Vessel: 'Vessel01',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, {
-				BookingNo: '18100000000000021',
-				BLNo: '000021',
-				Vessel: 'Vessel05',
-				Voyage: 'Voyage06',
-				Service: 'Service01',
-				Deadline: '2014-10-30',
-				LoadPort: 'CHIWAN',
-				CNTRs: '4',
-				SIOrigin: 'Inttra',
-				DispatchTime: '2014-10-05',
-				TeamGroup: 'WuHan Team',
-				AssignedTime: '',
-				Inputter: 'Waiting',
-				PartBillNo: '2'
-			}, ];
-			//$scope.filterResult = $scope.searchingResult;
-
-			if ($scope.userInfo.Role == 'Inputter') {
-				for (var i = $scope.searchingResult.length; i--;) {
-					if ($scope.searchingResult[i].Inputter != 'Jason') {
-						$scope.searchingResult.splice(i, 1);
+		function loadMainData() {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETMAINSOREQUEST',
+				cache: false,
+			}).success(function(data, status) {
+				// $scope.searchingResult = data;
+				if (data && data.length > 0) {
+					$scope.searchingResult = [];
+					for (var i = 0; i < data.length; i++) {
+						$scope.searchingResult.push(data[i]);
+						$scope.searchingResult[$scope.searchingResult.length - 1].FinalStatusName = $scope.showStatus(data[i]);
 					}
 				}
-			}
+
+				copySearchingResultToFilterResult();
+
+				analyseSearchingResult();
+			}).error(function(data, status) {
+				alert('Fitch SO request error.' + status + data);
+			});
 
 
-			copySearchingResultToFilterResult();
-
-			$scope.allTeamGroups = [];
-			$scope.allTeamGroups.push({
-				id: 1,
-				name: 'Wuhan Team'
-			});
-			$scope.allTeamGroups.push({
-				id: 2,
-				name: 'SI Team'
-			});
-			$scope.allTeamGroups.push({
-				id: 3,
-				name: 'Shenzhen Team'
-			});
-			$scope.allTeamGroups.push({
-				id: 4,
-				name: 'Other Team'
-			});
 		}
 
 
@@ -473,8 +150,8 @@ angular.module('selfSOControllers', ['toggle-switch'])
 			var data = $scope.filterResult;
 
 			if (!data || data.length == 0) {
-				return;
 				clearAnalyseResult();
+				return;
 			}
 			clearAnalyseResult($scope.searchingResult[0]);
 
@@ -485,7 +162,7 @@ angular.module('selfSOControllers', ['toggle-switch'])
 					var item = data[i];
 					for (var k = analyseData.props.length; k--;) {
 						var propName = analyseData.props[k];
-						if (item[propName]) {
+						if (item[propName] != null && item[propName].toString() != '') {
 							if (!(analyseData[propName + 'Obj'].hasOwnProperty(item[propName]) && analyseData[propName + 'Obj'][item[propName]] == CHECK_VALUE)) {
 								analyseData[propName].push(item[propName]);
 								analyseData[propName + 'Obj'][item[propName]] = CHECK_VALUE;
@@ -515,34 +192,20 @@ angular.module('selfSOControllers', ['toggle-switch'])
 				}
 			} else {
 				$scope.analyseResult = {
-					BookingNo: [],
-					BookingNoObj: {},
-					BLNo: [],
-					BLNoObj: {},
-					Vessel: [],
-					VesselObj: {},
-					Voyage: [],
-					VoyageObj: {},
+					OriginalType: [],
+					OriginalTypeObj: {},
+					FinalStatusName: [],
+					FinalStatusNameObj: {},
+					Executor: [],
+					ExecutorObj: {},
+					Executee: [],
+					ExecuteeObj: {},
 					Service: [],
 					ServiceObj: {},
-					Deadline: [],
-					DeadlineObj: {},
-					LoadPort: [],
-					LoadPortObj: {},
-					CNTRs: [],
-					CNTRsObj: {},
-					SIOrigin: [],
-					SIOriginObj: {},
-					DispatchTime: [],
-					DispatchTime: {},
-					TeamGroup: [],
-					TeamGroupObj: {},
-					AssignTime: [],
-					AssignTimeObj: {},
-					Inputter: [],
-					InputterObj: {},
-					PartBillNo: [],
-					PartBillNoObj: {}
+					POL: [],
+					POLObj: {},
+					IsPreAssign: [],
+					IsPreAssignObj: {}
 				};
 			}
 		}
@@ -565,7 +228,7 @@ angular.module('selfSOControllers', ['toggle-switch'])
 		// 	$scope.tableHeight = 30 * nValue + 100 + 'px';
 		// })
 
-		loadTestData();
+		loadMainData();
 
 
 
@@ -578,64 +241,49 @@ angular.module('selfSOControllers', ['toggle-switch'])
 				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a ng-click="showDetails(COL_FIELD);">{{COL_FIELD}}</a></span></div>'
 			}, {
 				field: 'Notes',
-				displayName: 'Notes',
+				displayName: 'Information',
 				width: 200
 			}, {
-				field: 'Inputter',
-				displayName: 'Inputter',
+				field: 'OriginalType',
+				displayName: 'Type',
+				width: 100
+			}, {
+				field: 'FinalStatusName',
+				displayName: 'Status',
+				width: 100
+			}, {
+				field: 'Executor',
+				displayName: 'Executor',
 				width: 160
 			}, {
-				field: 'Vessel',
-				displayName: 'Vessel',
-				width: 160
-			}, {
-				field: 'Voyage',
-				displayName: 'Voyage',
+				field: 'Executee',
+				displayName: 'Executee',
 				width: 160
 			}, {
 				field: 'Service',
 				displayName: 'Service',
 				width: 160
 			}, {
-				field: 'Deadline',
-				displayName: 'Deadline',
-				width: 100
-			}, {
-				field: 'LoadPort',
-				displayName: 'Load Port',
+				field: 'POL',
+				displayName: 'POL',
 				width: 160
 			}, {
-				field: 'CNTRs',
-				displayName: 'CNTRs',
+				field: 'IsPreAssign',
+				displayName: 'Is Pre Assign',
+				// cellFilter:'toBoolean',
 				width: 50
 			}, {
-				field: 'SIOrigin',
-				displayName: 'SI Origin',
-				width: 120
-			}, {
-				field: 'DispatchTime',
-				displayName: 'Dispatch Time',
-				width: 100
-			}, {
-				field: 'TeamGroup',
-				displayName: 'Team Group',
+				field: 'Remark',
+				displayName: 'Remark',
 				width: 160
-			}, {
-				field: 'AssignedTime',
-				displayName: 'Assigned Time',
-				width: 100
-			}, {
-				field: 'PartBillNo',
-				displayName: 'PartBillNo',
-				width: 50
 			}];
 		}
 
 		function setInputterBriefColumns() {
 			$scope.columnDefs = [{
-				field: 'BookingNo',
-				displayName: 'Booking',
-				width: 160,
+				field: 'SORequestId',
+				displayName: 'Id',
+				// width: 100,
 				pinned: true,
 				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a ng-click="showDetails(COL_FIELD);">{{COL_FIELD}}</a></span></div>'
 			}];
@@ -643,7 +291,7 @@ angular.module('selfSOControllers', ['toggle-switch'])
 		}
 
 
-		analyseSearchingResult();
+
 		//alert($scope.analyseResult);
 		$scope.siGrid = {
 			data: 'filterResult',

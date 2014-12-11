@@ -22,49 +22,38 @@
 	</div>
 	<div class="row" id="filterZone" ng-show="isFilterZone">
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.BookingNo" ng-options="Booking for Booking in analyseResult.BookingNo">
-				<option value="">---Booking---</option>
+			<select class="form-control" ng-model="filters.OriginalType" ng-options="item for item in analyseResult.OriginalType">
+				<option value="">---Type---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.BLNo" ng-options="BLNo for BLNo in analyseResult.BLNo">
-				<option value="">---BOL---</option>
+			<select class="form-control" ng-model="filters.FinalStatusName" ng-options="item for item in analyseResult.FinalStatusName">
+				<option value="">---Status---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-
-			<select class="form-control" ng-model="filters.Inputter" ng-options="Inputter for Inputter in analyseResult.Inputter">
-				<option value="">---Inputter---</option>
+			<select class="form-control" ng-model="filters.Executor" ng-options="item for item in analyseResult.Executor">
+				<option value="">---Executor---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Vessel" ng-options="Vessel for Vessel in analyseResult.Vessel">
-				<option value="">---Vessel---</option>
+			<select class="form-control" ng-model="filters.Executee" ng-options="item for item in analyseResult.Executee">
+				<option value="">---Executee---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Voyage" ng-options="Voyage for Voyage in analyseResult.Voyage">
-				<option value="">---Voyage---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Service" ng-options="Service for Service in analyseResult.Service">
+			<select class="form-control" ng-model="filters.Service" ng-options="item for item in analyseResult.Service">
 				<option value="">---Service---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.LoadPort" ng-options="LoadPort for LoadPort in analyseResult.LoadPort">
-				<option value="">---Load Port---</option>
+			<select class="form-control" ng-model="filters.POL" ng-options="item for item in analyseResult.POL">
+				<option value="">---POL---</option>
 			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.SIOrigin" ng-options="SIOrigin for SIOrigin in analyseResult.SIOrigin">
-				<option value="">---SI Origin---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.TeamGroup" ng-options="TeamGroup for TeamGroup in analyseResult.TeamGroup">
-				<option value="">---Team Group---</option>
+			<select class="form-control" ng-model="filters.IsPreAssign" ng-options="item for item in analyseResult.IsPreAssign">
+				<option value="">---IsPreAssign---</option>
 			</select>
 		</div>
 		<div class="col-md-12">
@@ -75,32 +64,28 @@
 	</div>
 	<div class="row" id="searchZone" ng-hide="isFilterZone">
 		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Booking" />
+			<select class="form-control">
+				<option value="">---Status---</option>
+			</select>
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter BOL" />
+			<input type="text" class="form-control" placeholder="Enter Executor" />
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Inputter" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Vessel" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Voyage" />
+			<input type="text" class="form-control" placeholder="Enter Executee" />
 		</div>
 		<div class="col-md-12 margin-botton-div">
 			<input type="text" class="form-control" placeholder="Enter Service" />
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Load Port" />
+			<input type="text" class="form-control" placeholder="Enter POL" />
 		</div>
 		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter SI Origin" />
+			<select class="form-control">
+				<option value="">---IsPreAssign---</option>
+			</select>
 		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Team Group" />
-		</div>
+		
 		<div class="col-md-6">
 			<button class="btn btn-primary">Search</button>	
 		</div>
