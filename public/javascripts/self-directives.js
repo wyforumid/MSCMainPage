@@ -83,11 +83,20 @@ angular.module('selfDirectives', [])
 			// },
 			scope: {
 				data: '=categoriedpermissions',
-				selectedCount : '=selectedcount',
-				changedPermissionCount : '&selectedcountchange'
+				selectedCount: '=selectedcount',
+				changedPermissionCount: '&selectedcountchange'
 			},
 			restrict: 'A',
 			templateUrl: '/partialviews/permission/permissionTemplate.html',
-			
+
 		}
+	})
+	.directive('menu', function() {
+		return {
+			scope: {
+				userInfo: '=menuInfo'
+			},
+			restrict: 'EA',
+			templateUrl: '/partialviews/menu.html'
+		};
 	});
