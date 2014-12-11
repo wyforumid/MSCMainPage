@@ -12,3 +12,21 @@ angular.module('selfFilters', [])
 			}
 		}
 	})
+	.filter('filterPermissionById', function() {
+		return function(arr, categoryId) {
+
+			var filterArray = [];
+
+			if (!categoryId) {
+				return filterArray;
+			} else {
+
+				for (var i = arr.length; i--;) {
+					if (arr[i].categoryId == categoryId) {
+						filterArray.push(arr[i]);
+					}
+				}
+				return filterArray;
+			}
+		}
+	});

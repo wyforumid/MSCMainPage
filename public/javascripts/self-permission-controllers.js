@@ -1,4 +1,4 @@
-angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select'])
+angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select', 'selfFilters'])
 	.controller('permissionGroupCtrl', function($scope, fundationService, $http) {
 		$('#navTab a').click(function(e) {
 			e.preventDefault();
@@ -678,9 +678,37 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				case "add":
 					break;
 				case "edit":
+					modifyPermission();
 					break;
 			}
 		};
+
+		function modifyPermission () {
+			$http({
+
+				method: 'POST',
+				url: '/restfulAPI/permission/MODIFYPERMISSION',
+				cache: false,
+				data: {
+					modifyPermission:$scope.permissionAction.permissionModel
+				}
+
+			}).success(function(data, status) {
+
+				// $scope.formStyle.addCategory.submitted();
+
+				// if (data[0].hasOwnProperty('info')) {
+				// 	$scope.formStyle.addCategory.feedbackMessage = data[0].info;
+				// } else {
+				// 	$scope.formStyle.addCategory.feedbackMessage = "";
+				// 	$scope.permissionCategories.push(data[0]);
+				// 	alert("successful");
+				// }
+
+			}).error(function(data, status) {
+				alert(data);
+			});
+		}
 
 		$scope.AddCategory = function() {
 
@@ -712,22 +740,5 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			});
 
 		}
-	})
-	.filter('filterPermissionById', function() {
-		return function(arr, categoryId) {
 
-			var filterArray = [];
-
-			if (!categoryId) {
-				return filterArray;
-			} else {
-
-				for (var i = arr.length; i--;) {
-					if (arr[i].categoryId == categoryId) {
-						filterArray.push(arr[i]);
-					}
-				}
-				return filterArray;
-			}
-		}
 	});

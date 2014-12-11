@@ -19,3 +19,23 @@ exports.getData = function(req, res, getFunc) {
 			res.end();
 		})
 }
+
+exports.jsonResponse = function(req, res, getResponseDataFunc) {
+	async.waterfall([
+			function(cb) {
+				getResponseDataFunc(cb);
+			},
+			function(data, cb) {
+				res.writeHead(200, {
+					"Content-Type": "application/json"
+				});
+				res.write(JSON.stringify(data));
+				res.end();
+			}
+		],
+		function(err, result) {
+			res.writeHead(404);
+			res.write(err ? err.toString() : '');
+			res.end();
+		})
+}

@@ -122,29 +122,42 @@
         <h4 class="modal-title" id="myModalLabel">{{permissionAction.title}}</h4>
       </div>
       <div class="modal-body">
-      		<form role="form">
+      		<form name="permissionForm" role="form" novalidate>
 	        	<div class="form-group">
 	        		<label for="actionPermissionName">Name</label>
 	        		<input class="form-control" 
         				   type="text" 
         				   id="actionPermissionName" 
-        				   ng-model="permissionAction.permissionModel.name" />
+        				   name="permissionName"
+        				   placeholder="Enter permission name"
+        				   ng-model="permissionAction.permissionModel.name"
+        				   required />
 	        	</div>
 	        	<div class="form-group">
 	        		<label for="actionPermissionDescription">Description</label>
         			<input class="form-control" 
         				   type="text" 
         				   id="actionPermissionDescription" 
+        				   name="permissionDescription"
+        				   placeholder="Enter description"
         				   ng-model="permissionAction.permissionModel.description" />
 	        	</div>
 	        	<div class="form-group">
 	        		<label for="actionPermissionCategory">Category</label>
         			<select class="form-control" 
         					id="actionPermissionCategory"
+        					name="permissionCategoryId"
 							ng-model="permissionAction.permissionModel.categoryId" 
 							ng-options="category.id as category.name for category in permissionCategories">
 							<option value="">-- choose category --</option>
 					</select>
+	        	</div>
+	        	<div class="form-group alert alert-danger alert-dismissible" 
+	        		 ng-show="!permissionForm.permissionCategoryId.$modelValue || (permissionForm.$dirty && permissionForm.$invalid)" >
+	        		<ul>
+	        			<li ng-show="permissionForm.permissionName.$error.required">please enter permission name</li>
+	        			<li ng-show="!permissionForm.permissionCategoryId.$modelValue">please select a permission category</li>
+	        		</ul>
 	        	</div>
         	</form>
       </div>

@@ -1,5 +1,6 @@
 var permissionAPI = require('../API/permissionAPI');
 var async = require('async');
+var func = require('./func');
 
 module.exports = function() {
 	this.controllerName = 'permission';
@@ -65,6 +66,9 @@ module.exports = function() {
 				res.write(error ? error.toString() : '');
 				res.end();
 			});
+		},
+		MODIFYPERMISSION: function(req, res) {
+
 		}
 	};
 
