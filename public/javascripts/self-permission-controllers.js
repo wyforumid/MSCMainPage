@@ -774,15 +774,14 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		}
 
 		$scope.permissionAction = function(model, permission) {
-			$scope.formStyle.permission.feedbackMessage = null;
 			$('#myModal').modal('show');
+			$scope.formStyle.permission.feedbackMessage = null;
 			$scope.permissionForm.$setPristine();
 			$scope.formStyle.permission.initial(model, permission);
 		}
 
 		$scope.permissionActionSubmit = function() {
 			$scope.formStyle.permission.feedbackMessage = null;
-
 			$scope.formStyle.permission.submit();
 		};
 
