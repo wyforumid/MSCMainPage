@@ -99,15 +99,13 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
     }
 
 }));
-// app.use('/', function(req, res, next) {
-//     if (req.isAuthenticated()) {
-//         next();
-//     } else {
-//         res.redirect('/');
-//     }
-
-
-// });
+app.use('/', function(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+});
 
 app.use('/', routes);
 app.use('/API', apiRoute);

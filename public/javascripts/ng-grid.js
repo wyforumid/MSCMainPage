@@ -2604,7 +2604,7 @@ var ngSelectionProvider = function (grid, $scope, $parse) {
     };
     self.toggleSelectAll = function (checkAll, bypass, selectFiltered) {
         var rows = selectFiltered ? grid.filteredRows : grid.rowCache;
-        if (bypass || grid.config.beforeSelectionChange(rows, checkAll)) {
+        if (bypass || grid.config.beforeSelectionChange(rows, checkAll, self)) {
             var selectedlength = self.selectedItems.length;
             if (selectedlength > 0) {
                 self.selectedItems.length = 0;
