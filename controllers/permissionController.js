@@ -68,7 +68,27 @@ module.exports = function() {
 			});
 		},
 		MODIFYPERMISSION: function(req, res) {
-
+			func.jsonResponse(req, res, function(callback) {
+				permissionAPI.modifyPermission(
+					 req.body.modifyPermission.id
+					,req.body.modifyPermission.name
+					,req.body.modifyPermission.description
+					,req.body.modifyPermission.categoryId
+					,function(err, data) {
+						callback(err, data);
+					});
+			});
+		},
+		ADDPERMISSION: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				permissionAPI.addPermission(
+					 req.body.addPermission.name
+					,req.body.addPermission.description
+					,req.body.addPermission.categoryId
+					,function(err, data) {
+						callback(err, data);
+					});
+			});
 		}
 	};
 

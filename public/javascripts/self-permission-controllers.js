@@ -631,79 +631,174 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				feedbackMessage: "",
 				submitButtonText: "Add",
 				isSubmitting: false
+			},
+			permission: {
+				initial: function(model, permission) {
+
+					$scope.formStyle.permission.model = model;
+
+					switch ($scope.formStyle.permission.model) {
+						case "add":
+							$scope.formStyle.permission.title = "Add Permission";
+							$scope.formStyle.permission.submitButtonText = "Submit";
+							$scope.formStyle.permission.permissionModel = {};
+							break;
+						case "edit":
+							$scope.formStyle.permission.title = "Edit Permission";
+							$scope.formStyle.permission.submitButtonText = "Save changes";
+							$scope.formStyle.permission.permissionModel = $.extend(true, {}, permission);
+							$scope.formStyle.permission.permissionModelOrigin = permission;
+							break;
+					}
+				},
+				submitting: function() {
+					switch ($scope.formStyle.permission.model) {
+						case "add":
+							$scope.formStyle.permission.submitButtonText = "Submit...";
+							$scope.formStyle.permission.isSubmitting = true;
+							break;
+						case "edit":
+							$scope.formStyle.permission.submitButtonText = "Save changes...";
+							$scope.formStyle.permission.isSubmitting = true;
+							break;
+					}
+				},
+				submitted: function() {
+					switch ($scope.formStyle.permission.model) {
+						case "add":
+							$scope.formStyle.permission.submitButtonText = "Submit";
+							$scope.formStyle.permission.isSubmitting = false;
+							break;
+						case "edit":
+							$scope.formStyle.permission.submitButtonText = "Save changes";
+							$scope.formStyle.permission.isSubmitting = false;
+							break;
+					}
+				},
+				submit: function() {
+
+					switch ($scope.formStyle.permission.model) {
+						case "add":
+							$scope.formStyle.permission.submitting();
+							$http({
+								method: 'POST',
+								url: '/restfulAPI/permission/ADDPERMISSION',
+								cache: false,
+								data: {
+									addPermission: $scope.formStyle.permission.permissionModel
+								}
+							}).success(function(data, status) {
+
+								if (!data[0].hasOwnProperty("key")) {
+									loadAllPermissions(true);
+								}
+
+								$scope.formStyle.permission.feedbackResult = data[0].key;
+								$scope.formStyle.permission.feedbackMessage = data[0].message;
+
+								$scope.formStyle.permission.submitted();
+
+							}).error(function(data, status) {
+								alert(data);
+								$scope.formStyle.permission.submitted();
+							});
+							break;
+						case "edit":
+							$scope.formStyle.permission.submitting();
+							$http({
+								method: 'POST',
+								url: '/restfulAPI/permission/MODIFYPERMISSION',
+								cache: false,
+								data: {
+									modifyPermission: $scope.formStyle.permission.permissionModel
+								}
+							}).success(function(data, status) {
+
+								if (data[0].key) {
+									for (var property in $scope.formStyle.permission.permissionModel) {
+										if ($scope.formStyle.permission.permissionModelOrigin.hasOwnProperty(property)) {
+											$scope.formStyle.permission.permissionModelOrigin[property] = $scope.formStyle.permission.permissionModel[property];
+										}
+									}
+								}
+
+								$scope.formStyle.permission.feedbackResult = data[0].key;
+								$scope.formStyle.permission.feedbackMessage = data[0].message;
+								$scope.formStyle.permission.submitted();
+
+							}).error(function(data, status) {
+								alert(data);
+								$scope.formStyle.permission.submitted();
+							});
+
+							break;
+					}
+				},
+				model: "",
+				title: "",
+				submitButtonText: "",
+				feedbackResult: false,
+				feedbackMessage: "",
+				isSubmitting: false,
+				permissionModel: {},
+				permissionModelOrigin: {}
 			}
 		};
 
 
-		fundationService.getAllPermissionCategories(
-			function(data) {
-				$scope.permissionCategories = data;
-			},
-			function(data, status) {
-				alert('Fail to fetch PermissionCategories.');
-			}, false);
+		loadAllPermissionCategories(false);
+		loadAllPermissions(false);
 
-		fundationService.getAllPermissions(
-			function(data) {
-				$scope.permissions = data;
-			},
-			function(data, status) {
-				alert('Fail to fetch all permissions.');
-			}, false);
+		function loadAllPermissions(forceRefresh) {
+			fundationService.getAllPermissions(
+				function(data) {
+					$scope.permissions = data;
+				},
+				function(data, status) {
+					alert('Fail to fetch all permissions.');
+				}, forceRefresh);
+		}
+
+		function loadAllPermissionCategories(forceRefresh) {
+			fundationService.getAllPermissionCategories(
+				function(data) {
+					$scope.permissionCategories = data;
+				},
+				function(data, status) {
+					alert('Fail to fetch PermissionCategories.');
+				}, forceRefresh);
+		}
 
 		$scope.changeCategoryInput = function() {
 			$scope.formStyle.addCategory.feedbackMessage = "";
 		}
 
 		$scope.permissionAction = function(model, permission) {
-
-			$scope.permissionAction.model = model;
-
-			switch (model) {
-				case "add":
-					$scope.permissionAction.title = "Add Permission";
-					$scope.permissionAction.buttonText = "Submit";
-					$scope.permissionAction.permissionModel = {};
-					break;
-				case "edit":
-					$scope.permissionAction.title = "Edit Permission";
-					$scope.permissionAction.buttonText = "Save changes";
-					$scope.permissionAction.permissionModel = $.extend(true, {}, permission);
-					break;
-			}
+			$scope.formStyle.permission.feedbackMessage = null;
+			$('#myModal').modal('show');
+			$scope.permissionForm.$setPristine();
+			$scope.formStyle.permission.initial(model, permission);
 		}
 
 		$scope.permissionActionSubmit = function() {
-			switch ($scope.permissionAction.model) {
-				case "add":
-					break;
-				case "edit":
-					modifyPermission();
-					break;
-			}
+			$scope.formStyle.permission.feedbackMessage = null;
+
+			$scope.formStyle.permission.submit();
 		};
 
-		function modifyPermission () {
+		function addPermission() {
 			$http({
 
 				method: 'POST',
-				url: '/restfulAPI/permission/MODIFYPERMISSION',
+				url: '/restfulAPI/permission/ADDPERMISSION',
 				cache: false,
 				data: {
-					modifyPermission:$scope.permissionAction.permissionModel
+					addPermission: $scope.permissionAction.permissionModel
 				}
 
 			}).success(function(data, status) {
 
-				// $scope.formStyle.addCategory.submitted();
-
-				// if (data[0].hasOwnProperty('info')) {
-				// 	$scope.formStyle.addCategory.feedbackMessage = data[0].info;
-				// } else {
-				// 	$scope.formStyle.addCategory.feedbackMessage = "";
-				// 	$scope.permissionCategories.push(data[0]);
-				// 	alert("successful");
-				// }
+				return data;
 
 			}).error(function(data, status) {
 				alert(data);
