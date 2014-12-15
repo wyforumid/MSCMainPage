@@ -260,7 +260,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			}, {
 				field: 'IsPreAssign',
 				displayName: 'Is Pre Assign',
-				width: 50
+				width: 100
 			}, {
 				field: 'Remark',
 				displayName: 'Remark',
@@ -374,11 +374,111 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			successCallback();
 		}
 
+		function TestLoadCanAssignUser(successCallback, errorCallback) {
+			$scope.canAssignUser = [];
+			$scope.canAssignUser.push({
+				groupName: 'IT',
+				Users: [{
+					id: 1365,
+					name: 'Jason Liu',
+					remain: 4,
+					finished: 40,
+					checked: false
+				}, {
+					id: 1427,
+					name: 'Lyle Zhan',
+					remain: 4,
+					finished: 5,
+					checked: false
+				}, {
+					id: 4,
+					name: 'Ryan Wei',
+					remain: 5,
+					finished: 10,
+					checked: false
+				}, {
+					id: 3,
+					name: 'Benkit Shi',
+					remain: 5,
+					finished: 0,
+					checked: false
+				}, ]
+			});
+
+			$scope.canAssignUser.push({
+				groupName: 'DOC',
+				Users: [{
+					id: 1365,
+					name: 'DG',
+					remain: 4,
+					finished: 0,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG1',
+					remain: 4,
+					finished: 20,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG2',
+					remain: 5,
+					finished: 0,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG3',
+					remain: 5,
+					finished: 0,
+					checked: false
+				}, ]
+			});
+
+			$scope.canAssignUser.push({
+				groupName: 'WH',
+				Users: [{
+					id: 1365,
+					name: 'DG4',
+					remain: 4,
+					finished: 0,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG5',
+					remain: 4,
+					finished: 20,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG6',
+					remain: 5,
+					finished: 0,
+					checked: false
+				}, {
+					id: 1365,
+					name: 'DG7',
+					remain: 5,
+					finished: 0,
+					checked: false
+				}, ]
+			});
+			successCallback();
+		}
+
 		$scope.dispatchGroup = function() {
 			TestLoadCanDispatchedGroup(function() {
 				$('#dispatchDialog').modal('show');
 			}, function(err) {
 				alert('Loading dispatch group error.' + err);
+			});
+
+		}
+
+		$scope.assignUser = function() {
+			TestLoadCanAssignUser(function() {
+				$('#assignDialog').modal('show');
+			}, function(err) {
+				alert('Loading assign user error.' + err);
 			});
 
 		}
@@ -394,12 +494,17 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				}).success(function(data, status) {
 					resetGroupStatus();
 					updatehSOWithForceDispatch(data);
-					
+					alert('Dispatch success.');
 					$('#dispatchDialog').modal('hide');
 				}).error(function(data, status) {
 					alert('Fail to force dispatch, please dispatch again.');
 				});
 			}
+		}
+
+		$scope.forceAssign = function(){
+			var data = autoBatchAssign();
+			
 		}
 
 		function resetGroupStatus() {
@@ -418,9 +523,11 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 					}
 				}
 			}
-			//$scope.siGrid.$gridScope.allSelected = false;
+			$scope.siGrid.$gridScope.allSelected = false;
 			//$scope.siGrid.selectAll(false);
 			//$('#soMainCheckbox').trigger('click'); //.attr('checked',false);
+			//$('#soMainCheckbox').attr('checked', false);
+			$scope.siGrid.$gridScope.toggleSelectAll(false);
 		}
 
 		function autoBatchDispatch() {

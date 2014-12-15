@@ -5,7 +5,7 @@
 				<button class="btn btn-primary" ng-click="dispatchGroup()" >Dispatch to Group</button>
 			</div>
 			<div class="col-md-12 margin-botton-div" >
-				<button class="btn btn-primary" >Assign to inputter</button>
+				<button class="btn btn-primary" ng-click="assignUser()">Assign to inputter</button>
 			</div>
 		</div>
 		<div class="row margin-botton-div">
@@ -283,9 +283,53 @@
 
 				
 			</div>
-			<div class="modal-footer row">
+			<div class="modal-footer">
 				<button class="btn btn-primary col-md-offset-9 col-md-1" data-dismiss="modal">Cancel</button>
 				<button class="btn btn-primary col-md-1" ng-click="forceDispatch()">Dispatch</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" role="dialog" id="assignDialog" aria-labelledby="assignTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title" id="assignTitle">
+					Assign
+				</h4>
+			</div>
+			<div class="modal-body">
+				<h5>
+					Assign to :
+				</h5>
+				<!-- <div class="row">
+					<div class="checkbox col-md-4" ng-repeat="item in canDispatchedGroup">
+						<label>
+							<input type="checkbox" ng-model="item.checked" />
+							{{item.name}}<span class="badge">{{item.assignedCount}}</span>
+						</label>
+					</div>
+				</div> -->
+				<div class="panel panel-primary" ng-repeat="item in canAssignUser">
+					<div class="panel-heading">
+						<h4 class="panel-title">{{item.groupName}}</h4>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="checkbox col-md-4" ng-repeat="user in item.Users">
+								<label>
+									<input type="checkbox" ng-model="user.checked" />{{user.name}}<span class="badge">{{user.remain}}/{{user.finished}}</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary col-md-offset-9 col-md-1" data-dismiss="modal">Cancel</button>
+				<button class="btn btn-primary col-md-1" ng-click="forceAssign()">Dispatch</button>
 			</div>
 		</div>
 	</div>
