@@ -41,6 +41,13 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			},
 			true);
 
+		$scope.$watch('searchingResult', function(nV, oV) {
+			copySearchingResultToFilterResult();
+
+			analyseSearchingResult();
+
+		}, true);
+
 		$scope.showStatus = function(item) {
 			if (item.JobStatusName) {
 				return item.JobStatusName;
@@ -129,22 +136,20 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 					// 	$scope.searchingResult.push(data[i]);
 					// 	$scope.searchingResult[$scope.searchingResult.length - 1].FinalStatusName = $scope.showStatus(data[i]);
 					// }
-					if(data.length == 0){
+					if (data.length == 0) {
 						alert('No result.');
 						return;
 					}
+
 					$scope.searchingResult = data;
 
-					copySearchingResultToFilterResult();
 
-					analyseSearchingResult();
-
-				}else{
+				} else {
 					alert(data);
 				}
-				
 
-				
+
+
 			}).error(function(data, status) {
 				alert('Fitch SO request error.' + status + data);
 			});
@@ -241,7 +246,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				displayName: 'Status',
 				width: 100
 			}, {
-				field: 'Executee',
+				field: 'ExecuteeName',
 				displayName: 'Executee',
 				width: 160
 			}, {
@@ -285,22 +290,29 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			selectWithCheckboxOnly: true,
 			enablePinning: true,
 			columnDefs: 'columnDefs',
+			checkboxHeaderTemplate: '<input class="ngSelectionHeader" type="checkbox" id="soMainCheckbox" ng-show="multiSelect" ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
 			beforeSelectionChange: function(rows, checkAll, self) {
-				self.selectedItems.length = 0;
-				for (var i = 0; i < rows.length; i++) {
-					if ($scope.canExecute(rows[i].entity)) {
-						self.selectedItems.length++;
-						rows[i].selected = checkAll;
-						if (rows[i].clone) {
-							rows[i].clone.selected = checkAll;
-						}
-						if (checkAll) {
-							self.selectedItems.push(rows[i].entity);
-						}
+				if (angular.isArray(rows) && checkAll == true) {
+					self.selectedItems.length = 0;
+					for (var i = 0; i < rows.length; i++) {
+						(function(i) {
+							if ($scope.canExecute(rows[i].entity)) {
+								rows[i].selected = checkAll;
+								if (rows[i].clone) {
+									rows[i].clone.selected = checkAll;
+								}
+								if (checkAll) {
+									self.selectedItems.push(rows[i].entity);
+									//self.selectedItems.length++;
+								}
+							}
+						})(i);
 					}
-
+					return false;
+				} else {
+					return true;
 				}
-				return false;
+
 			},
 			checkboxCellTemplate: '<div class="ngSelectionCell"><input tabindex="-1" class="ngSelectionCheckbox" type="checkbox" ng-checked="row.selected" ng-disabled="!canExecute(row.entity);" /></div>'
 		};
@@ -317,7 +329,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		});
 
 		$scope.canExecute = function(data) {
-			switch (data.FinalStatusName) {
+			switch (data.StatusName) {
 				case 'Enter':
 					return false;
 				default:
@@ -369,6 +381,77 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				alert('Loading dispatch group error.' + err);
 			});
 
+		}
+
+		$scope.forceDispatch = function() {
+			var data = autoBatchDispatch();
+			if (data || data.length > 0) {
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/FORCEDISPATCH',
+					data: data,
+					cache: false
+				}).success(function(data, status) {
+					resetGroupStatus();
+					updatehSOWithForceDispatch(data);
+					
+					$('#dispatchDialog').modal('hide');
+				}).error(function(data, status) {
+					alert('Fail to force dispatch, please dispatch again.');
+				});
+			}
+		}
+
+		function resetGroupStatus() {
+			for (var i = $scope.canDispatchedGroup.length; i--;) {
+				$scope.canDispatchedGroup[i].checked = false;
+			}
+		}
+
+		function updatehSOWithForceDispatch(data) {
+			if (data && data.length > 0) {
+				for (var i = data.length; i--;) {
+					for (var k = $scope.searchingResult.length; k--;) {
+						if ($scope.searchingResult[k].SORequestId == data[i].SORequestId) {
+							$scope.searchingResult[k] = data[i];
+						}
+					}
+				}
+			}
+			//$scope.siGrid.$gridScope.allSelected = false;
+			//$scope.siGrid.selectAll(false);
+			//$('#soMainCheckbox').trigger('click'); //.attr('checked',false);
+		}
+
+		function autoBatchDispatch() {
+			var selectedGroupIds = [];
+			for (var i = $scope.canDispatchedGroup.length; i--;) {
+				if ($scope.canDispatchedGroup[i].checked) {
+					(function(i) {
+						selectedGroupIds.push({
+							groupId: $scope.canDispatchedGroup[i].id,
+							soRequestIds: []
+						});
+					})(i);
+				}
+			}
+			var selectedItem = $scope.siGrid.$gridScope.selectedItems;
+			if (selectedItem.length < selectedGroupIds.length) {
+				alert(selectedItem.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
+			} else {
+				var count = Math.ceil(selectedItem.length / selectedGroupIds.length);
+				for (var i = 0, k = 1, j = 0; i < selectedItem.length; i++) {
+					if (k > count) {
+						k = 1;
+						j++;
+					}
+					(function(i) {
+						selectedGroupIds[j].soRequestIds.push(selectedItem[i].SORequestId);
+					})(i);
+					k++;
+				}
+				return selectedGroupIds;
+			}
 		}
 
 		$scope.showDetails = function(bkgNo) {
