@@ -7,7 +7,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		$scope.filters = {
 			OriginalType: null,
 			StatusName: null,
-			Executee: null,
+			ExecuteeName: null,
 			Service: null,
 			POL: null,
 			IsPreAssign: null
@@ -59,7 +59,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		$scope.resetFilter = function() {
 			$scope.filters.OriginalType = null;
 			$scope.filters.StatusName = null;
-			$scope.filters.Executee = null;
+			$scope.filters.ExecuteeName = null;
 			$scope.filters.Service = null;
 			$scope.filters.POL = null;
 			$scope.filters.IsPreAssign = null;
@@ -342,31 +342,31 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		function TestLoadCanDispatchedGroup(successCallback, errorCallback) {
 			$scope.canDispatchedGroup = [];
 			$scope.canDispatchedGroup.push({
-				id: 1,
+				id: 2,
 				name: 'Team1',
 				assignedCount: 69,
 				checked: false
 			});
 			$scope.canDispatchedGroup.push({
-				id: 2,
+				id: 3,
 				name: 'Team2',
 				assignedCount: 75,
 				checked: false
 			});
 			$scope.canDispatchedGroup.push({
-				id: 3,
+				id: 4,
 				name: 'Team3',
 				assignedCount: 70,
 				checked: false
 			});
 			$scope.canDispatchedGroup.push({
-				id: 4,
+				id: 5,
 				name: 'Team4',
 				assignedCount: 100,
 				checked: false
 			});
 			$scope.canDispatchedGroup.push({
-				id: 5,
+				id: 6,
 				name: 'Team5',
 				assignedCount: 55,
 				checked: false
@@ -485,7 +485,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 
 		$scope.forceDispatch = function() {
 			var data = autoBatchDispatch();
-			if (data || data.length > 0) {
+			if (data && data.length > 0) {
 				$http({
 					method: 'POST',
 					url: '/restfulAPI/so/FORCEDISPATCH',
@@ -493,7 +493,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 					cache: false
 				}).success(function(data, status) {
 					resetGroupStatus();
-					updatehSOWithForceDispatch(data);
+					updatehSOWithForceDispatchAssign(data);
 					alert('Dispatch success.');
 					$('#dispatchDialog').modal('hide');
 				}).error(function(data, status) {
@@ -502,9 +502,46 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			}
 		}
 
-		$scope.forceAssign = function(){
+		$scope.forceAssign = function() {
 			var data = autoBatchAssign();
-			
+			if (data && data.length > 0) {
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/FORCEASSIGN',
+					data: data,
+					cache: false,
+				}).success(function(data, status) {
+					resetAssignUserStatus();
+					updatehSOWithForceDispatchAssign(data);
+					alert('Assign success.');
+					$('#assignDialog').modal('hide');
+				}).error(function(data, status) {
+					alert('Fail to force assign, please assign again.');
+				})
+			}
+
+		}
+
+		function autoBatchAssign() {
+			var selectedUserIds = [];
+			for (var i = $scope.canAssignUser.length; i--;) {
+				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
+					(function(i, j) {
+						if ($scope.canAssignUser[i].Users[j].checked) {
+							selectedUserIds.push($scope.canAssignUser[i].Users[j].id);
+						}
+					})(i, k);
+				}
+			}
+			var selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+				return v.SORequestId;
+			});
+			var data = averageDistribute(
+				selectedUserIds,
+				selectedRequestId,
+				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be assigned to ' + selectedUserIds.length.toString() + ' colleagues. Please select again.');
+
+			return data;
 		}
 
 		function resetGroupStatus() {
@@ -513,7 +550,15 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			}
 		}
 
-		function updatehSOWithForceDispatch(data) {
+		function resetAssignUserStatus() {
+			for (var i = $scope.canAssignUser.length; i--;) {
+				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
+					$scope.canAssignUser[i].Users[k].checked = false;
+				}
+			}
+		}
+
+		function updatehSOWithForceDispatchAssign(data) {
 			if (data && data.length > 0) {
 				for (var i = data.length; i--;) {
 					for (var k = $scope.searchingResult.length; k--;) {
@@ -533,32 +578,78 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		function autoBatchDispatch() {
 			var selectedGroupIds = [];
 			for (var i = $scope.canDispatchedGroup.length; i--;) {
-				if ($scope.canDispatchedGroup[i].checked) {
-					(function(i) {
-						selectedGroupIds.push({
-							groupId: $scope.canDispatchedGroup[i].id,
-							soRequestIds: []
-						});
-					})(i);
-				}
+				(function(i) {
+					if ($scope.canDispatchedGroup[i].checked) {
+						selectedGroupIds.push($scope.canDispatchedGroup[i].id);
+					}
+				})(i);
 			}
-			var selectedItem = $scope.siGrid.$gridScope.selectedItems;
-			if (selectedItem.length < selectedGroupIds.length) {
-				alert(selectedItem.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
+			var selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+				return v.SORequestId;
+			});
+			var data = averageDistribute(
+				selectedGroupIds,
+				selectedRequestId,
+				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
+
+			return data;
+			// var selectedGroupIds = [];
+			// for (var i = $scope.canDispatchedGroup.length; i--;) {
+			// 	if ($scope.canDispatchedGroup[i].checked) {
+			// 		(function(i) {
+			// 			selectedGroupIds.push({
+			// 				groupId: $scope.canDispatchedGroup[i].id,
+			// 				soRequestIds: []
+			// 			});
+			// 		})(i);
+			// 	}
+			// }
+			// var selectedItem = $scope.siGrid.$gridScope.selectedItems;
+			// if (selectedItem.length < selectedGroupIds.length) {
+			// 	alert(selectedItem.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
+			// } else {
+			// 	var count = Math.ceil(selectedItem.length / selectedGroupIds.length);
+			// 	for (var i = 0, k = 1, j = 0; i < selectedItem.length; i++) {
+			// 		if (k > count) {
+			// 			k = 1;
+			// 			j++;
+			// 		}
+			// 		(function(i) {
+			// 			selectedGroupIds[j].soRequestIds.push(selectedItem[i].SORequestId);
+			// 		})(i);
+			// 		k++;
+			// 	}
+			// 	return selectedGroupIds;
+			// }
+		}
+
+		function averageDistribute(keys, values, alertInfo) {
+			var data = [];
+			for (var i = keys.length; i--;) {
+				(function(i) {
+					data[i] = {
+						key: keys[i],
+						values: []
+					};
+				})(i);
+			}
+			if (values.length < keys.length) {
+				alert(alertInfo);
+				return null;
 			} else {
-				var count = Math.ceil(selectedItem.length / selectedGroupIds.length);
-				for (var i = 0, k = 1, j = 0; i < selectedItem.length; i++) {
+				var count = Math.ceil(values.length / keys.length);
+				for (var i = 0, k = 1, j = 0; i < values.length; i++) {
 					if (k > count) {
 						k = 1;
 						j++;
 					}
 					(function(i) {
-						selectedGroupIds[j].soRequestIds.push(selectedItem[i].SORequestId);
+						data[j].values.push(values[i]);
 					})(i);
 					k++;
 				}
-				return selectedGroupIds;
 			}
+			return data;
 		}
 
 		$scope.showDetails = function(bkgNo) {
