@@ -72,6 +72,7 @@ passport.deserializeUser(function(id, done) {
     done(null, id);
 });
 
+
 app.use('/', freeRoutes);
 app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
     if (arguments.length == 4) {
