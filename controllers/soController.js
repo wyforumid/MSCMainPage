@@ -35,6 +35,17 @@ module.exports = function() {
 					}
 				});
 			});
+		},
+		FORCEASSIGN: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.forceAssign(req.body, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				})
+			})
 		}
 	};
 
