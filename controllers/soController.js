@@ -17,9 +17,32 @@ module.exports = function() {
 						}
 					});
 				} else {
-					cb('Please login first', null);
+					// cb('Please login first', null);
+					res.redirect('/');
 				}
 
+			});
+		},
+		GETSOWORKFLOW: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.GetSOWorkflow(req.query.id, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
+		},
+		GETSOBASEINFO: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.GetSOBaseInfo(req.query.id, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
 			});
 		}
 	}

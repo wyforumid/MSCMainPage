@@ -137,3 +137,7 @@ a {
 .btn-float-right {
 	float: right;
 }
+
+.highlightFont{
+	color: red;
+}

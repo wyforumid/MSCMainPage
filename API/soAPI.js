@@ -1,6 +1,7 @@
 var db = require('../DB/dbutil');
 var Parameter = require('../DB/parameter');
 var mssql = require('mssql');
+var us = require('underscore');
 
 exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
@@ -38,6 +39,30 @@ exports.forceAssign = function(assignInfo, callback) {
 
 	db.querySP('SP_ForceDispatchAssign', params, callback);
 
+}
+
+exports.GetSOWorkflow = function(soRequestId, callback) {
+	var id = parseInt(soRequestId);
+	if (!us.isNumber(id)) {
+		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
+		return;
+	}
+	var params = [];
+	params.push(new Parameter('soRequestId', mssql.Int, id));
+
+	db.querySP('SP_GetSOWorkFlow', params, callback);
+}
+
+exports.GetSOBaseInfo = function(soRequestId, callback) {
+	var id = parseInt(soRequestId);
+	if (!us.isNumber(id)) {
+		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
+		return;
+	}
+	var params = [];
+	params.push(new Parameter('soRequestId', mssql.Int, id));
+
+	db.querySP('SP_GetSOBaseInfo', params, callback);
 }
 
 function dispatchAssignTable(data) {

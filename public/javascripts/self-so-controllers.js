@@ -3,6 +3,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		$scope.searchingResult = [];
 		$scope.filterResult = [];
 		$scope.analyseResult = {};
+		$scope.currentSORequest = {};
 		// $scope.searchCondition = {BookingNo:[]};
 		$scope.filters = {
 			OriginalType: null,
@@ -41,12 +42,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			},
 			true);
 
-		$scope.$watch('searchingResult', function(nV, oV) {
-			copySearchingResultToFilterResult();
+		// $scope.$watch('searchingResult', function(nV, oV) {
+		// 	copySearchingResultToFilterResult();
 
-			analyseSearchingResult();
+		// 	analyseSearchingResult();
 
-		}, true);
+		// }, true);
 
 		$scope.showStatus = function(item) {
 			if (item.JobStatusName) {
@@ -120,7 +121,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 		function copySearchingResultToFilterResult() {
 			$scope.filterResult = [];
 			$.each($scope.searchingResult, function(i, v) {
-				$scope.filterResult.push(angular.extend(v));
+				var data = angular.extend(v);
+				data.checkingDetails = false;
+				$scope.filterResult.push(data);
 			})
 		}
 
@@ -142,6 +145,10 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 					}
 
 					$scope.searchingResult = data;
+
+					copySearchingResultToFilterResult();
+
+					analyseSearchingResult();
 
 
 				} else {
@@ -232,7 +239,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				displayName: 'Id',
 				width: 80,
 				pinned: true,
-				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a ng-click="showDetails(COL_FIELD);">{{COL_FIELD}}</a></span></div>'
+				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()" "><span ng-cell-text><a ng-click="showDetails(COL_FIELD,$event);">{{COL_FIELD}}</a></span></div>'
 			}, {
 				field: 'Notes',
 				displayName: 'Information',
@@ -273,10 +280,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				field: 'SORequestId',
 				displayName: 'Id',
 				pinned: true,
-				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><span ng-cell-text><a ng-click="showDetails(COL_FIELD);">{{COL_FIELD}}</a></span></div>'
-
+				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()" ng-click="showDetails(COL_FIELD,$event);"><span ng-cell-text><a >{{COL_FIELD}}</a></span><span class="glyphicon glyphicon-eye-open" ng-show="row.entity.checkingDetails" style="float:right;"></span></div>'
 			}];
-
 		}
 
 
@@ -288,6 +293,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			multiSelect: true,
 			showSelectionCheckbox: true,
 			selectWithCheckboxOnly: true,
+			enableRowSelection: true,
 			enablePinning: true,
 			columnDefs: 'columnDefs',
 			checkboxHeaderTemplate: '<input class="ngSelectionHeader" type="checkbox" id="soMainCheckbox" ng-show="multiSelect" ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
@@ -567,6 +573,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 						}
 					}
 				}
+				copySearchingResultToFilterResult();
+
+				analyseSearchingResult();
 			}
 			$scope.siGrid.$gridScope.allSelected = false;
 			//$scope.siGrid.selectAll(false);
@@ -593,34 +602,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
 
 			return data;
-			// var selectedGroupIds = [];
-			// for (var i = $scope.canDispatchedGroup.length; i--;) {
-			// 	if ($scope.canDispatchedGroup[i].checked) {
-			// 		(function(i) {
-			// 			selectedGroupIds.push({
-			// 				groupId: $scope.canDispatchedGroup[i].id,
-			// 				soRequestIds: []
-			// 			});
-			// 		})(i);
-			// 	}
-			// }
-			// var selectedItem = $scope.siGrid.$gridScope.selectedItems;
-			// if (selectedItem.length < selectedGroupIds.length) {
-			// 	alert(selectedItem.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
-			// } else {
-			// 	var count = Math.ceil(selectedItem.length / selectedGroupIds.length);
-			// 	for (var i = 0, k = 1, j = 0; i < selectedItem.length; i++) {
-			// 		if (k > count) {
-			// 			k = 1;
-			// 			j++;
-			// 		}
-			// 		(function(i) {
-			// 			selectedGroupIds[j].soRequestIds.push(selectedItem[i].SORequestId);
-			// 		})(i);
-			// 		k++;
-			// 	}
-			// 	return selectedGroupIds;
-			// }
 		}
 
 		function averageDistribute(keys, values, alertInfo) {
@@ -652,10 +633,21 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 			return data;
 		}
 
-		$scope.showDetails = function(bkgNo) {
+		$scope.showDetails = function(requestId, event, item, value) {
 			setInputterBriefColumns();
 			$scope.listDivClass = false;
 			$scope.detailDivClass = true;
+			for (var i = $scope.filterResult.length; i--;) {
+				if ($scope.filterResult[i].SORequestId != requestId) {
+					$scope.filterResult[i].checkingDetails = false;
+					continue;
+				}
+				$scope.filterResult[i].checkingDetails = true;
+			}
+			LoadSODetails(requestId, function(data) {}, function(data, status) {
+				alert('Fail to load data. Please try it again, thanks.' + data + status);
+			})
+
 		}
 
 		$scope.bakcToList = function() {
@@ -667,6 +659,74 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters'])
 
 		$scope.test = function() {
 			//alert($scope.userInfo.permission.canFinish);
+		}
+
+		function LoadSODetails(requestId, successCb, errorCb) {
+			for (var i = $scope.filterResult.length; i--;) {
+				if ($scope.filterResult[i].SORequestId != requestId) {
+					continue;
+				}
+				$scope.currentSORequest = $scope.filterResult[i];
+				if ($scope.currentSORequest.hasOwnProperty('workflow') && $scope.currentSORequest.workflow.length > 0) {
+					successCb($scope.currentSORequest.workflow);
+					return;
+				}
+				async.parallel([
+					function(callback) {
+						$http({
+							method: 'GET',
+							url: '/restfulAPI/so/GETSOWORKFLOW',
+							params: {
+								id: requestId
+							},
+							cache: false
+						}).success(function(data, status) {
+							callback(null, data);
+							// if (data) {
+							// 	$scope.currentSORequest.workflow = data;
+							// 	for (var i = $scope.searchingResult.length; i--;) {
+							// 		if ($scope.searchingResult[i].SORequestId == requestId) {
+							// 			$scope.searchingResult[i].workflow = data;
+							// 		}
+							// 	}
+							// }
+							// successCb(data);
+						}).error(function(data, status) {
+							callback(data + status, null);
+						});
+					},
+					function(callback) {
+						$http({
+							method: 'GET',
+							url: '/restfulAPI/so/GETSOBASEINFO',
+							params: {
+								id: requestId
+							},
+							cache: false
+						}).success(function(data, status) {
+							callback(null, data);
+						}).error(function(data, status) {
+							callback(data + status, null);
+						})
+					}
+				], function(err, results) {
+					if (err) {
+						//alert('Please re-click the requestId to reload the data.' + err);
+						errorCb(null, err);
+						return;
+					}
+					for (var i = results[0].length; i--;) {
+						results[0][i].OperateTime = $.format.date(results[0][i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+					}
+					results[1][0].ReceivedTime = $.format.date(results[1][0].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+					results[1][0].RequestTime = $.format.date(results[1][0].RequestTime, 'yyyy-MM-dd HH:mm:ss');
+					$scope.currentSORequest.workflow = results[0];
+					$scope.currentSORequest.baseInfo = results[1][0];
+					successCb();
+				})
+
+
+			}
 		}
 
 	})
