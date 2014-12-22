@@ -45,8 +45,11 @@ module.exports = function() {
 
 	this.POST = {
 		ADDGROUP: function(req, res) {
-
-
+			func.jsonResponse(req, res, function(callback) {
+				permissionAPI.newGroup(req.body.newGroup, JSON.parse(req.getUserInfo()), function(err, data) {
+					callback(err, data);
+				});
+			});
 		},
 		ADDCATEGORY: function(req, res) {
 
@@ -70,11 +73,8 @@ module.exports = function() {
 		MODIFYPERMISSION: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
 				permissionAPI.modifyPermission(
-					 req.body.modifyPermission.id
-					,req.body.modifyPermission.name
-					,req.body.modifyPermission.description
-					,req.body.modifyPermission.categoryId
-					,function(err, data) {
+					req.body.modifyPermission.id, req.body.modifyPermission.name, req.body.modifyPermission.description, req.body.modifyPermission.categoryId,
+					function(err, data) {
 						callback(err, data);
 					});
 			});
@@ -82,10 +82,8 @@ module.exports = function() {
 		ADDPERMISSION: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
 				permissionAPI.addPermission(
-					 req.body.addPermission.name
-					,req.body.addPermission.description
-					,req.body.addPermission.categoryId
-					,function(err, data) {
+					req.body.addPermission.name, req.body.addPermission.description, req.body.addPermission.categoryId,
+					function(err, data) {
 						callback(err, data);
 					});
 			});

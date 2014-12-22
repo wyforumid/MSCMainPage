@@ -20,12 +20,12 @@ exports.getConcernedGroupNames = function(info, callback) {
 	}
 }
 
-exports.getAllPermissionCategories = function(callback){
-	db.querySQL('SELECT PermissionCategoryid AS id, Name AS name, Description AS description FROM PermissionCategory',callback);
+exports.getAllPermissionCategories = function(callback) {
+	db.querySQL('SELECT PermissionCategoryid AS id, Name AS name, Description AS description FROM PermissionCategory', callback);
 }
 
-exports.getAllPermissions = function(callback){
-	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, PermissionCategoryid AS categoryId FROM Permission',callback);
+exports.getAllPermissions = function(callback) {
+	db.querySQL('SELECT PermissionId AS id, PermissionName AS name, Description AS description, PermissionCategoryid AS categoryId FROM Permission', callback);
 }
 
 exports.getOwnPermission = function(userId, callback) {
@@ -44,8 +44,45 @@ exports.searchUserByOfficeAndDepartment = function(officeId, departmentId, callb
 	db.querySP('SP_SearchUserByOfficeAndDepartment', params, callback);
 }
 
-exports.newGroup = function(newGroup, callback) {
+exports.newGroup = function(newGroup, userCacheId, callback) {
 
+	var groupName = newGroup.name;
+
+	var officeDept = new mssql.Table();
+	officeDept.columns.add('OfficeId', mssql.Int);
+	officeDept.columns.add('DeptId', mssql.Int);
+
+	var userGroupRole = new mssql.Table();
+	userGroupRole.columns.add('RoleName', mssql.NVarChar(60));
+	userGroupRole.columns.add('UserId', mssql.Int);
+
+	var rolePermission = new mssql.Table();
+	rolePermission.columns.add('RoleName', mssql.NVarChar(60));
+	rolePermission.columns.add('PermissionId', mssql.Int);
+
+	for (var i = newGroup.departmentGroup.length; i--;) {
+		officeDept.rows.add(newGroup.departmentGroup[i].officeId, newGroup.departmentGroup[i].departmentId);
+	}
+
+	for (var i = newGroup.roles.length; i--;) {
+		for (var j = newGroup.roles[i].userIds.length; j--;) {
+			userGroupRole.rows.add(newGroup.roles[i].name, newGroup.roles[i].userIds[j]);
+		}
+
+		for (var j = newGroup.roles[i].permissionIds.length; j--;) {
+			rolePermission.rows.add(newGroup.roles[i].name, newGroup.roles[i].permissionIds[j]);
+		}
+	}
+
+	var params = [];
+
+	params.push(new Parameter('groupName', mssql.NVarChar(60), groupName));
+	params.push(new Parameter('userCacheId', mssql.UniqueIdentifier, userCacheId));
+	params.push(new Parameter('officeDept', mssql.TVP, officeDept));
+	params.push(new Parameter('roles', mssql.TVP, userGroupRole));
+	params.push(new Parameter('permission', mssql.TVP, rolePermission));
+
+	db.querySP('SP_AddGroup', params, callback);
 }
 
 exports.addPermissionCategory = function(categoryName, categoryDescription, callback) {
@@ -64,7 +101,7 @@ exports.modifyPermission = function(permissionId, permissionName, description, p
 	db.querySP('SP_ModifyPermission', params, callback);
 }
 
-exports.addPermission = function (permissionName, description, permissionCategoryId, callback) {
+exports.addPermission = function(permissionName, description, permissionCategoryId, callback) {
 	var params = [];
 	params.push(new Parameter('permissionName', mssql.NVarChar(60), permissionName));
 	params.push(new Parameter('description', mssql.NVarChar(255), description));
