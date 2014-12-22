@@ -1,279 +1,262 @@
 <div class="row">
 	<div data-ng-class="{'col-md-2':listDivClass,'':detailDivClass}" ng-show="listDivClass">
 		<div class="row margin-botton-div" ng-show="hasSelectedSO">
-			<div class="col-md-12 margin-botton-div" ng-show="userInfo.permission.canDispath">
-				<button class="btn btn-primary" >Dispatch checked S/O to TeamGroup</button>
-			</div>
-			<div class="col-md-12 margin-botton-div" ng-show="userInfo.permission.canAssign">
-				<button class="btn btn-primary" >Assign checked S/O to inputter</button>
+			<div class="col-md-12 margin-botton-div">
+				<button class="btn btn-primary" ng-click="dispatchGroup()" >Dispatch to Group</button>
 			</div>
 			<div class="col-md-12 margin-botton-div" >
-				<button class="btn btn-primary" ng-show="userInfo.permission.canFinish">Change checked S/O status</button>
+				<button class="btn btn-primary" ng-click="assignUser()">Assign to inputter</button>
 			</div>
 		</div>
 		<div class="row margin-botton-div">
 			<div class="col-md-12">
-				<toggle-switch model="isFilterZone" 
-				on-label="Filter"
-				off-label="Search"
-				class="switch-primary" style="height: 30px;">
-			</toggle-switch>
+				<toggle-switch model="isFilterZone"  on-label="Filter" off-label="Search" class="switch-primary" style="height: 30px;"></toggle-switch>
+			</div>
 		</div>
-	</div>
-	<div class="row" id="filterZone" ng-show="isFilterZone">
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.OriginalType" ng-options="item for item in analyseResult.OriginalType">
-				<option value="">---Type---</option>
-			</select>
+		<div class="row" id="filterZone" ng-show="isFilterZone">
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.OriginalType" ng-options="item for item in analyseResult.OriginalType">
+					<option value="">---Type---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.StatusName" ng-options="item for item in analyseResult.StatusName">
+					<option value="">---Status---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.ExecuteeName" ng-options="item for item in analyseResult.ExecuteeName">
+					<option value="">---Executee---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.Service" ng-options="item for item in analyseResult.Service">
+					<option value="">---Service---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.POL" ng-options="item for item in analyseResult.POL">
+					<option value="">---POL---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.IsPreAssign" ng-options="item for item in analyseResult.IsPreAssign">
+					<option value="">---IsPreAssign---</option>
+				</select>
+			</div>
+			<div class="col-md-12">
+				<button class="btn btn-primary" ng-click="resetFilter();">
+					Reset
+				</button>
+			</div>
 		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.FinalStatusName" ng-options="item for item in analyseResult.FinalStatusName">
-				<option value="">---Status---</option>
-			</select>
+		<div class="row" id="searchZone" ng-hide="isFilterZone">
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control">
+					<option value="">---Status---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" placeholder="Enter Executee" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" placeholder="Enter Service" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" placeholder="Enter POL" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control">
+					<option value="">---IsPreAssign---</option>
+				</select>
+			</div>
+
+			<div class="col-md-6">
+				<button class="btn btn-primary">Search</button>	
+			</div>
+			<div class="col-md-6">
+				<button class="btn btn-primary">Reset</button>	
+			</div>
 		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Executor" ng-options="item for item in analyseResult.Executor">
-				<option value="">---Executor---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Executee" ng-options="item for item in analyseResult.Executee">
-				<option value="">---Executee---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.Service" ng-options="item for item in analyseResult.Service">
-				<option value="">---Service---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.POL" ng-options="item for item in analyseResult.POL">
-				<option value="">---POL---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control" ng-model="filters.IsPreAssign" ng-options="item for item in analyseResult.IsPreAssign">
-				<option value="">---IsPreAssign---</option>
-			</select>
-		</div>
-		<div class="col-md-12">
-			<button class="btn btn-primary" ng-click="resetFilter();">
-				Reset
-			</button>
-		</div>
-	</div>
-	<div class="row" id="searchZone" ng-hide="isFilterZone">
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control">
-				<option value="">---Status---</option>
-			</select>
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Executor" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Executee" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter Service" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<input type="text" class="form-control" placeholder="Enter POL" />
-		</div>
-		<div class="col-md-12 margin-botton-div">
-			<select class="form-control">
-				<option value="">---IsPreAssign---</option>
-			</select>
-		</div>
-		
-		<div class="col-md-6">
-			<button class="btn btn-primary">Search</button>	
-		</div>
-		<div class="col-md-6">
-			<button class="btn btn-primary">Reset</button>	
-		</div>
-	</div>
 		<!-- <div class="row" id="searchZone">
 			<button ng-click="test();">test</button>
 		</div> -->
 	</div>
 	<div ng-class="{'col-md-10':listDivClass,'col-md-2':detailDivClass,'fixed-div':detailDivClass}" id="listDiv">
-		<div id="grid" class="gridStyle" ng-grid="siGrid" ng-style="{'height':tableHeight}">
+		<div id="grid" class="gridStyle" ng-grid="siGrid" ng-style="{'height':tableHeight}"></div>
+		
+	</div>
+	<div ng-class="{'col-md-10 col-md-offset-2':detailDivClass,'':listDivClass}" id="detailDiv" ng-show="detailDivClass">
+		<div class="row margin-botton-div">
+			<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
+			<button class="btn btn-primary">Add workflow</button>
 		</div>
-		<!-- <div style="background-color: red; width:100%;height: 100%;" ng-click="showDetails();">
-			
-	</div> -->
+		<!-- <div class="well"> -->
+		<div>
+			<ul class="nav nav-tabs" role="tablist" id="detailTab">
+				<li role="presentation" class="active">
+					<a data-target="#baseInfo" role="tab" style="cursor: pointer" data-toggle="tab">Base Info</a>
+				</li>
+				<li role="presentation">
+					<a data-target="#workflow" role="tab" style="cursor: pointer" data-toggle="tab">Work Flow</a>
+				</li>
+			</ul>
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="baseInfo">
+					<div class="well">
+						<div class="row">
+							<div class="col-md-2">
+								<label>SO Type: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.SOType}}</label>
+							</div>
+							<div class="col-md-2">
+								<label>Sender: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.Sender}}</label>
+							</div>
+							<div class="col-md-2">
+								<label>Received Time: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.ReceivedTime}}</label>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Service: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.Service}}</label>
+							</div>
+							<div class="col-md-2">
+								<label>POR: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.POR}}</label>
+							</div>
+							<div class="col-md-2">
+								<label>POL: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.POL}}</label>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Request Time: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.RequestTime}}</label>
+							</div>
+							<div class="col-md-2">
+								<label>Is PreAssign: </label>
+							</div>
+							<div class="col-md-2">
+								<label>{{currentSORequest.baseInfo.IsPreAssignedBK}}</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div role="tabpanel" class="tab-pane" id="workflow">
+					<div class="well">
+						<table class="table table-hover">
+							<thead>
+								<th>Time</th>
+								<th>Executor</th>
+								<th>Executee</th>
+								<th>Status</th>
+								<th>Is Update</th>
+								<th>Update User</th>
+								<th>Remark</th>
+								<th>Attachment</th>
+							</thead>
+							<tbody>
+							<tr ng-repeat="item in currentSORequest.workflow | orderBy:'-OperateTime'">
+									<td>{{item.OperateTime}}</td>
+									<td>{{item.Executor}}</td>
+									<td>{{item.Executee}}</td>
+									<td>{{item.Status}}</td>
+									<td>{{item.IsUpdateInCurrentStatus}}</td>
+									<td>{{item.Updater}}</td>
+									<td>{{item.Remark}}</td>
+									<td><a href="{{item.AttachmentPath}}">{{item.AttachmentName}}</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- </div> -->
+	</div>
 </div>
-<div ng-class="{'col-md-10 col-md-offset-2':detailDivClass,'':listDivClass}" id="detailDiv" ng-show="detailDivClass">
-	<div class="row margin-botton-div">
-		<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
-		<button class="btn btn-primary">Add workflow</button>
-	</div>
-	<!-- <div class="well"> -->
-	<div class="well">
-		<div class="row">
-			<div class="col-md-2">
-				<label>BKG Number: </label>
+<div class="modal fade" role="dialog" id="dispatchDialog" aria-labelledby="dispatchTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title" id="dispatchTitle">
+					Dispatch
+				</h4>
 			</div>
-			<div class="col-md-4">
-				<label>181XXXXXXXXXXXXXX</label>
+			<div class="modal-body">
+				<h5>
+					Dispatch to :
+				</h5>
+				<div class="row">
+					<div class="checkbox col-md-4" ng-repeat="item in canDispatchedGroup">
+						<label>
+							<input type="checkbox" ng-model="item.checked" />
+							{{item.name}}<span class="badge">{{item.assignedCount}}</span>
+						</label>
+					</div>
+				</div>
+
+				
 			</div>
-			<div class="col-md-2">
-				<label>MBL Number: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>Trade: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>Service: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>Vessel: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>Voyage: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>DTX Deadline: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>POR Group: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>POL: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>POD: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>Final Destination: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>Booking shipper: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>Contract Holder: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-			<div class="col-md-2">
-				<label>Ref Number: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-2">
-				<label>Indexer: </label>
-			</div>
-			<div class="col-md-4">
-				<label>XXXXXXXXXXXX</label>
+			<div class="modal-footer">
+				<button class="btn btn-primary col-md-offset-9 col-md-1" data-dismiss="modal">Cancel</button>
+				<button class="btn btn-primary col-md-1" ng-click="forceDispatch()">Dispatch</button>
 			</div>
 		</div>
 	</div>
-	<div class="well">
-		<table class="table table-hover">
-			<thead>
-				<th>Task</th>
-				<th>Operator</th>
-				<th>to</th>
-				<th>Time</th>
-				<th>Remarks</th>
-			</thead>
-			<tbody>
-				<tr>
-					<td>indexing</td>
-					<td>System</td>
-					<td>Wuhan Team</td>
-					<td>2014-01-12 15:59</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>Coordination</td>
-					<td>Jason</td>
-					<td>Jason</td>
-					<td>2014-01-12 15:59</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>Finished</td>
-					<td>Jason</td>
-					<td></td>
-					<td>2014-01-12 15:59</td>
-					<td>WTF</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<div class="well">
-		<table class="table table-hover">
-			<thead>
-				<th>Subject</th>
-				<th>Received Time</th>
-			</thead>
-			<tbody>
-				<tr>
-					<td><a>third</a></td>
-					<td>2014-01-12 17:59</td>
-				</tr>
-				<tr>
-					<td><a>second</a></td>
-					<td>2014-01-12 16:59</td>
-				</tr>
-				<tr>
-					<td><a>first</a></td>
-					<td>2014-01-12 15:59</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<!-- </div> -->
 </div>
+
+<div class="modal fade" role="dialog" id="assignDialog" aria-labelledby="assignTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title" id="assignTitle">
+					Assign
+				</h4>
+			</div>
+			<div class="modal-body">
+				<h5>
+					Assign to :
+				</h5>
+				<div class="panel panel-primary" ng-repeat="item in canAssignUser">
+					<div class="panel-heading">
+						<h4 class="panel-title">{{item.groupName}}</h4>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="checkbox col-md-4" ng-repeat="user in item.Users">
+								<label>
+									<input type="checkbox" ng-model="user.checked" />{{user.name}}<span class="badge">{{user.remain}}/{{user.finished}}</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary col-md-offset-9 col-md-1" data-dismiss="modal">Cancel</button>
+				<button class="btn btn-primary col-md-1" ng-click="forceAssign()">Assign</button>
+			</div>
+		</div>
+	</div>
 </div>

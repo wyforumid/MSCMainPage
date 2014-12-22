@@ -72,6 +72,7 @@ passport.deserializeUser(function(id, done) {
     done(null, id);
 });
 
+
 app.use('/', freeRoutes);
 app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
     if (arguments.length == 4) {
@@ -99,15 +100,13 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
     }
 
 }));
-// app.use('/', function(req, res, next) {
-//     if (req.isAuthenticated()) {
-//         next();
-//     } else {
-//         res.redirect('/');
-//     }
-
-
-// });
+app.use('/', function(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+});
 
 app.use('/', routes);
 app.use('/API', apiRoute);
