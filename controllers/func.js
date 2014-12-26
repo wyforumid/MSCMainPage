@@ -1,4 +1,11 @@
 var async = require('async');
+var multiparty = require('multiparty');
+var fs = require('fs');
+var path = require('path');
+var crypto = require('crypto');
+var mkdirp = require('mkdirp');
+
+var soRequestAttachFolder = 'D:\\publish\\SORequest\\';
 
 exports.getData = function(req, res, getFunc) {
 	async.waterfall([
@@ -38,4 +45,77 @@ exports.jsonResponse = function(req, res, getResponseDataFunc) {
 			res.write(err ? err.toString() : '');
 			res.end();
 		})
+}
+
+exports.multiparty = function() {
+	var processor = new multiparty.Form({
+		uploadDir: '../tempFiles'
+	});
+	return processor;
+}
+
+// exports.moveFileFromTempFilesFolder = function(req, res, sourcePath, fileName) {
+// 	fs.rename(source,
+// 		soRequestAttachFolder + getMiddleFolderPath() + renameFileName(fileName),
+// 		function(err) {
+// 			if (err) jsonResponse(req, res, function)
+// 		});
+
+// 	jsonResponse.(req, res, function(callback){
+// 		fs.rename(sourcePath,
+// 			soRequestAttachFolder + getMiddleFolderPath() + renameFileName(fileName),
+// 			function(err){
+// 				if(err) callback(err, null);
+
+// 			})
+// 	})
+// }
+exports.moveFileToTargetFolder = function(sourcePath, fileName, cb) {
+	createEssentialFolder(function(err) {
+		if (err) cb(err, null);
+		fs.rename(sourcePath,
+			soRequestAttachFolder + getMiddleFolderPath() + renameFileName(fileName),
+			function(err) {
+				if (err) cb(err, null);
+				cb(null, fileName);
+			});
+	});
+
+}
+
+exports.generalRelativeFilePath = function(fileName) {
+	// createEssentialFolder(function(err) {
+	// 	if (err) {
+	// 		throw err;
+	// 	} else {
+	return getMiddleFolderPath() + renameFileName(fileName);
+	// 	}
+	// })
+
+}
+
+function createEssentialFolder(callback) {
+	var folderPath = soRequestAttachFolder + getMiddleFolderPath();
+	mkdirp(folderPath, function(err) {
+		if (err) callback(err);
+		callback(null);
+	})
+}
+
+function getMiddleFolderPath() {
+	var date = new Date();
+	return date.getFullYear() + '\\' + (date.getMonth() + 1).toString() + '\\' + date.getDate().toString() + '\\';
+}
+
+function renameFileName(originalName) {
+	var dotIndex = originalName.indexOf('.'),
+		extension;
+	if (dotIndex < originalName.length - 1) {
+		extension = originalName.substr(dotIndex);
+
+	} else {
+		extension = '';
+	}
+	var md5 = crypto.createHash('md5');
+	return md5.update(originalName).digest('hex') + extension;
 }

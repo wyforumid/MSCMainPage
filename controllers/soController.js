@@ -1,5 +1,8 @@
 var func = require('./func');
 var soAPI = require('../API/soAPI');
+var multiparty = require('multiparty');
+var async = require('async');
+var _ = require('underscore');
 
 module.exports = function() {
 	this.controllerName = 'so';
@@ -44,6 +47,17 @@ module.exports = function() {
 					}
 				});
 			});
+		},
+		GETRELATEDBOOKINGS: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.GetSORequestRelatedBookings(req.query.id, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
 		}
 	}
 
@@ -69,10 +83,41 @@ module.exports = function() {
 					}
 				})
 			})
+		},
+		UPLOADWORKFLOWFILE: function(req, res) {
+			var form = func.multiparty();
+			async.waterfall([
+				function(cb) {
+					form.parse(req, function(err, fields, files) {
+						if (_.isArray(files.file) && files.file.length >= 1) {
+							cb(null, files.file[0]);
+						} else {
+							cb(err, null);
+						}
+					})
+				},
+				function(data, cb) {
+					func.moveFileToTargetFolder(data.path, data.originalFilename, cb);
+				},
+				function(data, cb) {
+					soAPI.insertAttachmentToDB(func.generalRelativeFilePath(data), cb);
+				}
+			], function(err, result) {
+				func.jsonResponse(req, res, function(cb) {
+					cb(null, result[0].id);
+				});
+			});
+		},
+		ADDWORKFLOW: function(req, res) {
+
 		}
 	};
 
 	this.PUT = {};
 
 	this.DELETE = {};
+}
+
+function addWorkflow(req, res, soSupportingFileId) {
+	
 }
