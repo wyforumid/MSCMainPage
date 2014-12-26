@@ -125,7 +125,8 @@
 										<tr data-ng-repeat="item in newGroup.addedRoles">
 											<td>
 												<a>
-													<span class="glyphicon glyphicon-minus" ng-click="minusRole($index)"></span>
+													<!-- class="glyphicon glyphicon-minus" -->
+													<span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="minusRole($index)"></span>
 												</a>
 											</td>
 											<td>
@@ -147,6 +148,11 @@
 							</div>
 						</div>
 						<div class="col-md-9">
+							<div class="checkbox">
+							    <label>
+							      <input type="checkbox" ng-disabled="permissionInfo.editCurrentGroup.isDisabled" ng-model="permissionInfo.editCurrentGroup.isEdit">Editable for {{newGroup.groupName}}
+							    </label>
+						  	</div>
 							<div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(checked)"></div>
 						</div>
 					</div>
@@ -232,12 +238,22 @@
 				<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn">pre step</button>
 				<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn">next step</button>
 			</div>
+<div class="form-group">
+<p>
+<pre>
+{{submitGroup | json}}
+{{step4TempUserList | json}}
+{{newGroup | json}}
+</pre>
+</p>
+</div>
 		</div>
 	</div>
 </div>
 </div>
 </div>
 <div class="col-md-1">
+
 </div>
 
 
