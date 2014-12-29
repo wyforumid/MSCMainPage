@@ -77,7 +77,8 @@ app.use('/', freeRoutes);
 app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
     if (arguments.length == 4) {
         res.cookie('userInfo', JSON.stringify({
-            loginName: req.body.userName
+            loginName: req.body.userName,
+            userId:data[0].userId
         }));
         req.logIn(
             data[0].cacheId,

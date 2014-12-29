@@ -65,6 +65,25 @@ exports.GetSOBaseInfo = function(soRequestId, callback) {
 	db.querySP('SP_GetSOBaseInfo', params, callback);
 }
 
+exports.GetSORequestRelatedBookings = function(soRequestId, callback) {
+	var id = parseInt(soRequestId);
+	if (!us.isNumber(id)) {
+		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
+		return;
+	}
+	var params = [];
+	params.push(new Parameter('soRequestId', mssql.Int, id));
+
+	db.querySP('SP_GetSORequestRelatedBookings', params, callback);
+}
+
+exports.insertAttachmentToDB = function(relativeFilePath, callback) {
+	var params = [];
+	params.push(new Parameter('relativeFilePath', mssql.NVarChar(500), relativeFilePath));
+	params.push(new Parameter('note', mssql.VarChar(500), 'update'));
+	db.querySP('SP_SaveSOSupportingFile', params, callback);
+}
+
 function dispatchAssignTable(data) {
 	if (data && data.length > 0) {
 		var t = new mssql.Table();

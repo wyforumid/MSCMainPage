@@ -54,6 +54,8 @@
 		<script type="text/javascript" src="/javascripts/self-user-controllers.js"></script>
 		<script type="text/javascript" src="/javascripts/self-permission-controllers.js"></script>
 		<script type="text/javascript" src="/javascripts/angular-route.js"></script>
+		<script type="text/javascript" src="/javascripts/angular-file-upload-shim.js"></script>
+		<script type="text/javascript" src="/javascripts/angular-file-upload.js"></script>
 		<script type="text/javascript" src="/javascripts/ng-grid.js"></script>
 		<script type="text/javascript" src="/javascripts/angular-toggle-switch.js"></script>
 		<script type="text/javascript" src="/javascripts/async.js"></script>
@@ -61,7 +63,7 @@
 		<script type="text/javascript" src="/javascripts/jquery-dateFormat.min.js"></script>
 		<script type="text/javascript" src="/javascripts/calendar.js"></script>
 		<script type="text/javascript">
-			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch'])
+			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch','angularFileUpload'])
 				.config(['$routeProvider', function($routeProvider) {
 					$routeProvider
 						.when('/main',{
