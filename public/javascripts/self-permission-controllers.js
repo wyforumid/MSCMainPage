@@ -86,6 +86,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		var managerRoleId = -999;
 
+		$scope.isSubmitting = false;
+
 
 		var step = {
 			1: {
@@ -434,6 +436,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			}
 		}
 
+
+
 		$scope.pre = function() {
 			//initialStepCSS(--$scope.currentStep);
 			step[(--$scope.currentStep).toString()].initialCSS();
@@ -448,8 +452,10 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				step[$scope.currentStep.toString()].formatData();
 
-				$('#preBtn').prop('disabled', true);
-				$('#nextBtn').prop('disabled', true);
+				$scope.isSubmitting = true;
+
+				// $('#preBtn').prop('disabled', true);
+				// $('#nextBtn').prop('disabled', true);
 
 
 				$http({
@@ -463,12 +469,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				}).success(function(data, status) {
 					alert(data[0].message);
-					$('#preBtn').prop('disabled', false);
-					$('#nextBtn').prop('disabled', false);
+					$scope.isSubmitting = false;
+					window.location = '/main';
+					// $('#preBtn').prop('disabled', false);
+					// $('#nextBtn').prop('disabled', false);
 				}).error(function(data, status) {
 					alert(data);
-					$('#preBtn').prop('disabled', false);
-					$('#nextBtn').prop('disabled', false);
+					$scope.isSubmitting = false;
+					// $('#preBtn').prop('disabled', false);
+					// $('#nextBtn').prop('disabled', false);
 				});
 
 			}
