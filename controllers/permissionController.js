@@ -40,6 +40,9 @@ module.exports = function() {
 					cb(err, data);
 				})
 			});
+		},
+		GROUPLISTBYUSERID: function(req, res) {
+			
 		}
 	};
 

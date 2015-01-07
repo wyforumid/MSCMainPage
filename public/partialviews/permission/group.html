@@ -12,8 +12,157 @@
 			</li>
 		</ul>
 		<div class="tab-content">
-			<div role="tabpanel" class="tab-pane " id="modify">
-				Modify Zone
+			<div role="tabpanel" class="tab-pane" id="modify">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-sm-2">
+							<div class="list-group">
+								<a class="list-group-item" ng-class="{'active':(group.select)}" ng-repeat="group in displayMaintainGroup.groupList" ng-click="changeSelectGroup(group)">
+								{{group.name}}
+								</a>
+							</div>
+						</div>
+						<div class="col-sm-10">
+							<div class="row">
+								<div class="col-sm-12">
+								  	<div class="form-group form-horizontal">
+										<label for="modifyGroupName" class="col-sm-2 control-label">Group Name</label>
+										<div class="col-sm-3">
+											<input type="text" class="form-control" id="modifyGroupName" placeholder="Enter group name" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOfficeAndDepartment" aria-expanded="true" aria-controls="collapseOfficeAndDepartment">
+          Office and Department
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOfficeAndDepartment" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body">
+        <!-- Office and Department -->
+
+        <div>
+			<div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece;">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Office:</label>
+					<div class="col-sm-8">
+						<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+							<option value="">---Offices---</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Department:</label>
+					<div class="col-sm-8">
+						<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+							<option value="">---Depts---</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-primary btn-sm col-sm-offset-8" ng-click="addDepartment()">Add</button>
+				</div>
+			</div>
+			<div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
+				<div class="panel-heading">
+					Added departments
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<th>#</th>
+							<th>Office</th>
+							<th>Department</th>
+						</thead>
+						<tbody>
+							<tr data-ng-repeat="item in displayMaintainGroup.officeAndDepartment">
+								<td>
+									<a>
+										<span class="glyphicon glyphicon-minus" ng-click="minusDepartment($index)"></span>
+									</a>
+								</td>
+								<td>
+									{{item.office.name}}
+								</td>
+								<td>
+									{{item.dept.name}}
+								</td>
+
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapseRole" aria-expanded="true" aria-controls="collapseRole">
+          Modify Role
+        </a>
+      </h4>
+    </div>
+    <div id="collapseRole" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body">
+        Modify Role
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingThree">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapsePermission" aria-expanded="true" aria-controls="collapsePermission">
+          Modify Permission
+        </a>
+      </h4>
+    </div>
+    <div id="collapsePermission" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="panel-body">
+        Modify Permission
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingfour">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapseColleagues" aria-expanded="true" aria-controls="collapseColleagues">
+          Modify Colleagues
+        </a>
+      </h4>
+    </div>
+    <div id="collapseColleagues" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="panel-body">
+        Modify Colleagues
+      </div>
+    </div>
+  </div>
+</div>
+<div class="form-group">
+<p>
+<pre>
+displayMaintainGroup = {{displayMaintainGroup | json}}
+submitModifyGroup = {{submitModifyGroup | json}}
+</pre>
+</p>
+</div>
+
+
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div role="tabpanel" class="tab-pane active" id="new">
 				<div class="newGroup_container">
@@ -242,15 +391,16 @@
 						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn" ng-disabled="isSubmitting">next step</button>
 					</div>
 
-<!-- <div class="form-group">
+<div class="form-group">
 <p>
 <pre>
+{{userInfo}}
 {{submitGroup | json}}
-{{step4TempUserList | json}}
+<!-- {{step4TempUserList | json}} -->
 {{newGroup | json}}
 </pre>
 </p>
-</div> -->
+</div>
 		</div>
 	</div>
 </div>
