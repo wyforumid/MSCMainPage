@@ -108,3 +108,9 @@ exports.addPermission = function(permissionName, description, permissionCategory
 	params.push(new Parameter('permissionCategoryId', mssql.Int, permissionCategoryId));
 	db.querySP('SP_AddPermission', params, callback);
 }
+
+exports.getGroupsByUserId = function(userId, callback) {
+	var params = [];
+	params.push(new Parameter('userId', mssql.Int, userId));
+	db.querySP('SP_GetGroupByUserId', params, callback);
+}

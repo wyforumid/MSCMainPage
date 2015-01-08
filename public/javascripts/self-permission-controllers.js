@@ -1,5 +1,5 @@
 angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select', 'selfFilters'])
-	.controller('permissionGroupCtrl', function($scope, fundationService, $http, $filter) {
+	.controller('permissionGroupCtrl', function($scope, fundationService, $http, $filter, $rootScope) {
 		$('#navTab a').click(function(e) {
 			e.preventDefault();
 			$('#navTab a:last').tab('show');
@@ -13,7 +13,6 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		};
 
 
-
 		$scope.permissionInfo = {
 			// displayedPermissionSelectedCount : 0,
 			originPermissions: [],
@@ -23,8 +22,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			displayedPermission: [],
 			ownPermissions: [],
 			categoringPermission: function() {
+				$scope.permissionInfo.categoriedPermission = [];
 				$.each($scope.permissionInfo.originCategories, function(ci, cv) {
-
 					$scope.permissionInfo.categoriedPermission.push({
 						categoryId: cv.id,
 						categoryName: cv.name,
@@ -32,17 +31,19 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					});
 					var theOne = $scope.permissionInfo.categoriedPermission[$scope.permissionInfo.categoriedPermission.length - 1].permissions;
 
-
-
 					$.each($scope.permissionInfo.originPermissions, function(pi, pv) {
 
 						if (pv.categoryId == cv.id) {
+
+
+
 							theOne.push({
 								id: pv.id,
 								name: pv.name,
 								description: pv.description,
 								//disabled: ($scope.permissionInfo.ownPermissions.indexOf(pv.id) == -1),
-								disabled: false,
+								disabled: $scope.permissionInfo.ownPermissions.indexOf(1) != -1 ? false : ($scope.permissionInfo.ownPermissions.indexOf(pv.id) == -1),
+								// disabled: false,
 								checked: false
 							});
 						}
@@ -86,6 +87,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		var managerRoleId = -999;
 
+		$scope.isSubmitting = false;
+
 
 		var step = {
 			1: {
@@ -96,7 +99,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 					if (!hasManagerRole()) {
 						var managerRole = {
-							id:managerRoleId,
+							id: managerRoleId,
 							name: "Manager",
 							editCurrentGroup: {
 								isEdit: true,
@@ -213,7 +216,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 									url: '/restfulAPI/permission/OWNPERMISSIONS',
 									cache: false,
 									params: {
-										id: 1365
+										id: $rootScope.userInfo.userId
+
 									},
 
 								}).success(function(data, status) {
@@ -249,7 +253,22 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					initialStepCSS(4);
 				},
 				initialData: function() {
+					if ($scope.step4TempUserList.length > 0) {
 
+						for (var i = $scope.step4TempUserList.length; i--;) {
+
+							if ($scope.step4TempUserList[i].roles.length > 0) {
+
+								for (var j = $scope.step4TempUserList[i].roles.length; j--;) {
+
+									if (!HasRole($scope.step4TempUserList[i].roles[j])) {
+
+										$scope.step4TempUserList[i].roles.splice(j, 1);
+									}
+								}
+							}
+						}
+					}
 				},
 				validateBeforeNext: function() {
 
@@ -289,6 +308,10 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 							permissionIds: []
 						}
 
+						if ($scope.newGroup.addedRoles[i].editCurrentGroup.isEdit) {
+							role.permissionIds.push(managerRoleId);
+						}
+
 						for (var j = $scope.newGroup.addedRoles[i].permission.length; j--;) {
 							for (var k = $scope.newGroup.addedRoles[i].permission[j].permissions.length; k--;) {
 								if ($scope.newGroup.addedRoles[i].permission[j].permissions[k].checked) {
@@ -312,14 +335,39 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						if ($scope.submitGroup.roles[i].name === "Manager" && !IsIncludeManagerId($scope.submitGroup.roles[i].permissionIds)) {
 							$scope.submitGroup.roles[i].permissionIds.push(managerRoleId);
 						}
+
+						if ($scope.submitGroup.roles[i].name === "Manager" && !IsIncludeOriginUserId($scope.submitGroup.roles[i].userIds)) {
+							$scope.submitGroup.roles[i].userIds.push($rootScope.userInfo.userId);
+						}
+
 					}
 				}
 			}
 		}
 
+		function HasRole(role) {
+			for (var k = $scope.newGroup.addedRoles.length; k--;) {
+				if ($scope.newGroup.addedRoles[k].name === role) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		function IsIncludeManagerId(permissionIds) {
 			for (var i = permissionIds.length; i--;) {
 				if (permissionIds[i] == managerRoleId) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function IsIncludeOriginUserId(userIds) {
+			for (var i = userIds.length; i--;) {
+				if (userIds[i] == $rootScope.userInfo.userId) {
 					return true;
 				}
 			}
@@ -389,6 +437,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			}
 		}
 
+
 		$scope.addRoleName = function() {
 			if ($scope.newRoleName == '') {
 				alert('The role name is null.');
@@ -434,6 +483,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			}
 		}
 
+
+
 		$scope.pre = function() {
 			//initialStepCSS(--$scope.currentStep);
 			step[(--$scope.currentStep).toString()].initialCSS();
@@ -448,8 +499,10 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				step[$scope.currentStep.toString()].formatData();
 
-				$('#preBtn').prop('disabled', true);
-				$('#nextBtn').prop('disabled', true);
+				$scope.isSubmitting = true;
+
+				// $('#preBtn').prop('disabled', true);
+				// $('#nextBtn').prop('disabled', true);
 
 
 				$http({
@@ -463,12 +516,21 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				}).success(function(data, status) {
 					alert(data[0].message);
-					$('#preBtn').prop('disabled', false);
-					$('#nextBtn').prop('disabled', false);
+					$scope.isSubmitting = false;
+
+					// if (data[0].key) {
+					// 	window.location = '/main';
+					// }
+
+
+
+					// $('#preBtn').prop('disabled', false);
+					// $('#nextBtn').prop('disabled', false);
 				}).error(function(data, status) {
 					alert(data);
-					$('#preBtn').prop('disabled', false);
-					$('#nextBtn').prop('disabled', false);
+					$scope.isSubmitting = false;
+					// $('#preBtn').prop('disabled', false);
+					// $('#nextBtn').prop('disabled', false);
 				});
 
 			}
@@ -650,204 +712,170 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			} else {
 
 				$scope.newGroup = {
-  "addedDepts": [
-    {
-      "office": {
-        "id": 1,
-        "name": "BEIJING"
-      },
-      "dept": {
-        "id": 10,
-        "name": "Equipment Control"
-      }
-    }
-  ],
-  "addedDeptsChanged": false,
-  "groupName": "g1",
-  "addedRoles": [
-    {
-      "name": "Manager",
-      "editCurrentGroup": {
-        "isEdit": true,
-        "isDisabled": true
-      },
-      "permission": [
-        {
-          "categoryId": 1,
-          "categoryName": "Groups",
-          "permissions": []
-        },
-        {
-          "categoryId": 2,
-          "categoryName": "SI",
-          "permissions": [
-            {
-              "id": 1,
-              "name": "SODispatch",
-              "description": "SODispatch",
-              "disabled": false,
-              "checked": false
-            },
-            {
-              "id": 2,
-              "name": "SOAssign",
-              "description": "SOAssign",
-              "disabled": false,
-              "checked": false
-            },
-            {
-              "id": 3,
-              "name": "SOInput",
-              "description": "SOInput",
-              "disabled": false,
-              "checked": false
-            }
-          ]
-        },
-        {
-          "categoryId": 3,
-          "categoryName": "TEST",
-          "permissions": []
-        }
-      ],
-      "edit": false
-    },
-    {
-      "name": "r1",
-      "editCurrentGroup": {
-        "isEdit": false,
-        "isDisabled": false
-      },
-      "permission": [
-        {
-          "categoryId": 1,
-          "categoryName": "Groups",
-          "permissions": []
-        },
-        {
-          "categoryId": 2,
-          "categoryName": "SI",
-          "permissions": [
-            {
-              "id": 1,
-              "name": "SODispatch",
-              "description": "SODispatch",
-              "disabled": false,
-              "checked": true
-            },
-            {
-              "id": 2,
-              "name": "SOAssign",
-              "description": "SOAssign",
-              "disabled": false,
-              "checked": false
-            },
-            {
-              "id": 3,
-              "name": "SOInput",
-              "description": "SOInput",
-              "disabled": false,
-              "checked": false
-            }
-          ]
-        },
-        {
-          "categoryId": 3,
-          "categoryName": "TEST",
-          "permissions": []
-        }
-      ],
-      "edit": true,
-      "selectedCount": 1
-    },
-    {
-      "name": "r2",
-      "editCurrentGroup": {
-        "isEdit": false,
-        "isDisabled": false
-      },
-      "permission": [
-        {
-          "categoryId": 1,
-          "categoryName": "Groups",
-          "permissions": []
-        },
-        {
-          "categoryId": 2,
-          "categoryName": "SI",
-          "permissions": [
-            {
-              "id": 1,
-              "name": "SODispatch",
-              "description": "SODispatch",
-              "disabled": false,
-              "checked": false
-            },
-            {
-              "id": 2,
-              "name": "SOAssign",
-              "description": "SOAssign",
-              "disabled": false,
-              "checked": false
-            },
-            {
-              "id": 3,
-              "name": "SOInput",
-              "description": "SOInput",
-              "disabled": false,
-              "checked": false
-            }
-          ]
-        },
-        {
-          "categoryId": 3,
-          "categoryName": "TEST",
-          "permissions": []
-        }
-      ],
-      "edit": false
-    }
-  ]
-};
+					"addedDepts": [{
+						"office": {
+							"id": 1,
+							"name": "BEIJING"
+						},
+						"dept": {
+							"id": 10,
+							"name": "Equipment Control"
+						}
+					}],
+					"addedDeptsChanged": false,
+					"groupName": "g1",
+					"addedRoles": [{
+						"name": "Manager",
+						"editCurrentGroup": {
+							"isEdit": true,
+							"isDisabled": true
+						},
+						"permission": [{
+							"categoryId": 1,
+							"categoryName": "Groups",
+							"permissions": []
+						}, {
+							"categoryId": 2,
+							"categoryName": "SI",
+							"permissions": [{
+								"id": 1,
+								"name": "SODispatch",
+								"description": "SODispatch",
+								"disabled": false,
+								"checked": false
+							}, {
+								"id": 2,
+								"name": "SOAssign",
+								"description": "SOAssign",
+								"disabled": false,
+								"checked": false
+							}, {
+								"id": 3,
+								"name": "SOInput",
+								"description": "SOInput",
+								"disabled": false,
+								"checked": false
+							}]
+						}, {
+							"categoryId": 3,
+							"categoryName": "TEST",
+							"permissions": []
+						}],
+						"edit": false
+					}, {
+						"name": "r1",
+						"editCurrentGroup": {
+							"isEdit": false,
+							"isDisabled": false
+						},
+						"permission": [{
+							"categoryId": 1,
+							"categoryName": "Groups",
+							"permissions": []
+						}, {
+							"categoryId": 2,
+							"categoryName": "SI",
+							"permissions": [{
+								"id": 1,
+								"name": "SODispatch",
+								"description": "SODispatch",
+								"disabled": false,
+								"checked": true
+							}, {
+								"id": 2,
+								"name": "SOAssign",
+								"description": "SOAssign",
+								"disabled": false,
+								"checked": false
+							}, {
+								"id": 3,
+								"name": "SOInput",
+								"description": "SOInput",
+								"disabled": false,
+								"checked": false
+							}]
+						}, {
+							"categoryId": 3,
+							"categoryName": "TEST",
+							"permissions": []
+						}],
+						"edit": true,
+						"selectedCount": 1
+					}, {
+						"name": "r2",
+						"editCurrentGroup": {
+							"isEdit": false,
+							"isDisabled": false
+						},
+						"permission": [{
+							"categoryId": 1,
+							"categoryName": "Groups",
+							"permissions": []
+						}, {
+							"categoryId": 2,
+							"categoryName": "SI",
+							"permissions": [{
+								"id": 1,
+								"name": "SODispatch",
+								"description": "SODispatch",
+								"disabled": false,
+								"checked": false
+							}, {
+								"id": 2,
+								"name": "SOAssign",
+								"description": "SOAssign",
+								"disabled": false,
+								"checked": false
+							}, {
+								"id": 3,
+								"name": "SOInput",
+								"description": "SOInput",
+								"disabled": false,
+								"checked": false
+							}]
+						}, {
+							"categoryId": 3,
+							"categoryName": "TEST",
+							"permissions": []
+						}],
+						"edit": false
+					}]
+				};
 
 				if (stepNo == 4) {
-					$scope.step4TempUserList = [
-  {
-    "userId": 1427,
-    "officeId": 19,
-    "departmentId": 4,
-    "loginName": "lzhan",
-    "fullName": "Lyle Zhan",
-    "email": "lzhan@sprc.mschkg.com",
-    "roles": [
-      "r1"
-    ]
-  },
-  {
-    "userId": 1365,
-    "officeId": 19,
-    "departmentId": 4,
-    "loginName": "jasoliu",
-    "fullName": "Jason Liu",
-    "email": "jaliu@sprc.mschkg.com",
-    "roles": [
-      "r2"
-    ]
-  },
-  {
-    "userId": 4,
-    "officeId": 19,
-    "departmentId": 4,
-    "loginName": "rwei",
-    "fullName": "Ryan Wei",
-    "email": "rwei@sprc.mschkg.com",
-    "roles": [
-      "r1",
-      "r2",
-      "Manager"
-    ]
-  }
-];
+					$scope.step4TempUserList = [{
+						"userId": 1427,
+						"officeId": 19,
+						"departmentId": 4,
+						"loginName": "lzhan",
+						"fullName": "Lyle Zhan",
+						"email": "lzhan@sprc.mschkg.com",
+						"roles": [
+							"r1"
+						]
+					}, {
+						"userId": 1365,
+						"officeId": 19,
+						"departmentId": 4,
+						"loginName": "jasoliu",
+						"fullName": "Jason Liu",
+						"email": "jaliu@sprc.mschkg.com",
+						"roles": [
+							"r2"
+						]
+					}, {
+						"userId": 4,
+						"officeId": 19,
+						"departmentId": 4,
+						"loginName": "rwei",
+						"fullName": "Ryan Wei",
+						"email": "rwei@sprc.mschkg.com",
+						"roles": [
+							"r1",
+							"r2",
+							"Manager"
+						]
+					}];
 				}
 
 				$scope.currentStep = stepNo;
@@ -869,6 +897,146 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		initialProcess();
 		//console.log($scope.newGroup);
+
+
+		/*------------------------------------------------------------------------------------------*/
+		/*-----------------------------------------Maintain-----------------------------------------*/
+		/*------------------------------------------------------------------------------------------*/
+
+		$scope.displayMaintainGroup = {
+			groupList: [{
+				id: 1,
+				name: "Administrator"
+			}, {
+				id: 2,
+				name: "G1"
+			}, {
+				id: 3,
+				name: "G1R1-trzhou"
+			}],
+			officeAndDepartment: []
+
+		}
+
+		$scope.submitModifyGroup = {
+			group: {
+				id: 1,
+				name: ""
+			},
+			officeAndDepartment: {
+				add: [],
+				del: []
+			}
+		}
+
+		$scope.changeSelectGroup = function(group) {
+
+			for (var i = $scope.displayMaintainGroup.groupList.length; i--;) {
+				$scope.displayMaintainGroup.groupList[i].select = false;
+			}
+
+			group.select = true;
+		}
+
+		$scope.addDepartment = function() {
+			if ($scope.selectedOffice && $scope.selectedDept && $scope.selectedOffice.id && $scope.selectedDept.id) {
+				var isExisted = false;
+				$.each($scope.displayMaintainGroup.officeAndDepartment, function(i, v) {
+					if (v.office.id == $scope.selectedOffice.id && v.dept.id == $scope.selectedDept.id) {
+						isExisted = true;
+						return false;
+					}
+				});
+
+				if (isExisted) {
+					alert('This department is already selected.');
+					return;
+				}
+
+				addDeptData({
+					id: $scope.selectedOffice.id,
+					name: $scope.selectedOffice.name
+				}, {
+					id: $scope.selectedDept.id,
+					name: $scope.selectedDept.name
+				});
+
+			} else {
+				alert("Please select office and department first.");
+			}
+		}
+
+		$scope.minusDepartment = function(index) {
+			if ($scope.displayMaintainGroup.officeAndDepartment && $scope.displayMaintainGroup.officeAndDepartment.length >= index) {
+				delDeptData(index);
+			} else {
+				alert('Something is wrong. Please reset it and start over.');
+			}
+		}
+
+		//function/////////////////////////////////////////////////////////////////////
+
+		function addDeptData(office, deparment) {
+
+			$scope.displayMaintainGroup.officeAndDepartment.push({
+				office: office,
+				dept: deparment
+			});
+
+			$scope.submitModifyGroup.officeAndDepartment.add.push({
+				office: office,
+				dept: deparment
+			});
+		}
+
+
+
+		function delDeptData(index) {
+			var delDept = $scope.displayMaintainGroup.officeAndDepartment[index];
+
+			for (var i = $scope.submitModifyGroup.officeAndDepartment.add.length; i--;) {
+				if ($scope.submitModifyGroup.officeAndDepartment.add[i].office.id == delDept.office.id &&
+					$scope.submitModifyGroup.officeAndDepartment.add[i].dept.id == delDept.dept.id) {
+					$scope.submitModifyGroup.officeAndDepartment.add.splice(i, 1);
+					$scope.displayMaintainGroup.officeAndDepartment.splice(index, 1);
+					$scope.submitModifyGroup.officeAndDepartment.del.push(delDept);
+					break;
+				}
+			}
+		}
+
+		function initialModifyGroupListByUserId() {
+			$http({
+				method: 'POST',
+				url: '/restfulAPI/permission/ADDPERMISSION',
+				cache: false,
+				data: {
+					addPermission: $scope.formStyle.permission.permissionModel
+				}
+			}).success(function(data, status) {
+
+				if (!data[0].hasOwnProperty("key")) {
+					loadAllPermissions(true);
+				}
+
+				$scope.formStyle.permission.feedbackResult = data[0].key;
+				$scope.formStyle.permission.feedbackMessage = data[0].message;
+
+				$scope.formStyle.permission.submitted();
+
+			}).error(function(data, status) {
+				alert(data);
+				$scope.formStyle.permission.submitted();
+			});
+		}
+
+		$('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+
+			if (e.currentTarget.outerText === "Maintain") {
+				//console.log(e.currentTarget);
+			}
+			
+		});
 
 
 	}).controller('permissionCtrl', function($scope, fundationService, $http, $filter) {
