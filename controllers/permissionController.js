@@ -42,7 +42,18 @@ module.exports = function() {
 			});
 		},
 		GROUPLISTBYUSERID: function(req, res) {
-			
+			getAPIData(req, res, function(cb) {
+				permissionAPI.getGroupsByUserId(req.query.userId, function(err, data) {
+					cb(err, data);
+				})
+			});
+		},
+		GROUPRELATION: function(req, res) {
+			getAPIData(req, res, function(cb) {
+				permissionAPI.getGroupRelationbyGroupId(req.query.groupId, function(err, data) {
+					cb(err, data);
+				})
+			});
 		}
 	};
 

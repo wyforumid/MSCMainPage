@@ -114,3 +114,9 @@ exports.getGroupsByUserId = function(userId, callback) {
 	params.push(new Parameter('userId', mssql.Int, userId));
 	db.querySP('SP_GetGroupByUserId', params, callback);
 }
+
+exports.getGroupRelationbyGroupId = function(groupId, callback) {
+	var params = [];
+	params.push(new Parameter('groupId', mssql.Int, groupId));
+	db.querySP('SP_GetRelationbyGroupId', params, callback)
+}
