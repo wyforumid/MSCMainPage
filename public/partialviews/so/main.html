@@ -230,6 +230,21 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<a id="dispatchShowTipId" ng-click="showDispatchTips()" style="display:none;">Tips</a>
+				<div class="row" id="dispatchTipDiv">
+					<div class="col-md-8 col-md-offset-1">
+						<h6>
+							<span class="badge btn-danger">xx</span> : Unfinished SO request count.
+						</h6>
+						<h6>
+							<span class="badge btn-success">xx</span> : Finished SO request count today.
+						</h6>
+						<h6>
+							<span class="badge btn-info">xx</span> : Dispatch SO request count to this group today.
+						</h6>
+						<a ng-click="hideDispatchTips()">hide tips</a>
+					</div>
+				</div>			
 				<h5>
 					Dispatch to :
 				</h5>
@@ -237,7 +252,10 @@
 					<div class="checkbox col-md-4" ng-repeat="item in canDispatchedGroup">
 						<label>
 							<input type="checkbox" ng-model="item.checked" />
-							{{item.name}}<span class="badge">{{item.assignedCount}}</span>
+							{{item.name}}
+							<span class="badge btn-danger">{{item.unfinished}}</span>
+							<span class="badge btn-success">{{item.finished}}</span>
+							<span class="badge btn-info">{{item.dispatched}}</span>
 						</label>
 					</div>
 				</div>
@@ -262,6 +280,21 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<a id="assignShowTipId" ng-click="showAssignTips()" style="display:none;">Tips</a>
+				<div class="row" id="assignTipDiv">
+					<div class="col-md-8 col-md-offset-1">
+						<h6>
+							<span class="badge btn-danger">xx</span> : Unfinished SO request count.
+						</h6>
+						<h6>
+							<span class="badge btn-success">xx</span> : Finished SO request count today.
+						</h6>
+						<h6>
+							<span class="badge btn-info">xx</span> : Dispatch SO request count to this colleague today.
+						</h6>
+						<a ng-click="hideAssignTips()">hide tips</a>
+					</div>
+				</div>	
 				<h5>
 					Assign to :
 				</h5>
@@ -271,9 +304,12 @@
 					</div>
 					<div class="panel-body">
 						<div class="row">
-							<div class="checkbox col-md-4" ng-repeat="user in item.Users">
+							<div class="checkbox col-md-4" ng-repeat="user in item.users">
 								<label>
-									<input type="checkbox" ng-model="user.checked" />{{user.name}}<span class="badge">{{user.remain}}/{{user.finished}}</span>
+									<input type="checkbox" ng-model="user.checked" />{{user.name}}
+									<span class="badge btn-danger">{{user.unfinished}}</span>
+									<span class="badge btn-success">{{user.finished}}</span>
+									<span class="badge btn-info">{{user.assigned}}</span>
 								</label>
 							</div>
 						</div>

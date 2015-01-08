@@ -12,7 +12,7 @@ module.exports = function() {
 			func.getData(req, res, function(cb) {
 				var userInfo = req.getUserInfo();
 				if (userInfo) {
-					soAPI.GetMainDisplaySORequest(JSON.parse(userInfo), function(err, data) {
+					soAPI.GetMainDisplaySORequest(userInfo.userId, function(err, data) {
 						try {
 							cb(err, data);
 						} catch (ex) {
@@ -58,13 +58,45 @@ module.exports = function() {
 					}
 				});
 			});
+		},
+		GETDISPATCHABLEGROUP: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				var userInfo = req.getUserInfo();
+				soAPI.getDispatchableGroup(userInfo.userId, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
+		},
+		GETASSIGNABLEUSER: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				var userInfo = req.getUserInfo();
+				soAPI.getAssignableUser(userInfo.userId, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
 		}
 	}
 
 	this.POST = {
 		FORCEDISPATCH: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
-				soAPI.forceDispatch(req.body, function(err, data) {
+				// soAPI.forceDispatch(req.body, function(err, data) {
+				// 	try {
+				// 		callback(err, data);
+				// 	} catch (ex) {
+				// 		callback(ex, data);
+				// 	}
+				// });
+				var userInfo = req.getUserInfo();
+				soAPI.dispatch(req.body, req.cookies.userInfo.userId, JSON.parse(userInfo), function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
@@ -75,13 +107,21 @@ module.exports = function() {
 		},
 		FORCEASSIGN: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
-				soAPI.forceAssign(req.body, function(err, data) {
+				// soAPI.forceAssign(req.body, function(err, data) {
+				// 	try {
+				// 		callback(err, data);
+				// 	} catch (ex) {
+				// 		callback(ex, data);
+				// 	}
+				// })
+				var userInfo = req.getUserInfo();
+				soAPI.assign(req.body, req.cookies.userInfo.userId, JSON.parse(userInfo), function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
 						callback(ex, data);
 					}
-				})
+				});
 			})
 		},
 		UPLOADWORKFLOWFILE: function(req, res) {
@@ -110,6 +150,21 @@ module.exports = function() {
 		},
 		ADDWORKFLOW: function(req, res) {
 
+		},
+		UPDATEWORKFLOW: function(req, res) {
+			req.body.filePath = null;
+			func.jsonResponse(req, res, function(cb) {
+				soAPI.updateJobPackage(req.body, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				})
+			});
+		},
+		UPDATEWORKFLOWWITHFILE: function(req, res) {
+
 		}
 	};
 
@@ -119,5 +174,5 @@ module.exports = function() {
 }
 
 function addWorkflow(req, res, soSupportingFileId) {
-	
+
 }

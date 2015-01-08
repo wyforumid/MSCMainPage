@@ -1,5 +1,5 @@
 angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFileUpload'])
-	.controller('SOCtrl', function($scope, $http, $upload) {
+	.controller('SOCtrl', function($scope, $http, $upload, $rootScope) {
 		$scope.searchingResult = [];
 		$scope.filterResult = [];
 		$scope.analyseResult = {};
@@ -376,6 +376,31 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			successCallback();
 		}
 
+		function loadDispatchableGroups(successCb, errorCb) {
+			$scope.canDispatchedGroup = [];
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETDISPATCHABLEGROUP',
+				cache: false
+			}).success(function(data, status) {
+				if ($.isArray(data) && data.length > 0) {
+					$.each(data, function(i, v) {
+						$scope.canDispatchedGroup.push({
+							id: v.GroupId,
+							name: v.GroupName,
+							dispatched: v.Dispatched,
+							finished: v.Finished,
+							unfinished: v.Unfinished
+						});
+					});
+				}
+				successCb();
+
+			}).error(function(data, status) {
+				errorCb(data + status);
+			});
+		}
+
 		function TestLoadCanAssignUser(successCallback, errorCallback) {
 			$scope.canAssignUser = [];
 			$scope.canAssignUser.push({
@@ -467,8 +492,50 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			successCallback();
 		}
 
+		function loadAssignableUser(successCb, errorCb) {
+			$scope.canAssignUser = [];
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETASSIGNABLEUSER',
+				cache: false
+			}).success(function(data, status) {
+				if ($.isArray(data) && data.length == 2) {
+					$.each(data[0], function(i, v) {
+						$scope.canAssignUser.push({
+							groupId: v.GroupId,
+							groupName: v.GroupName,
+							users: []
+						});
+					});
+					$.each(data[1], function(i, v) {
+						$.each($scope.canAssignUser, function(k, item) {
+							if (item.groupId == v.GroupId) {
+								item.users.push({
+									id: v.UserId,
+									groupId: item.groupId,
+									name: v.FullName,
+									finished: v.Finished,
+									unfinished: v.Unfinished,
+									assigned: v.Assigned,
+									checked: false
+								});
+								return false;
+							} else {
+								return;
+							}
+						});
+					});
+					successCb();
+				} else {
+					errorCb(data + status);
+				}
+			}).error(function(data, status) {
+				errorCb(data + status);
+			})
+		}
+
 		$scope.openDispatchGroupDialog = function() {
-			TestLoadCanDispatchedGroup(function() {
+			loadDispatchableGroups(function() {
 				$('#dispatchDialog').modal('show');
 			}, function(err) {
 				alert('Loading dispatch group error.' + err);
@@ -477,7 +544,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		}
 
 		$scope.openAssignUserDialog = function() {
-			TestLoadCanAssignUser(function() {
+			loadAssignableUser(function() {
 				if ($scope.detailDivClass) {
 					checkUsers();
 				}
@@ -810,11 +877,11 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			type: null, //,
 			Job: null,
 			remark: null,
-			requestId: $scope.currentSORequest.SORequestId,
+			soRequestId: $scope.currentSORequest.SORequestId,
 			unassignJob: null,
 			newassignJob: null
 		}
-		$scope.upload = function() {
+		$scope.uploadAttachmentWithWorkFlowInfo = function(sCb, eCb) {
 			$upload.upload({
 				url: '/restfulAPI/so/UPLOADWORKFLOWFILE',
 				data: $scope.newWorkflow,
@@ -827,9 +894,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					$scope.uploader.percentage = 'Done';
 				}
 			}).success(function(data, status, headers, config) {
-				var a = data;
+				sCb(data, status, headers, config);
 			}).error(function(data, status, headers, config) {
-
+				eCb(data, status, headers, config);
 			});
 		}
 
@@ -851,7 +918,28 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.addWorkFlow = function() {
 			if ($scope.uploader.attachment && $scope.uploader.attachment != '') {
+				$scope.uploadAttachmentWithWorkFlowInfo(function() {
+					alert('Save successfully.');
+				}, function(data, status) {
+					alert('Fail to save.' + data + status);
+				});
+			} else {
+				// $http({
+				// 	method: 'POST',
+				// 	url: '',
+				// 	data: {
+				// 		soRequestId:$scope.newWorkFlow.Job.id,
+				// 		executeeId : null,
+				// 		executeeTypeId:null,
+				// 		executorId:$rootScope.userInfo.userId,
+				// 		statusId:
+				// 	},
+				// 	cache: false
+				// }).success(function(data, status) {
 
+				// }).error(function(data, status) {
+
+				// });
 			}
 		}
 
@@ -893,14 +981,34 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			var assignedUserIds = [];
 			var isDuplicate = {};
 			angular.forEach($scope.currentSORequest.workflow, function(v, i) {
-				if (v.SubPackageId && v.SubPackageId = '') {
+				if (v.SubPackageId && v.SubPackageId == '') {
 					if (!isDuplicate.hasOwnProperty(v.ExecuteeId.toString())) {
 						assignedUser.push(v.ExecuteeId);
 						isDuplicate[v.ExecuteeId.toString()] = 'ADDED';
 					}
 				}
-			})
+			});
 			return assignedUserIds;
+		}
+
+		$scope.showDispatchTips = function() {
+			$('#dispatchTipDiv').show();
+			$('#dispatchShowTipId').hide();
+		}
+
+		$scope.hideDispatchTips = function() {
+			$('#dispatchTipDiv').hide();
+			$('#dispatchShowTipId').show();
+		}
+
+		$scope.showAssignTips = function() {
+			$('#assignTipDiv').show();
+			$('#assignShowTipId').hide();
+		}
+
+		$scope.hideAssignTips = function() {
+			$('#assignTipDiv').hide();
+			$('#assignShowTipId').show();
 		}
 
 	})

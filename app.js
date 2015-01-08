@@ -15,6 +15,8 @@ var apiRoute = require('./routes/apiRoute');
 var restfullRoute = require('./routes/RESTfulRoute');
 
 var userAPI = require('./API/userAPI');
+var permissionAPI = require('./API/permissionAPI')
+var _ = require('underscore');
 
 var app = express();
 
@@ -28,12 +30,31 @@ passport.use('local', new passportLocal({
         async.waterfall([
             function(cb) {
                 userAPI.login(username, password, req.ip, cb);
+            },
+            function(data, cb) {
+                if (data && data[0] && data[0].cacheId != '') {
+                    permissionAPI.getOwnPermission(data[0].userId, function(err, pers) {
+                        if (err) {
+                            cb('Can\'t get permissions.', null);
+                        } else {
+                            cb(null, {
+                                userId: data[0].userId,
+                                cacheId: data[0].cacheId,
+                                permissions: _.map(pers, function(v, i) {
+                                    return v.PermissionId
+                                })
+                            });
+                        }
+                    })
+                } else {
+                    cb('No such user.', null);
+                }
             }
         ], function(err, data) {
-            if (data[0].cacheId == '') {
-                verified(null, null, 'Wrong login name or wrong password.');
-            } else {
+            if (data && data.cacheId != '') {
                 verified(err, data, null);
+            } else {
+                verified(null, null, 'Wrong login name or wrong password.');
             }
         });
     }));
@@ -78,10 +99,11 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
     if (arguments.length == 4) {
         res.cookie('userInfo', JSON.stringify({
             loginName: req.body.userName,
-            userId:data[0].userId
+            userId: data.userId,
+            permissions: data.permissions
         }));
         req.logIn(
-            data[0].cacheId,
+            data,
             function() {
                 //res.redirect('/main')
                 res.writeHead(200);
