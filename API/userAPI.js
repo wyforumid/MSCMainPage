@@ -33,3 +33,4 @@ exports.login = function(userName, password,ip,callback){
 	params.push(new Parameter('ip',mssql.NVarChar(15),_s.trim(ip)));
 	db.querySP('SP_Login',params, callback);
 }
+
