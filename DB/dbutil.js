@@ -1,10 +1,12 @@
 var mssql = require('mssql');
 
 var config = {
-	user: 'test',
-	password: 'test',
-	server: '10.150.9.98',
-	database: 'EfficientStaff2015_Test'
+
+	user:'test',
+	password:'test',
+	server:'10.150.9.98',
+	database:'EfficientStaff2015_Test'
+
 }
 
 exports.querySQL = function(sql, callback) {

@@ -914,6 +914,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				id: 3,
 				name: "G1R1-trzhou"
 			}],
+			currentSelectGroup: {},
 			officeAndDepartment: []
 
 		}
@@ -935,7 +936,46 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				$scope.displayMaintainGroup.groupList[i].select = false;
 			}
 
-			group.select = true;
+			if (group.enable) {
+				group.select = true;
+				$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
+				$scope.submitModifyGroup.group = $scope.displayMaintainGroup.currentSelectGroup;
+
+				$http({
+					method: 'GET',
+					url: '/restfulAPI/permission/GROUPRELATION',
+					cache: false,
+					params: {
+						groupId: group.id
+					}
+				}).success(function(data, status) {
+
+					if (data && data.length > 0) {
+
+						for (var i = data[0].length; i--;) {
+							$scope.displayMaintainGroup.officeAndDepartment.push({
+								id: data[0][i].id,
+								office: {
+									id: data[0][i].officeId,
+									name: data[0][i].officeName
+								},
+								dept: {
+									id: data[0][i].departmentId,
+									name: data[0][i].departmentName
+								}
+							});
+						}
+					}
+
+				}).error(function(data, status) {
+					alert(data);
+				});
+
+			} else {
+				$scope.displayMaintainGroup.currentSelectGroup = {};
+				$scope.submitModifyGroup.group = {};
+			}
+
 		}
 
 		$scope.addDepartment = function() {
@@ -1005,37 +1045,26 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			}
 		}
 
-		function initialModifyGroupListByUserId() {
-			$http({
-				method: 'POST',
-				url: '/restfulAPI/permission/ADDPERMISSION',
-				cache: false,
-				data: {
-					addPermission: $scope.formStyle.permission.permissionModel
-				}
-			}).success(function(data, status) {
-
-				if (!data[0].hasOwnProperty("key")) {
-					loadAllPermissions(true);
-				}
-
-				$scope.formStyle.permission.feedbackResult = data[0].key;
-				$scope.formStyle.permission.feedbackMessage = data[0].message;
-
-				$scope.formStyle.permission.submitted();
-
-			}).error(function(data, status) {
-				alert(data);
-				$scope.formStyle.permission.submitted();
-			});
-		}
 
 		$('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
 
 			if (e.currentTarget.outerText === "Maintain") {
-				//console.log(e.currentTarget);
+
+				$http({
+					method: 'GET',
+					url: '/restfulAPI/permission/GROUPLISTBYUSERID',
+					cache: false,
+					params: {
+						userId: $rootScope.userInfo.userId
+					}
+				}).success(function(data, status) {
+					$scope.displayMaintainGroup.groupList = data;
+				}).error(function(data, status) {
+					alert(data);
+				});
+
 			}
-			
+
 		});
 
 
