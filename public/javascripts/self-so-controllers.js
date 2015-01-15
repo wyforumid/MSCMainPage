@@ -42,13 +42,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			},
 			true);
 
-		// $scope.$watch('searchingResult', function(nV, oV) {
-		// 	copySearchingResultToFilterResult();
-
-		// 	analyseSearchingResult();
-
-		// }, true);
-
 		$scope.showStatus = function(item) {
 			if (item.JobStatusName) {
 				return item.JobStatusName;
@@ -280,9 +273,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}];
 		}
 
-
-
-		//alert($scope.analyseResult);
 		$scope.siGrid = {
 			data: 'filterResult',
 			enableColumnResize: true,
@@ -339,43 +329,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}
 		}
 
-
-
-		function TestLoadCanDispatchedGroup(successCallback, errorCallback) {
-			$scope.canDispatchedGroup = [];
-			$scope.canDispatchedGroup.push({
-				id: 2,
-				name: 'Team1',
-				assignedCount: 69,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 3,
-				name: 'Team2',
-				assignedCount: 75,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 4,
-				name: 'Team3',
-				assignedCount: 70,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 5,
-				name: 'Team4',
-				assignedCount: 100,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 6,
-				name: 'Team5',
-				assignedCount: 55,
-				checked: false
-			});
-			successCallback();
-		}
-
 		function loadDispatchableGroups(successCb, errorCb) {
 			$scope.canDispatchedGroup = [];
 			$http({
@@ -399,97 +352,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}).error(function(data, status) {
 				errorCb(data + status);
 			});
-		}
-
-		function TestLoadCanAssignUser(successCallback, errorCallback) {
-			$scope.canAssignUser = [];
-			$scope.canAssignUser.push({
-				groupName: 'IT',
-				Users: [{
-					id: 1365,
-					name: 'Jason Liu',
-					remain: 4,
-					finished: 40,
-					checked: false
-				}, {
-					id: 1427,
-					name: 'Lyle Zhan',
-					remain: 4,
-					finished: 5,
-					checked: false
-				}, {
-					id: 4,
-					name: 'Ryan Wei',
-					remain: 5,
-					finished: 10,
-					checked: false
-				}, {
-					id: 3,
-					name: 'Benkit Shi',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-
-			$scope.canAssignUser.push({
-				groupName: 'DOC',
-				Users: [{
-					id: 1365,
-					name: 'DG',
-					remain: 4,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG1',
-					remain: 4,
-					finished: 20,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG2',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG3',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-
-			$scope.canAssignUser.push({
-				groupName: 'WH',
-				Users: [{
-					id: 1365,
-					name: 'DG4',
-					remain: 4,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG5',
-					remain: 4,
-					finished: 20,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG6',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG7',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-			successCallback();
 		}
 
 		function loadAssignableUser(successCb, errorCb) {
@@ -607,10 +469,13 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		function autoBatchAssign() {
 			var selectedUserIds = [];
 			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
+				for (var k = $scope.canAssignUser[i].users.length; k--;) {
 					(function(i, j) {
-						if ($scope.canAssignUser[i].Users[j].checked) {
-							selectedUserIds.push($scope.canAssignUser[i].Users[j].id);
+						if ($scope.canAssignUser[i].users[j].checked) {
+							selectedUserIds.push({
+								userId: $scope.canAssignUser[i].users[j].id,
+								groupId: $scope.canAssignUser[i].users[j].groupId
+							});
 						}
 					})(i, k);
 				}
@@ -634,8 +499,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		function resetAssignUserStatus() {
 			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
-					$scope.canAssignUser[i].Users[k].checked = false;
+				for (var k = $scope.canAssignUser[i].users.length; k--;) {
+					$scope.canAssignUser[i].users[k].checked = false;
 				}
 			}
 		}
@@ -688,8 +553,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					(function(i) {
 						data[i] = {
 							key: keys[i],
-							values: values[0]
+							values: []
 						};
+						data[i].values.push(values[0]);
 					})(i);
 				}
 			} else { // for other case
@@ -762,18 +628,19 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}
 				async.parallel([
 					function(callback) {
-						$http({
-							method: 'GET',
-							url: '/restfulAPI/so/GETSOWORKFLOW',
-							params: {
-								id: requestId
-							},
-							cache: false
-						}).success(function(data, status) {
-							callback(null, data);
-						}).error(function(data, status) {
-							callback(data + status, null);
-						});
+						// $http({
+						// 	method: 'GET',
+						// 	url: '/restfulAPI/so/GETSOWORKFLOW',
+						// 	params: {
+						// 		id: requestId
+						// 	},
+						// 	cache: false
+						// }).success(function(data, status) {
+						// 	callback(null, data);
+						// }).error(function(data, status) {
+						// 	callback(data + status, null);
+						// });
+						getOwnWorkFlow(requestId, callback);
 					},
 					function(callback) {
 						$http({
@@ -827,47 +694,40 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}
 		}
 
-		// $scope.uploader = new FileUploader({
-		// 	onBeforeUploadItem: function(item) {
-		// 		// $scope.uploader.formData = [];
-		// 		item.formData = [];
-		// 		item.formData.push({
-		// 			requestId: $scope.currentSORequest.SORequestId
-		// 		})
-		// 	},
-		// 	onCompleteAll:function(){
-		// 		alert('shit');
-		// 	},
-		// 	url: '/restfulAPI/so/UPLOADWORKFLOWFILE'
-		// });
 
-		//$scope.uploader. =
+		function getOwnWorkFlow(requestId, callback) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETSOWORKFLOW',
+				params: {
+					id: requestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				callback(null, data);
+			}).error(function(data, status) {
+				callback(data + status, null);
+			});
+		}
 
-		// $scope.uploader.formData = [{
-		// 	requestId: $scope.currentSORequest.SORequestId
-		// }];
-
-		// $scope.uploader.onAfterAddingFile(function() {
-
-		// });
 		$scope.uploader = {
-			attachment: null,
+			attachment: '',
 			progressbar: 0,
 			percentage: null
 		}
 
 		$scope.workFlowBaseInfo = {
 			types: [{
-				id: 1,
+				id: 5001,
 				name: 'Update'
 			}, {
-				id: 2,
+				id: 5002,
 				name: 'Problem'
 			}, {
-				id: 3,
+				id: 5003,
 				name: 'Resolved'
 			}, {
-				id: 4,
+				id: 1011,
 				name: 'Finish'
 			}],
 			assignedUsers: []
@@ -875,17 +735,21 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.newWorkFlow = {
 			type: null, //,
-			Job: null,
+			// Job: null,
 			remark: null,
-			soRequestId: $scope.currentSORequest.SORequestId,
-			unassignJob: null,
-			newassignJob: null
+			// soRequestId: $scope.currentSORequest.SORequestId
+			// unassignJob: null,
+			// newassignJob: null
 		}
 		$scope.uploadAttachmentWithWorkFlowInfo = function(sCb, eCb) {
 			$upload.upload({
 				url: '/restfulAPI/so/UPLOADWORKFLOWFILE',
-				data: $scope.newWorkflow,
-				file: $scope.attachment
+				data: {
+					typeId: $scope.newWorkFlow.type.id,
+					remark: $scope.newWorkFlow.remark,
+					soRequestId: $scope.currentSORequest.SORequestId
+				},
+				file: $scope.uploader.attachment
 			}).progress(function(evt) {
 				$scope.uploader.progressbar = parseInt(100.0 * evt.loaded / evt.total);
 				if ($scope.uploader.progressbar != 100) {
@@ -902,7 +766,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.selectFileChanged = function() {
 			$scope.uploader.progressbar = $scope.uploader.percentage = 0;
-			if ($scope.uploader.attachment.substr($scope.uploader.attachment.length - 4).toUpperCase() == 'EXE') {
+			if ($scope.uploader.attachment != '' && $scope.uploader.attachment[0].name.substr($scope.uploader.attachment.length - 4).toUpperCase() == 'EXE') {
 				alert('Executable files can\' be uploaded.');
 				$scope.uploader.attachment = null;
 			}
@@ -920,33 +784,55 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			if ($scope.uploader.attachment && $scope.uploader.attachment != '') {
 				$scope.uploadAttachmentWithWorkFlowInfo(function() {
 					alert('Save successfully.');
+					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
+						if (err) {
+							alert('Fail to fetch work flow.' + err);
+						} else {
+							for (var i = result.length; i--;) {
+								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+							}
+							$scope.currentSORequest.workflow = result;
+						}
+					});
+					$('#workflowDialog').modal('hide');
 				}, function(data, status) {
 					alert('Fail to save.' + data + status);
 				});
 			} else {
-				// $http({
-				// 	method: 'POST',
-				// 	url: '',
-				// 	data: {
-				// 		soRequestId:$scope.newWorkFlow.Job.id,
-				// 		executeeId : null,
-				// 		executeeTypeId:null,
-				// 		executorId:$rootScope.userInfo.userId,
-				// 		statusId:
-				// 	},
-				// 	cache: false
-				// }).success(function(data, status) {
-
-				// }).error(function(data, status) {
-
-				// });
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/UPDATEWORKFLOW',
+					data: {
+						typeId: $scope.newWorkFlow.type.id,
+						remark: $scope.newWorkFlow.remark,
+						soRequestId: $scope.currentSORequest.SORequestId,
+						filePath: null,
+						fileName: null
+					},
+					cache: false
+				}).success(function(data, status) {
+					alert('Success.')
+					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
+						if (err) {
+							alert('Fail to fetch work flow.' + err);
+						} else {
+							for (var i = result.length; i--;) {
+								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+							}
+							$scope.currentSORequest.workflow = result;
+						}
+					});
+					$('#workflowDialog').modal('hide');
+				}).error(function(data, status) {
+					alert(data + status);
+				});
 			}
 		}
 
 
 
 		function prepareWorkFlowBaseInfo() {
-			workFlowDialog_setUserCanChosen();
+			// workFlowDialog_setUserCanChosen();
 			workFlowDialog_setWorkFlowTypeOptions();
 		}
 
@@ -954,28 +840,28 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.newWorkFlow.type = $scope.workFlowBaseInfo.types[0];
 		}
 
-		function workFlowDialog_setUserCanChosen() {
-			var assignUsers = $scope.workFlowBaseInfo.assignedUsers = [];
-			var isDuplicate = {};
-			angular.forEach($scope.currentSORequest.workflow, function(v, i) {
-				if (!v.SubPackageId || v.SubPackageId == '') {
-					assignUsers.push({
-						id: v.SOJobPackageId,
-						name: 'Everyone'
-					});
-				} else if (!isDuplicate.hasOwnProperty(v.SubPackageId.toString())) {
-					assignUsers.push({
-						id: v.SOJobPackageId,
-						name: v.Executee
-					});
-					isDuplicate[v.SubPackageId.toString()] = 'ADDED';
-				}
-			});
+		// function workFlowDialog_setUserCanChosen() {
+		// 	var assignUsers = $scope.workFlowBaseInfo.assignedUsers = [];
+		// 	var isDuplicate = {};
+		// 	angular.forEach($scope.currentSORequest.workflow, function(v, i) {
+		// 		if (!v.SubPackageId || v.SubPackageId == '') {
+		// 			assignUsers.push({
+		// 				id: v.SOJobPackageId,
+		// 				name: 'Everyone'
+		// 			});
+		// 		} else if (!isDuplicate.hasOwnProperty(v.SubPackageId.toString())) {
+		// 			assignUsers.push({
+		// 				id: v.SOJobPackageId,
+		// 				name: v.Executee
+		// 			});
+		// 			isDuplicate[v.SubPackageId.toString()] = 'ADDED';
+		// 		}
+		// 	});
 
-			if (assignUsers.length == 1) {
-				$scope.newWorkFlow.Job = assignUsers[0];
-			}
-		}
+		// 	if (assignUsers.length == 1) {
+		// 		$scope.newWorkFlow.Job = assignUsers[0];
+		// 	}
+		// }
 
 		function getCurrentSORequestAssignedUserIds() {
 			var assignedUserIds = [];

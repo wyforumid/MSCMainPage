@@ -141,3 +141,7 @@ a {
 .highlightFont{
 	color: red;
 }
+
+.table-sm{
+	font-size: small;
+}

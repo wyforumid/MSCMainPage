@@ -3,6 +3,7 @@ var userCtrl = require('../controllers/userController');
 var companyCtrl = require('../controllers/companyController');
 var permissionCtrl = require('../controllers/permissionController');
 var soCtrl = require('../controllers/soController');
+var downloadCtrl = require('../controllers/downloadController');
 
 
 module.exports = function(req, res, next) {
@@ -11,7 +12,8 @@ module.exports = function(req, res, next) {
 		controllers: [new userCtrl(),
 			new companyCtrl(),
 			new permissionCtrl(),
-			new soCtrl()
+			new soCtrl(),
+			new downloadCtrl()
 		]
 	});
 
