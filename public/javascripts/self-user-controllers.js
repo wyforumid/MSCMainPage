@@ -50,6 +50,7 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 			initialCSS();
 
 			if (!checkEssentialInfo()) {
+				$('#registBtn').prop('disabled', false);
 				return;
 			}
 
@@ -105,7 +106,7 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 
 		function feedbackRegistPage(msg) {
 			if (msg == '') {
-				alert('Regist user successfully. The password will be sent to ' + $scope.registUserInfo.email + 'in 1 minuts.');
+				alert('Regist user successfully. The password will be sent to ' + $scope.registUserInfo.email + ' in 1 minuts.');
 				window.location = "/";
 				return;
 			}
@@ -234,13 +235,13 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 
 			$http({
 				method: 'POST',
-				url: '/API/user/MODIFYPWD',
+				url: '/restfulAPI/user/MODIFYPWD',
 				data: updateUser
 			}).success(function(data, status) {
 
 				if (data[0].info === "") {
 					alert("Your password already updated, please re-login.");
-					window.location = "/";
+					window.location = "/main/logout";
 				} else {
 					$scope.formZone.message = data[0].info;
 				}

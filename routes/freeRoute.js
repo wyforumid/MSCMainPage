@@ -1,8 +1,12 @@
 var express = require('express');
-var user = require('../controllers/userController');
-var company = require('../controllers/companyController');
+var userCtrl = require('../controllers/userController');
+var companyCtrl = require('../controllers/companyController');
 // var func = require('../controllers/func');
 var router = express.Router();
+
+var user = new userCtrl();
+var company = new companyCtrl();
+
 
 router.get('/', function(req, res) {
 	if (req.isAuthenticated()) {
@@ -26,10 +30,10 @@ router.route('/user/:actionName')
 	.post(function(req, res, next) {
 		switch(req.params.actionName.toUpperCase()){
 			case 'RESETPWD':
-				user.resetPassword(req, res);
+			user.POST.RESETPWD(req, res);
 				break;
 			case 'REGIST':
-				user.registerUser(req, res);
+			user.POST.REGIST(req, res);
 				break;
 		}
 
@@ -42,10 +46,10 @@ router.route('/company/:actionName')
 
 		switch(req.params.actionName.toUpperCase()) {
 			case 'ALLOFFICES':
-				company.allOffices(req, res);
+				company.GET.ALLOFFICES(req, res);
 				break;
 			case 'ALLDEPTS':
-				company.allDepts(req, res);
+				company.GET.ALLDEPTS(req, res);
 				break;
 		}
 

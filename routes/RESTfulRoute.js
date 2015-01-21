@@ -9,7 +9,8 @@ var downloadCtrl = require('../controllers/downloadController');
 module.exports = function(req, res, next) {
 	var router = new Router({
 		pathPattern: null,
-		controllers: [new userCtrl(),
+		controllers: [
+			new userCtrl(),
 			new companyCtrl(),
 			new permissionCtrl(),
 			new soCtrl(),
