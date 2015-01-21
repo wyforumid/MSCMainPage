@@ -1,3 +1,6 @@
+<div class="row" style="text-align: center" ng-show="isUpdatedInRefresh">
+	<a style="color: red" ng-click="refreshDataUpdate();">There is update. Marked yellow at background color.</a>
+</div>
 <div class="row">
 	<div data-ng-class="{'col-md-2':listDivClass,'':detailDivClass}" ng-show="listDivClass">
 		<div class="row margin-botton-div" ng-show="hasSelectedSO">
@@ -55,6 +58,9 @@
 				<select class="form-control">
 					<option value="">---Status---</option>
 				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" placeholder="Enter Id" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
 				<input type="text" class="form-control" placeholder="Enter Executee" />
@@ -201,15 +207,15 @@
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in currentSORequest.workflow | orderBy:'-OperateTime'">
-									<td>{{item.OperateTime}}</td>
-									<td>{{item.Executor}}</td>
-									<td>{{item.Executee}}</td>
-									<td>{{item.Status}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.OperateTime}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Executor}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Executee}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Status}}</td>
 									<!-- <td>{{item.IsUpdateInCurrentStatus}}</td> -->
-									<th>{{item.UpdateType}}</th>
-									<td>{{item.Updater}}</td>
-									<td>{{item.Remark}}</td>
-									<td><a target="blank" href="/restfulAPI/download/SO?id={{item.SOSupportingFileId}}">{{item.AttachmentName}}</a></td>
+									<th ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.UpdateType}}</th>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Updater}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Remark}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}"><a target="blank" href="/restfulAPI/download/SO?id={{item.SOSupportingFileId}}">{{item.AttachmentName}}</a></td>
 								</tr>
 							</tbody>
 						</table>

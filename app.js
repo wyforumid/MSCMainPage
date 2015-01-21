@@ -8,6 +8,7 @@ var session = require('express-session');
 var passport = require('passport');
 var passportLocal = require('passport-local').Strategy;
 var async = require('async');
+var domain = require('domain');
 
 var routes = require('./routes/index');
 var freeRoutes = require('./routes/freeRoute');
@@ -79,6 +80,21 @@ app.use(session({
         maxAge: 10 * 60 * 60 * 1000
     }
 }));
+app.use(function(req, res, next) {
+    var d = domain.create();
+    d.on('error', function(err) {
+        res.statusCode = 500;
+        res.json({
+            sucess: false,
+            message: err
+        });
+        d.dispose();
+    });
+
+    d.add(req);
+    d.add(res);
+    d.run(next);
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));

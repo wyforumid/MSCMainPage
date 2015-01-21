@@ -145,3 +145,7 @@ a {
 .table-sm{
 	font-size: small;
 }
+
+.refreshUpdated{
+	background-color: yellow;
+}

@@ -5,7 +5,7 @@ var path = require('path');
 var crypto = require('crypto');
 var mkdirp = require('mkdirp');
 
-var soRequestAttachFolder = 'D:\\publish\\SORequest';
+var soRequestAttachFolder = 'R:\\IT\\DevTeam\\EfficientStaff2015\\SOSupportingFile';
 
 exports.getData = function(req, res, getFunc) {
 	async.waterfall([

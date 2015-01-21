@@ -1,7 +1,7 @@
 var downloadAPI = require('../API/downloadAPI');
 var _ = require('underscore');
 
-var soRequestAttachFolder = 'D:\\publish\\SORequest';
+var soRequestAttachFolder = 'R:\\IT\\DevTeam\\EfficientStaff2015\\SOSupportingFile';
 
 module.exports = function() {
 	this.controllerName = 'download';
