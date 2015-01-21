@@ -20,8 +20,166 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.detailDivClass = false;
 		$scope.canDispatchedGroup = [];
 		$scope.canAssignedUser = [];
+		$scope.pageModal = 1; //1 for main display 2 for search display. for now only auto refresh on main display modal.
+		$scope.refreshResult = [];
+		$scope.refreshCurrentSORequest = {};
+		$scope.isUpdatedInRefresh = false;
+
+		$scope.$watch('pageModal', function(nV, oV) {
+			if (nV == 1) {
+				setTimeout(mainRefresh, 10000);
+			}
+		});
+
+		function mainRefresh() {
+			if ($scope.pageModal == 2) {
+				return;
+			}
+			async.parallel([
+				function(callback) {
+					loadMainData(
+						function(data, status) {
+							if (data && data.length > 0) {
+								$scope.refreshResult = data;
+								callback(null, $scope.refreshResult);
+							} else {
+								callback(null, null);
+							}
+						},
+						function(data, status) {
+							callback(data + status, null);
+						});
+				},
+				function(callback) {
+					if ($scope.listDivClass) {
+						$scope.refreshCurrentSORequest = null;
+						callback(null, $scope.refreshCurrentSORequest);
+					} else {
+						loadSODetails(
+							$scope.currentSORequest.SORequestId,
+							function(results) {
+								$scope.refreshCurrentSORequest = angular.copy($scope.currentSORequest);
+								$scope.refreshCurrentSORequest.workflow = results[0];
+								$scope.refreshCurrentSORequest.baseInfo = results[1][0];
+								$scope.refreshCurrentSORequest.bookings = results[2];
+								callback(null, $scope.refreshCurrentSORequest);
+							},
+							function(err) {
+								callback(err, null);
+							})
+					}
+
+				}
+			], function(err, results) {
+				if (err) {
+					return;
+				}
+				if ($scope.pageModal == 2) {
+					return;
+				}
+				compareRefreshSO(results[0]);
+
+				if (results[1]) {
+					compareRefreshCurrentSO(results[1]);
+				}
+
+				if ($scope.pageModal == 1) {
+					setTimeout(mainRefresh, 10000);
+				}
+
+			});
 
 
+
+		}
+
+		function compareRefreshSO(refreshData) {
+			var existed = false;
+			for (var i = refreshData.length; i--;) {
+				existed = false;
+				for (var k = $scope.searchingResult.length; k--;) {
+					if (refreshData[i].SORequestId == $scope.searchingResult[k].SORequestId) {
+						existed = true;
+						break;
+					}
+
+				}
+				if (!existed) {
+					$scope.isUpdatedInRefresh = true;
+					refreshData[i].isUpdateOne = true;
+				}
+			}
+		}
+
+		function compareRefreshCurrentSO(refreshData) {
+			if (refreshData.workflow.length == $scope.currentSORequest.workflow.length) {
+				return;
+			}
+			var existed = false;
+			for (var i = refreshData.workflow.length; i--;) {
+				existed = false;
+				for (var k = $scope.currentSORequest.workflow.length; k--;) {
+					if (refreshData.workflow[i].SOJobPackageHistoryId == $scope.currentSORequest.workflow[k].SOJobPackageHistoryId) {
+						existed = true;
+						break;
+					}
+
+				}
+				if (!existed) {
+					$scope.isUpdatedInRefresh = true;
+					refreshData.workflow[i].isUpdateOne = true;
+				}
+			}
+		}
+
+		$scope.refreshDataUpdate = function() {
+			//remove update flag setted last time
+			for (var i = $scope.searchingResult.length; i--;) {
+				$scope.searchingResult[i].isUpdateOne = false;
+			}
+
+			if ($scope.currentSORequest.workflow && $scope.currentSORequest.workflow.length > 0) {
+				for (var i = $scope.currentSORequest.workflow.length; i--;) {
+					$scope.currentSORequest.workflow[i].isUpdateOne = false;
+				}
+			}
+
+
+
+			//add update data
+			for (var i = $scope.refreshResult.length; i--;) {
+				if ($scope.refreshResult[i].isUpdateOne) {
+					$scope.searchingResult.push(angular.copy($scope.refreshResult[i]));
+				}
+			}
+			if ($scope.refreshCurrentSORequest) {
+				for (var i = $scope.refreshCurrentSORequest.workflow.length; i--;) {
+					if ($scope.refreshCurrentSORequest.workflow[i].isUpdateOne) {
+						$scope.currentSORequest.workflow.push(angular.copy($scope.refreshCurrentSORequest.workflow[i]));
+					}
+				}
+			}
+
+
+
+			//reload data in page
+			copySearchingResultToFilterResult();
+			analyseSearchingResult();
+
+			// if ($scope.detailDivClass) {
+			// 	showDetails($scope.currentSORequest.SORequestId);
+			// }
+			$scope.isUpdatedInRefresh = false;
+		}
+
+		$scope.$watch('isFilterZone', function(nV, oV) {
+			if (!nV) {
+				if (!$rootScope.hasPermission(5)) {
+					alert('You have no right to search.');
+					$scope.isFilterZone = true;
+				}
+			}
+		});
 
 		$scope.$watch('filters',
 			function(nV, oV) {
@@ -41,13 +199,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 			},
 			true);
-
-		// $scope.$watch('searchingResult', function(nV, oV) {
-		// 	copySearchingResultToFilterResult();
-
-		// 	analyseSearchingResult();
-
-		// }, true);
 
 		$scope.showStatus = function(item) {
 			if (item.JobStatusName) {
@@ -127,41 +278,16 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			})
 		}
 
-		function loadMainData() {
+		function loadMainData(successCb, errorCb) {
 			$http({
 				method: 'GET',
 				url: '/restfulAPI/so/GETMAINSOREQUEST',
 				cache: false,
 			}).success(function(data, status) {
-				if (data && angular.isArray(data)) {
-					// $scope.searchingResult = [];
-					// for (var i = 0; i < data.length; i++) {
-					// 	$scope.searchingResult.push(data[i]);
-					// 	$scope.searchingResult[$scope.searchingResult.length - 1].FinalStatusName = $scope.showStatus(data[i]);
-					// }
-					if (data.length == 0) {
-						alert('No result.');
-						return;
-					}
-
-					$scope.searchingResult = data;
-
-					copySearchingResultToFilterResult();
-
-					analyseSearchingResult();
-
-
-				} else {
-					alert(data);
-				}
-
-
-
+				successCb(data, status);
 			}).error(function(data, status) {
-				alert('Fitch SO request error.' + status + data);
+				errorCb(data, status);
 			});
-
-
 		}
 
 
@@ -230,7 +356,30 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}
 		}
 
-		loadMainData();
+		loadMainData(
+			function(data, status) {
+				if (data && angular.isArray(data)) {
+					if (data.length == 0) {
+						alert('No result.');
+						return;
+					}
+					for (var i = data.length; i--;) {
+						if (!data[i]) {
+							data[i] = {};
+						}
+
+						data[i].isUpdateOne = false;
+					}
+					$scope.searchingResult = data;
+					copySearchingResultToFilterResult();
+					analyseSearchingResult();
+				} else {
+					alert(data);
+				}
+			},
+			function(data, status) {
+				alert('Fitch SO request error.' + status + data);
+			});
 
 
 		function setInputterFullColumns() {
@@ -280,9 +429,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}];
 		}
 
-
-
-		//alert($scope.analyseResult);
 		$scope.siGrid = {
 			data: 'filterResult',
 			enableColumnResize: true,
@@ -292,6 +438,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			enableRowSelection: true,
 			enablePinning: true,
 			columnDefs: 'columnDefs',
+			rowTemplate: '<div ng-style="{ \'cursor\': row.cursor,\'background-color\':isUpdateSORequest(row) }" ng-repeat="col in renderedColumns" ng-class="col.colIndex()" class="ngCell {{col.cellClass}}"><div class="ngVerticalBar" ng-style="{height: rowHeight}" ng-class="{ ngVerticalBarVisible: !$last}">&nbsp;</div><div ng-cell></div></div>',
 			checkboxHeaderTemplate: '<input class="ngSelectionHeader" type="checkbox" id="soMainCheckbox" ng-show="multiSelect" ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
 			beforeSelectionChange: function(rows, checkAll, self) {
 				if (angular.isArray(rows) && checkAll == true) {
@@ -321,6 +468,15 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		setInputterFullColumns();
 
+		$scope.isUpdateSORequest = function(data) {
+			var v = data.getProperty('isUpdateOne');
+			if (v && v.toString() == "true") {
+				return "yellow";
+			} else {
+				return "";
+			}
+		}
+
 		$scope.$watch('siGrid.$gridScope.selectedItems.length', function(nV, oV) {
 			if (nV >= 1) {
 				$scope.hasSelectedSO = true;
@@ -337,43 +493,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				default:
 					return true;
 			}
-		}
-
-
-
-		function TestLoadCanDispatchedGroup(successCallback, errorCallback) {
-			$scope.canDispatchedGroup = [];
-			$scope.canDispatchedGroup.push({
-				id: 2,
-				name: 'Team1',
-				assignedCount: 69,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 3,
-				name: 'Team2',
-				assignedCount: 75,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 4,
-				name: 'Team3',
-				assignedCount: 70,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 5,
-				name: 'Team4',
-				assignedCount: 100,
-				checked: false
-			});
-			$scope.canDispatchedGroup.push({
-				id: 6,
-				name: 'Team5',
-				assignedCount: 55,
-				checked: false
-			});
-			successCallback();
 		}
 
 		function loadDispatchableGroups(successCb, errorCb) {
@@ -399,97 +518,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}).error(function(data, status) {
 				errorCb(data + status);
 			});
-		}
-
-		function TestLoadCanAssignUser(successCallback, errorCallback) {
-			$scope.canAssignUser = [];
-			$scope.canAssignUser.push({
-				groupName: 'IT',
-				Users: [{
-					id: 1365,
-					name: 'Jason Liu',
-					remain: 4,
-					finished: 40,
-					checked: false
-				}, {
-					id: 1427,
-					name: 'Lyle Zhan',
-					remain: 4,
-					finished: 5,
-					checked: false
-				}, {
-					id: 4,
-					name: 'Ryan Wei',
-					remain: 5,
-					finished: 10,
-					checked: false
-				}, {
-					id: 3,
-					name: 'Benkit Shi',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-
-			$scope.canAssignUser.push({
-				groupName: 'DOC',
-				Users: [{
-					id: 1365,
-					name: 'DG',
-					remain: 4,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG1',
-					remain: 4,
-					finished: 20,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG2',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG3',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-
-			$scope.canAssignUser.push({
-				groupName: 'WH',
-				Users: [{
-					id: 1365,
-					name: 'DG4',
-					remain: 4,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG5',
-					remain: 4,
-					finished: 20,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG6',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, {
-					id: 1365,
-					name: 'DG7',
-					remain: 5,
-					finished: 0,
-					checked: false
-				}, ]
-			});
-			successCallback();
 		}
 
 		function loadAssignableUser(successCb, errorCb) {
@@ -607,10 +635,13 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		function autoBatchAssign() {
 			var selectedUserIds = [];
 			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
+				for (var k = $scope.canAssignUser[i].users.length; k--;) {
 					(function(i, j) {
-						if ($scope.canAssignUser[i].Users[j].checked) {
-							selectedUserIds.push($scope.canAssignUser[i].Users[j].id);
+						if ($scope.canAssignUser[i].users[j].checked) {
+							selectedUserIds.push({
+								userId: $scope.canAssignUser[i].users[j].id,
+								groupId: $scope.canAssignUser[i].users[j].groupId
+							});
 						}
 					})(i, k);
 				}
@@ -634,8 +665,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		function resetAssignUserStatus() {
 			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
-					$scope.canAssignUser[i].Users[k].checked = false;
+				for (var k = $scope.canAssignUser[i].users.length; k--;) {
+					$scope.canAssignUser[i].users[k].checked = false;
 				}
 			}
 		}
@@ -654,9 +685,6 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				analyseSearchingResult();
 			}
 			$scope.siGrid.$gridScope.allSelected = false;
-			//$scope.siGrid.selectAll(false);
-			//$('#soMainCheckbox').trigger('click'); //.attr('checked',false);
-			//$('#soMainCheckbox').attr('checked', false);
 			$scope.siGrid.$gridScope.toggleSelectAll(false);
 		}
 
@@ -688,8 +716,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					(function(i) {
 						data[i] = {
 							key: keys[i],
-							values: values[0]
+							values: []
 						};
+						data[i].values.push(values[0]);
 					})(i);
 				}
 			} else { // for other case
@@ -733,7 +762,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}
 				$scope.filterResult[i].checkingDetails = true;
 			}
-			LoadSODetails(requestId, function(data) {}, function(data, status) {
+			showSODetails(requestId, function(data) {}, function(data, status) {
 				alert('Fail to load data. Please try it again, thanks.' + data + status);
 			})
 
@@ -745,12 +774,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.detailDivClass = false;
 		}
 
-
-		$scope.test = function() {
-			//alert($scope.userInfo.permission.canFinish);
-		}
-
-		function LoadSODetails(requestId, successCb, errorCb) {
+		function showSODetails(requestId, successCb, errorCb) {
 			for (var i = $scope.filterResult.length; i--;) {
 				if ($scope.filterResult[i].SORequestId != requestId) {
 					continue;
@@ -760,132 +784,132 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					successCb($scope.currentSORequest.workflow);
 					return;
 				}
-				async.parallel([
-					function(callback) {
-						$http({
-							method: 'GET',
-							url: '/restfulAPI/so/GETSOWORKFLOW',
-							params: {
-								id: requestId
-							},
-							cache: false
-						}).success(function(data, status) {
-							callback(null, data);
-						}).error(function(data, status) {
-							callback(data + status, null);
-						});
+
+				loadSODetails(
+					requestId,
+					function(results) {
+						$scope.currentSORequest.workflow = results[0];
+						$scope.currentSORequest.baseInfo = results[1][0];
+						$scope.currentSORequest.bookings = results[2];
+						successCb();
 					},
-					function(callback) {
-						$http({
-							method: 'GET',
-							url: '/restfulAPI/so/GETSOBASEINFO',
-							params: {
-								id: requestId
-							},
-							cache: false
-						}).success(function(data, status) {
-							callback(null, data);
-						}).error(function(data, status) {
-							callback(data + status, null);
-						})
-					},
-					function(callback) {
-						$http({
-							method: 'GET',
-							url: '/restfulAPI/so/GETRELATEDBOOKINGS',
-							params: {
-								id: requestId
-							},
-							cache: false
-						}).success(function(data, status) {
-							callback(null, data);
-						}).error(function(data, status) {
-							callback(data + status, null);
-						})
-					}
-				], function(err, results) {
-					if (err) {
-						//alert('Please re-click the requestId to reload the data.' + err);
+					function(err) {
 						errorCb(null, err);
-						return;
-					}
-					for (var i = results[0].length; i--;) {
-						results[0][i].OperateTime = $.format.date(results[0][i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
-					}
-					for (var i = results[2].length; i--;) {
-						results[2][i].BookingConfirmationTime = $.format.date(results[2][i].BookingConfirmationTime, 'yyyy-MM-dd HH:mm:ss');
-					}
-					results[1][0].ReceivedTime = $.format.date(results[1][0].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
-					results[1][0].RequestTime = $.format.date(results[1][0].RequestTime, 'yyyy-MM-dd HH:mm:ss');
-					$scope.currentSORequest.workflow = results[0];
-					$scope.currentSORequest.baseInfo = results[1][0];
-					$scope.currentSORequest.bookings = results[2];
-					successCb();
-				})
-
-
+					});
 			}
 		}
 
-		// $scope.uploader = new FileUploader({
-		// 	onBeforeUploadItem: function(item) {
-		// 		// $scope.uploader.formData = [];
-		// 		item.formData = [];
-		// 		item.formData.push({
-		// 			requestId: $scope.currentSORequest.SORequestId
-		// 		})
-		// 	},
-		// 	onCompleteAll:function(){
-		// 		alert('shit');
-		// 	},
-		// 	url: '/restfulAPI/so/UPLOADWORKFLOWFILE'
-		// });
+		function loadSODetails(requestId, successCb, errorCb) {
+			async.parallel([
+				function(callback) {
+					getOwnWorkFlow(requestId, callback);
+				},
+				function(callback) {
+					getOwnBaseInfo(requestId, callback);
+				},
+				function(callback) {
+					getRelatedBookings(requestId, callback);
+				}
+			], function(err, results) {
+				if (err) {
+					//alert('Please re-click the requestId to reload the data.' + err);
+					errorCb(err);
+					return;
+				}
+				for (var i = results[0].length; i--;) {
+					results[0][i].OperateTime = $.format.date(results[0][i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+				}
+				for (var i = results[2].length; i--;) {
+					results[2][i].BookingConfirmationTime = $.format.date(results[2][i].BookingConfirmationTime, 'yyyy-MM-dd HH:mm:ss');
+				}
+				results[1][0].ReceivedTime = $.format.date(results[1][0].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+				results[1][0].RequestTime = $.format.date(results[1][0].RequestTime, 'yyyy-MM-dd HH:mm:ss');
+				successCb(results);
+			});
+		}
 
-		//$scope.uploader. =
 
-		// $scope.uploader.formData = [{
-		// 	requestId: $scope.currentSORequest.SORequestId
-		// }];
+		function getOwnWorkFlow(requestId, callback) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETSOWORKFLOW',
+				params: {
+					id: requestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				callback(null, data);
+			}).error(function(data, status) {
+				callback(data + status, null);
+			});
+		}
 
-		// $scope.uploader.onAfterAddingFile(function() {
+		function getOwnBaseInfo(requestId, callback) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETSOBASEINFO',
+				params: {
+					id: requestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				callback(null, data);
+			}).error(function(data, status) {
+				callback(data + status, null);
+			})
+		}
 
-		// });
+		function getRelatedBookings(requestId, callback) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETRELATEDBOOKINGS',
+				params: {
+					id: requestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				callback(null, data);
+			}).error(function(data, status) {
+				callback(data + status, null);
+			})
+		}
+
 		$scope.uploader = {
-			attachment: null,
+			attachment: '',
 			progressbar: 0,
 			percentage: null
 		}
 
 		$scope.workFlowBaseInfo = {
 			types: [{
-				id: 1,
+				id: 5001,
 				name: 'Update'
 			}, {
-				id: 2,
+				id: 5002,
 				name: 'Problem'
 			}, {
-				id: 3,
+				id: 5003,
 				name: 'Resolved'
 			}, {
-				id: 4,
+				id: 1011,
 				name: 'Finish'
 			}],
 			assignedUsers: []
 		}
 
 		$scope.newWorkFlow = {
-			type: null, //,
-			Job: null,
-			remark: null,
-			soRequestId: $scope.currentSORequest.SORequestId,
-			unassignJob: null,
-			newassignJob: null
+			type: null,
+			remark: null
 		}
 		$scope.uploadAttachmentWithWorkFlowInfo = function(sCb, eCb) {
 			$upload.upload({
 				url: '/restfulAPI/so/UPLOADWORKFLOWFILE',
-				data: $scope.newWorkflow,
-				file: $scope.attachment
+				data: {
+					typeId: $scope.newWorkFlow.type.id,
+					remark: $scope.newWorkFlow.remark,
+					soRequestId: $scope.currentSORequest.SORequestId
+				},
+				file: $scope.uploader.attachment
 			}).progress(function(evt) {
 				$scope.uploader.progressbar = parseInt(100.0 * evt.loaded / evt.total);
 				if ($scope.uploader.progressbar != 100) {
@@ -902,7 +926,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.selectFileChanged = function() {
 			$scope.uploader.progressbar = $scope.uploader.percentage = 0;
-			if ($scope.uploader.attachment.substr($scope.uploader.attachment.length - 4).toUpperCase() == 'EXE') {
+			if ($scope.uploader.attachment != '' && $scope.uploader.attachment[0].name.substr($scope.uploader.attachment.length - 4).toUpperCase() == 'EXE') {
 				alert('Executable files can\' be uploaded.');
 				$scope.uploader.attachment = null;
 			}
@@ -920,61 +944,60 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			if ($scope.uploader.attachment && $scope.uploader.attachment != '') {
 				$scope.uploadAttachmentWithWorkFlowInfo(function() {
 					alert('Save successfully.');
+					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
+						if (err) {
+							alert('Fail to fetch work flow.' + err);
+						} else {
+							for (var i = result.length; i--;) {
+								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+							}
+							$scope.currentSORequest.workflow = result;
+						}
+					});
+					$('#workflowDialog').modal('hide');
 				}, function(data, status) {
 					alert('Fail to save.' + data + status);
 				});
 			} else {
-				// $http({
-				// 	method: 'POST',
-				// 	url: '',
-				// 	data: {
-				// 		soRequestId:$scope.newWorkFlow.Job.id,
-				// 		executeeId : null,
-				// 		executeeTypeId:null,
-				// 		executorId:$rootScope.userInfo.userId,
-				// 		statusId:
-				// 	},
-				// 	cache: false
-				// }).success(function(data, status) {
-
-				// }).error(function(data, status) {
-
-				// });
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/UPDATEWORKFLOW',
+					data: {
+						typeId: $scope.newWorkFlow.type.id,
+						remark: $scope.newWorkFlow.remark,
+						soRequestId: $scope.currentSORequest.SORequestId,
+						filePath: null,
+						fileName: null
+					},
+					cache: false
+				}).success(function(data, status) {
+					alert('Success.')
+					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
+						if (err) {
+							alert('Fail to fetch work flow.' + err);
+						} else {
+							for (var i = result.length; i--;) {
+								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
+							}
+							$scope.currentSORequest.workflow = result;
+						}
+					});
+					$('#workflowDialog').modal('hide');
+				}).error(function(data, status) {
+					alert(data + status);
+				});
 			}
 		}
 
 
 
 		function prepareWorkFlowBaseInfo() {
-			workFlowDialog_setUserCanChosen();
+			// workFlowDialog_setUserCanChosen();
 			workFlowDialog_setWorkFlowTypeOptions();
 		}
 
 		function workFlowDialog_setWorkFlowTypeOptions() {
 			$scope.newWorkFlow.type = $scope.workFlowBaseInfo.types[0];
-		}
-
-		function workFlowDialog_setUserCanChosen() {
-			var assignUsers = $scope.workFlowBaseInfo.assignedUsers = [];
-			var isDuplicate = {};
-			angular.forEach($scope.currentSORequest.workflow, function(v, i) {
-				if (!v.SubPackageId || v.SubPackageId == '') {
-					assignUsers.push({
-						id: v.SOJobPackageId,
-						name: 'Everyone'
-					});
-				} else if (!isDuplicate.hasOwnProperty(v.SubPackageId.toString())) {
-					assignUsers.push({
-						id: v.SOJobPackageId,
-						name: v.Executee
-					});
-					isDuplicate[v.SubPackageId.toString()] = 'ADDED';
-				}
-			});
-
-			if (assignUsers.length == 1) {
-				$scope.newWorkFlow.Job = assignUsers[0];
-			}
 		}
 
 		function getCurrentSORequestAssignedUserIds() {

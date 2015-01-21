@@ -5,7 +5,7 @@ var path = require('path');
 var crypto = require('crypto');
 var mkdirp = require('mkdirp');
 
-var soRequestAttachFolder = 'D:\\publish\\SORequest\\';
+var soRequestAttachFolder = 'R:\\IT\\DevTeam\\EfficientStaff2015\\SOSupportingFile';
 
 exports.getData = function(req, res, getFunc) {
 	async.waterfall([
@@ -70,15 +70,15 @@ exports.multiparty = function() {
 // 			})
 // 	})
 // }
-exports.moveFileToTargetFolder = function(sourcePath, fileName, cb) {
+exports.moveFileToTargetFolder = function(requestInfo, cb) {
 	createEssentialFolder(function(err) {
 		if (err) cb(err, null);
-		fs.rename(sourcePath,
-			soRequestAttachFolder + getMiddleFolderPath() + renameFileName(fileName),
-			function(err) {
-				if (err) cb(err, null);
-				cb(null, fileName);
-			});
+		requestInfo.filePath = soRequestAttachFolder + getMiddleFolderPath() + renameFileName(requestInfo.fileName);
+		fs.rename(requestInfo.fileTempPath, requestInfo.filePath, function(err) {
+			if (err) cb(err, null);
+			requestInfo.filePath = requestInfo.filePath.replace(soRequestAttachFolder, '');
+			cb(null, requestInfo);
+		});
 	});
 
 }
@@ -104,7 +104,7 @@ function createEssentialFolder(callback) {
 
 function getMiddleFolderPath() {
 	var date = new Date();
-	return date.getFullYear() + '\\' + (date.getMonth() + 1).toString() + '\\' + date.getDate().toString() + '\\';
+	return '\\' + date.getFullYear() + '\\' + (date.getMonth() + 1).toString() + '\\' + date.getDate().toString() + '\\';
 }
 
 function renameFileName(originalName) {
@@ -117,5 +117,5 @@ function renameFileName(originalName) {
 		extension = '';
 	}
 	var md5 = crypto.createHash('md5');
-	return md5.update(originalName).digest('hex') + extension;
+	return md5.update(originalName + Date.now().toString()).digest('hex') + extension;
 }

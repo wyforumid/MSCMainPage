@@ -96,7 +96,7 @@ module.exports = function() {
 				// 	}
 				// });
 				var userInfo = req.getUserInfo();
-				soAPI.dispatch(req.body, req.cookies.userInfo.userId, JSON.parse(userInfo), function(err, data) {
+				soAPI.dispatch(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
@@ -115,7 +115,7 @@ module.exports = function() {
 				// 	}
 				// })
 				var userInfo = req.getUserInfo();
-				soAPI.assign(req.body, req.cookies.userInfo.userId, JSON.parse(userInfo), function(err, data) {
+				soAPI.assign(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
@@ -128,23 +128,43 @@ module.exports = function() {
 			var form = func.multiparty();
 			async.waterfall([
 				function(cb) {
-					form.parse(req, function(err, fields, files) {
-						if (_.isArray(files.file) && files.file.length >= 1) {
-							cb(null, files.file[0]);
-						} else {
-							cb(err, null);
-						}
-					})
+					try {
+						form.parse(req, function(err, fields, files) {
+							if (_.isArray(files.file) && files.file.length >= 1) {
+								if (fields && fields.soRequestId && fields.soRequestId[0] && fields.typeId && fields.typeId[0]) {
+									var requestInfo = {
+										soRequestId: fields.soRequestId[0],
+										typeId: fields.typeId[0],
+										remark: (fields.remark && fields.remark[0]) ? fields.remark[0] : '',
+										fileTempPath: files.file[0].path,
+										fileName: files.file[0].originalFilename,
+										filePath: ''
+									}
+									func.moveFileToTargetFolder(requestInfo, cb);
+
+								} else {
+									cb('some information is missing. Please try to post again, thanks.', null);
+								}
+
+							} else {
+								cb(err, null);
+							}
+						});
+					} catch (ex) {
+						cb(ex, null);
+					}
 				},
-				function(data, cb) {
-					func.moveFileToTargetFolder(data.path, data.originalFilename, cb);
-				},
-				function(data, cb) {
-					soAPI.insertAttachmentToDB(func.generalRelativeFilePath(data), cb);
-				}
+
 			], function(err, result) {
 				func.jsonResponse(req, res, function(cb) {
-					cb(null, result[0].id);
+					var userInfo = req.getUserInfo();
+					soAPI.updateJobPackage(userInfo.userId, result, function(err, data) {
+						try {
+							cb(err, data);
+						} catch (ex) {
+							cb(ex, data);
+						}
+					});
 				});
 			});
 		},
@@ -152,13 +172,13 @@ module.exports = function() {
 
 		},
 		UPDATEWORKFLOW: function(req, res) {
-			req.body.filePath = null;
+			var userInfo = req.getUserInfo();
 			func.jsonResponse(req, res, function(cb) {
-				soAPI.updateJobPackage(req.body, function(err, data) {
+				soAPI.updateJobPackage(userInfo.userId, req.body, function(err, data) {
 					try {
-						callback(err, data);
+						cb(err, data);
 					} catch (ex) {
-						callback(ex, data);
+						cb(ex, data);
 					}
 				})
 			});

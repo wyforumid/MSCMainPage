@@ -1,11 +1,14 @@
+<div class="row" style="text-align: center" ng-show="isUpdatedInRefresh">
+	<a style="color: red" ng-click="refreshDataUpdate();">There is update. Marked yellow at background color.</a>
+</div>
 <div class="row">
 	<div data-ng-class="{'col-md-2':listDivClass,'':detailDivClass}" ng-show="listDivClass">
 		<div class="row margin-botton-div" ng-show="hasSelectedSO">
 			<div class="col-md-12 margin-botton-div">
-				<button class="btn btn-primary" ng-click="openDispatchGroupDialog()" >Dispatch to Group</button>
+				<button class="btn btn-primary" ng-show="hasPermission(3)" ng-click="openDispatchGroupDialog()" >Dispatch to Group</button>
 			</div>
 			<div class="col-md-12 margin-botton-div" >
-				<button class="btn btn-primary" ng-click="openAssignUserDialog()">Assign to inputter</button>
+				<button class="btn btn-primary" ng-show="hasPermission(2)" ng-click="openAssignUserDialog()">Assign to inputter</button>
 			</div>
 		</div>
 		<div class="row margin-botton-div">
@@ -57,6 +60,9 @@
 				</select>
 			</div>
 			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" placeholder="Enter Id" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
 				<input type="text" class="form-control" placeholder="Enter Executee" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
@@ -78,18 +84,15 @@
 				<button class="btn btn-primary">Reset</button>	
 			</div>
 		</div>
-		<!-- <div class="row" id="searchZone">
-			<button ng-click="test();">test</button>
-		</div> -->
 	</div>
 	<div ng-class="{'col-md-10':listDivClass,'col-md-2':detailDivClass,'fixed-div':detailDivClass}" id="listDiv">
 		<div id="grid" class="gridStyle" ng-grid="siGrid" ng-style="{'height':tableHeight}"></div>
 		
 	</div>
 	<div ng-class="{'col-md-10 col-md-offset-2':detailDivClass,'':listDivClass}" id="detailDiv" ng-show="detailDivClass">
-		<div class="row margin-botton-div">
+		<div class="margin-botton-div">
 			<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
-			<button class="btn btn-primary" ng-click="openWorkFlowDialog();">Add workflow</button>
+			<button class="btn btn-primary" ng-show="hasPermission(4)" ng-click="openWorkFlowDialog();">Add workflow</button>
 			<!-- data-toggle="modal" data-target="#workflowDialog" -->
 		</div>
 		<!-- <div class="well"> -->
@@ -161,7 +164,7 @@
 						</div>
 					</div>
 					<div class="well" ng-hide="currentSORequest.bookings == null ||currentSORequest.bookings.length == 0">
-						<table class="table table-hover">
+						<table class="table table-hover table-sm">
 							<thead>
 								<th>BookingNo</th>
 								<th>Status</th>
@@ -189,27 +192,30 @@
 				</div>
 				<div role="tabpanel" class="tab-pane" id="workflow">
 					<div class="well">
-						<table class="table table-hover">
+						<table class="table table-hover table-sm">
 							<thead>
-								<th>Time</th>
-								<th>Executor</th>
-								<th>Executee</th>
-								<th>Status</th>
-								<th>Is Update</th>
-								<th>Update User</th>
-								<th>Remark</th>
-								<th>Attachment</th>
+								<tr><th style="width: 150px;">Time</th>
+									<th style="width: 100px;">Executor</th>
+									<th style="width: 100px;">Executee</th>
+									<th style="width: 100px;">Status</th>
+									<!-- <th style="width: 80px;">Is Update</th> -->
+									<th style="width: 100px;">Update Type</th>
+									<th style="width: 100px;">Update User</th>
+									<th style="width: 200px;">Remark</th>
+									<th style="width: 200px;">Attachment</th>
+								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in currentSORequest.workflow | orderBy:'-OperateTime'">
-									<td>{{item.OperateTime}}</td>
-									<td>{{item.Executor}}</td>
-									<td>{{item.Executee}}</td>
-									<td>{{item.Status}}</td>
-									<td>{{item.IsUpdateInCurrentStatus}}</td>
-									<td>{{item.Updater}}</td>
-									<td>{{item.Remark}}</td>
-									<td><a href="{{item.AttachmentPath}}">{{item.AttachmentName}}</a></td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.OperateTime}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Executor}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Executee}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Status}}</td>
+									<!-- <td>{{item.IsUpdateInCurrentStatus}}</td> -->
+									<th ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.UpdateType}}</th>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Updater}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}">{{item.Remark}}</td>
+									<td ng-class="{'refreshUpdated': item.isUpdateOne}"><a target="blank" href="/restfulAPI/download/SO?id={{item.SOSupportingFileId}}">{{item.AttachmentName}}</a></td>
 								</tr>
 							</tbody>
 						</table>
@@ -342,7 +348,7 @@
 						</div>
 					</div>
 					<div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label class="form-label col-md-2 col-md-offset-1" style="padding-top:7px;">
 								To:
 							</label>
@@ -350,7 +356,7 @@
 								<select class="form-control" ng-model="newWorkFlow.Job" data-ng-options="item.name for item in workFlowBaseInfo.assignedUsers">
 								</select>
 							</div>
-						</div>
+						</div> -->
 						<div class="form-group">
 							<label class="form-label col-md-2 col-md-offset-1">
 								Remark:
@@ -376,7 +382,6 @@
 								</div>
 							</div>
 						</div>
-						
 					</div>
 					<!-- <div ng-show="newWorkFlow.type.id == 5">
 						<div class="form-group">
