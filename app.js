@@ -42,7 +42,8 @@ passport.use('local', new passportLocal({
                                 cacheId: data[0].cacheId,
                                 permissions: _.map(pers, function(v, i) {
                                     return v.PermissionId
-                                })
+                                }),
+                                isNeedForceModify: data[0].isNeedForceModify
                             });
                         }
                     })
@@ -95,6 +96,9 @@ passport.deserializeUser(function(id, done) {
 
 
 app.use('/', freeRoutes);
+
+
+
 app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, data, info) {
     if (arguments.length == 4) {
         res.cookie('userInfo', JSON.stringify({
@@ -102,27 +106,33 @@ app.use('/API/user/LOGIN', passport.authenticate('local', function(req, res, dat
             userId: data.userId,
             permissions: data.permissions
         }));
+
         req.logIn(
             data,
             function() {
-                //res.redirect('/main')
+
                 res.writeHead(200);
-                res.write('1');
+                res.write(JSON.stringify({
+                    isLoginIn: true,
+                    isNeedForceModify: data.isNeedForceModify
+                }));
+
                 res.end();
+
             });
-        // res.writeHead(200, {
-        //     "Content-Type": "application/json"
-        // });
-        // res.write(JSON.stringify(data[0].cacheId));
-        // res.end();
+
     } else {
         res.writeHead(200);
-        res.write('0');
+        res.write(JSON.stringify({
+            isLoginIn: false
+        }));
         res.end();
-        // res.redirect('?loginName='+req.body.userName);
     }
 
 }));
+
+
+
 app.use('/', function(req, res, next) {
     if (req.isAuthenticated()) {
         next();

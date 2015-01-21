@@ -4,6 +4,7 @@ var router = express.Router();
 var companyAPI = require('../API/companyInfoAPI');
 var userAPI = require('../API/userAPI');
 var permissionAPI = require('../API/permissionAPI');
+var user = require('../controllers/userController');
 
 router.route('/')
 	.get(function(req, res, next) {
@@ -33,11 +34,11 @@ router.route('/user/:actionName')
 	})
 	.post(function(req, res, next) {
 		switch(req.params.actionName.toUpperCase()){
-			// case 'LOGIN':
-			// Login(req,res);
-			// break;
 			case 'REGIST':
 				registUser(req, res);
+				break;
+			case 'MODIFYPWD':
+				user.resetPassword(req, res);
 				break;
 		}
 

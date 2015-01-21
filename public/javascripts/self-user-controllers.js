@@ -40,7 +40,6 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 			false
 		);
 
-
 		$scope.$watch('registUserInfo.email', function(nV, oV) {
 			$scope.registUserInfo.loginName = $scope.registUserInfo.email.replace(/@\S*/i, '');
 		});
@@ -56,7 +55,8 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 
 			$http({
 				method: 'POST',
-				url: '/API/user/REGIST',
+				// url: '/restfulAPI/users/REGIST',
+				url: '/user/REGIST',
 				data: $scope.registUserInfo
 			}).success(function(data, status) {
 				//alert(data);
@@ -106,6 +106,7 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 		function feedbackRegistPage(msg) {
 			if (msg == '') {
 				alert('Regist user successfully. The password will be sent to ' + $scope.registUserInfo.email + 'in 1 minuts.');
+				window.location = "/";
 				return;
 			}
 
@@ -173,8 +174,9 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 			}
 
 			$http({
-				method: 'PUT',
-				url: '/API/user/RESETPWD',
+				method: 'POST',
+				// url: '/restfulAPI/user/RESETPWD',
+				url: '/user/RESETPWD',
 				data: updateUser
 			}).success(function(data, status) {
 
@@ -225,13 +227,13 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 			var updateUser = {
 				updateMode: "force", //updateMode: ["all", "force", "password"]
 				user: {
-					loginName: $rootScope.userInfo.userName,
+					loginName: $rootScope.userInfo.loginName,
 					newPassword: newPassword
 				}
 			}
 
 			$http({
-				method: 'PUT',
+				method: 'POST',
 				url: '/API/user/MODIFYPWD',
 				data: updateUser
 			}).success(function(data, status) {
@@ -264,6 +266,13 @@ angular.module('selfControllers', ['selfServices', 'ui.calendar'])
 					break;
 			}
 		}
+
+
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.href.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]); return null;
+        }
 
 	})
 	.controller('mainCtrl', function($scope) {

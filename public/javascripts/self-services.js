@@ -22,7 +22,8 @@ angular.module('selfServices', [])
 		return {
 			getAllOffices: function(successCallback, errorCallback, forceRefresh) {
 				if (forceRefresh || ($.isArray(allOffices) && allOffices.length == 0)) {
-					fetchFoundationData('/restfulAPI/company/ALLOFFICES', allOffices, successCallback, errorCallback);
+					// fetchFoundationData('/restfulAPI/company/ALLOFFICES', allOffices, successCallback, errorCallback);
+					fetchFoundationData('/company/ALLOFFICES', allOffices, successCallback, errorCallback);
 				} else {
 					return allOffices;
 				}
@@ -30,7 +31,8 @@ angular.module('selfServices', [])
 
 			getAllDepts: function(successCallback, errorCallback, forceRefresh) {
 				if (forceRefresh || ($.isArray(allDepts) && allDepts.length == 0)) {
-					fetchFoundationData('/restfulAPI/company/ALLDEPTS', allDepts, successCallback, errorCallback);
+					// fetchFoundationData('/restfulAPI/company/ALLDEPTS', allDepts, successCallback, errorCallback);
+					fetchFoundationData('/company/ALLDEPTS', allDepts, successCallback, errorCallback);
 				} else {
 					return allDepts;
 				}

@@ -79,20 +79,17 @@
 						},
 						cache: false
 					}).success(function(data, status) {
-						if (data == '1') {
-							window.location = '/main';
+
+						if (data.isLoginIn) {
+
+							if (data.isNeedForceModify) {
+								window.location = 'main#/USER/ForceResetPassword';
+							} else {
+								window.location = '/main';
+							}
 						} else {
 							alert('Wrong login name or wrong password');
 						}
-						// switch (data[0].result) {
-						// 	case 1:
-						// 	$.cookie('user',JSON.stringify({ userName: $scope.userName, cacheId:data[0].cacheId }), {expire:7});
-						// 	window.location = '/main';
-						// 	break;
-						// 	default:
-						// 	alert(data[0].msg);	
-						// 	break;
-						// }
 
 					}).error(function(data, status) {
 						alert(data);
