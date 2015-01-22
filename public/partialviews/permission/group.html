@@ -113,6 +113,7 @@
         </a>
       </h4>
     </div>
+<!-- 
     <div id="collapseRole" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
       <div class="panel-body">
 	        <div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
@@ -140,7 +141,6 @@
 							<tr data-ng-repeat="item in originModifyData.roles">
 								<td>
 									<a>
-										<!-- class="glyphicon glyphicon-minus" -->
 										<span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="minusRole($index)"></span>
 									</a>
 								</td>
@@ -155,6 +155,7 @@
 			</div>
       </div>
     </div>
+ -->
   </div>
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="headingThree">
@@ -243,42 +244,9 @@ originModifyData = {{originModifyData | json}}
 								</div>
 							</div>
 							<div class="form-group">
-								<!-- <button class="btn btn-primary col-md-1 col-md-offset-8" ng-click="addDept()">Add</button> -->
-
 								<button class="btn btn-primary col-md-1 col-md-offset-8" ng-click="addOfficeAndDepartment_create();">Add</button>
 							</div>
 						</div>
-						<!-- <div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
-							<div class="panel-heading">
-								Added departments
-							</div>
-							<div class="panel-body">
-								<table class="table">
-									<thead>
-										<th>#</th>
-										<th>Office</th>
-										<th>Department</th>
-									</thead>
-									<tbody>
-										<tr data-ng-repeat="item in newGroup.addedDepts">
-											<td>
-												<a>
-													<span class="glyphicon glyphicon-minus" ng-click="minusDept($index)"></span>
-												</a>
-											</td>
-											<td>
-												{{item.office.name}}
-											</td>
-											<td>
-												{{item.dept.name}}
-											</td>
-
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div> -->
-
 
 						<div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
 							<div class="panel-heading">
@@ -311,26 +279,15 @@ originModifyData = {{originModifyData | json}}
 							</div>
 						</div>
 
-
-
-
-
 					</div>
 					<div style="margin-top: 20px; height: 400px;" id="step2Container" ng-show="steps.list['2'].isShow">
 						<div class="form-horizontal col-md-4 col-md-offset-4" >
 							<div class="form-group" id="newGroupNameDiv">
 
 								<input type="text" class="form-control" placeholder="Enter Group Name" ng-model="createGroup.groupName">
-								<!-- <span class="glyphicon glyphicon-remove form-control-feedback"></span> -->
 							</div>
 						</div>
-						<!-- <div class="col-md-4 form-group alert-danger alert-dismissible">
-							<ul>
-								<li>
-									The group name is already existed.
-								</li>
-							</ul>
-						</div> -->
+
 						<div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece; height: 100%">
 							<div class="form-group">
 								<label class="col-md-3 control-label">Role Name:</label>
@@ -370,44 +327,6 @@ originModifyData = {{originModifyData | json}}
 							</div>
 						</div>
 					</div>
-					<!-- <div style="margin-top: 20px; height: 400px;" id="step3Container" ng-show="steps.list['3'].isShow">
-						<div class="col-md-2 col-md-offset-1">
-							<div class="list-group">
-								<a class="list-group-item" ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }" ng-repeat="item in newGroup.addedRoles" ng-click="showRolePermission($index)">
-									<span class="badge">{{item.selectedCount}}</span>{{item.name}}
-								</a>
-							</div>
-						</div>
-						<div class="col-md-9">
-							<div class="checkbox">
-							    <label>
-							      <input type="checkbox" ng-disabled="permissionInfo.editCurrentGroup.isDisabled" ng-model="permissionInfo.editCurrentGroup.isEdit">Editable for {{newGroup.groupName}}
-							    </label>
-						  	</div>
-							<div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(checked)"></div>
-						</div>
-					</div> -->
-
-					<!-- <div style="margin-top: 20px; height: 400px;" id="step3Container" ng-show="steps.list['3'].isShow">
-						<div class="col-md-2 col-md-offset-1">
-							<div class="list-group">
-								<a class="list-group-item" 
-								ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }" 
-								ng-repeat="item in createGroup.roles" 
-								ng-click="showRolePermission($index)">
-									<span class="badge">{{item.selectedCount}}</span>{{item.name}}
-								</a>
-							</div>
-						</div>
-						<div class="col-md-9">
-							<div class="checkbox">
-							    <label>
-							      <input type="checkbox" ng-disabled="permissionInfo.editCurrentGroup.isDisabled" ng-model="permissionInfo.editCurrentGroup.isEdit">Editable for {{newGroup.groupName}}
-							    </label>
-						  	</div>
-							<div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(checked)"></div>
-						</div>
-					</div> -->
 
 					<div style="margin-top: 20px; height: 400px;" id="step3Container" ng-show="steps.list['3'].isShow">
 						<div class="col-md-2 col-md-offset-1">
@@ -437,17 +356,17 @@ originModifyData = {{originModifyData | json}}
 						<div class="col-md-5" style="float:left;">
 							<div class="form-inline" >
 								<div class="form-group">
-									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices" ng-disabled="isSubmitting">
+									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices" ng-disabled="steps.isSubmitting">
 										<option value="">---Offices---</option>
 									</select>
 								</div>
 								<div class="form-group">
-									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts" ng-disabled="isSubmitting">
+									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts" ng-disabled="steps.isSubmitting">
 										<option value="">---Departments---</option>
 									</select>
 								</div>
 								<div class="form-group">
-									<button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment_create(selectedOffice, selectedDept);" ng-disabled="isSubmitting">
+									<button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment_create(selectedOffice, selectedDept);" ng-disabled="steps.isSubmitting">
 									Search
 									</button>
 								</div>
@@ -493,12 +412,12 @@ originModifyData = {{originModifyData | json}}
 										<tr data-ng-repeat="user in createGroup.submitUsers">
 											<td>
 												<a>
-													<span class="glyphicon glyphicon-minus" ng-click="deleteCurrentUser($index);"></span>
+													<span class="glyphicon glyphicon-minus" ng-click="createGroup.deleteSubmitUser($index);"></span>
 												</a>
 											</td>
 											<td>{{user.fullName}}</td>
 											<td>
-												<ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disabled="isSubmitting" close-on-select="false" style="width:400px; ">
+												<ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disabled="steps.isSubmitting" close-on-select="false" style="width:400px; ">
 													<ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
 													<ui-select-choices repeat="role.name as role in createGroup.roles | filter:$select.search">
 													{{role.name}}
@@ -512,27 +431,22 @@ originModifyData = {{originModifyData | json}}
 						</div>
 					</div>
 					<div>
-						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="pre();" id="preBtn" ng-disabled="isSubmitting">pre step</button>
-						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="next();" id="nextBtn" ng-disabled="isSubmitting">next step</button>
-
-						
-						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="steps.preStep.pre();" id="preBtn" ng-disabled="steps.preStep.disabled">
+						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="steps.preStep.pre();" id="preBtn" ng-disabled="steps.isSubmitting || steps.preStep.disabled">
 						{{steps.preStep.text}}
 						</button>
-						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="steps.nextStep.next();" id="nextBtn" ng-disabled="steps.nextStep.disabled">
+						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="steps.nextStep.next();" id="nextBtn" ng-disabled="steps.isSubmitting || steps.nextStep.disabled">
 						{{steps.nextStep.text}}
 						</button>
 					</div>
 
-<div class="form-group">
+<!-- <div class="form-group">
 <p>
 <pre>
 {{userInfo}}
 {{createGroup | json}}
-
 </pre>
 </p>
-</div>
+</div> -->
 		</div>
 	</div>
 </div>

@@ -60,7 +60,7 @@ module.exports = function() {
 	this.POST = {
 		ADDGROUP: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
-				permissionAPI.newGroup(req.body.newGroup, JSON.parse(req.getUserInfo()), function(err, data) {
+				permissionAPI.newGroup(req.body.newGroup, req.getUserInfo().cacheId, function(err, data) {
 					callback(err, data);
 				});
 			});
