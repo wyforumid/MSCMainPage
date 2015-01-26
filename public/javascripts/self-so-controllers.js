@@ -166,9 +166,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			copySearchingResultToFilterResult();
 			analyseSearchingResult();
 
-			// if ($scope.detailDivClass) {
-			// 	showDetails($scope.currentSORequest.SORequestId);
-			// }
+			if ($scope.detailDivClass) {
+				$scope.showDetails($scope.currentSORequest.SORequestId);
+			}
 			$scope.isUpdatedInRefresh = false;
 		}
 
@@ -489,6 +489,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.canExecute = function(data) {
 			switch (data.StatusName) {
 				case 'Enter':
+				case 'Synchronizing':
+				case 'AutoDispatched':
+				case 'AutoAssigned':
+				case 'ForceDispatch':
+				case 'ForceAssign':
+				case 'Finished':
 					return false;
 				default:
 					return true;
@@ -563,47 +569,126 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		}
 
 		$scope.openDispatchGroupDialog = function() {
+			if (!isSelectedSOInSameService()) {
+				alert('You can\'t batch dispatch SO which belongs to different service.');
+				return;
+			}
 			loadDispatchableGroups(function() {
-				$('#dispatchDialog').modal('show');
+				if ($scope.detailDivClass) {
+					checkDispatchedGroup(function() {
+						$('#dispatchDialog').modal('show');
+					});
+				} else {
+					$('#dispatchDialog').modal('show');
+				}
+
 			}, function(err) {
 				alert('Loading dispatch group error.' + err);
 			});
 
 		}
 
+		function checkDispatchedGroup(cb) {
+			getCurrentSORequestDispatchedGroup(
+				function(data) {
+					if (data.length != 1) {
+						cb();
+						return;
+					}
+					for (var i = $scope.canDispatchedGroup.length; i--;) {
+						if ($scope.canDispatchedGroup[i].id == data[0].ExecuteeId) {
+							$scope.canDispatchedGroup[i].checked = true;
+							break;
+						}
+					}
+					cb();
+				},
+				function(error) {
+					cb();
+				});
+		}
+
 		$scope.openAssignUserDialog = function() {
+			if (!isSelectedSOInSameGroup()) {
+				alert('You can\'t batch assign SO which belongs to different groups.')
+				return;
+			}
 			loadAssignableUser(function() {
 				if ($scope.detailDivClass) {
-					checkUsers();
+					checkAssignedUsers(function() {
+						$('#assignDialog').modal('show');
+					});
+				} else {
+					$('#assignDialog').modal('show');
 				}
-				$('#assignDialog').modal('show');
 			}, function(err) {
 				alert('Loading assign user error.' + err);
 			});
 
 		}
 
-		function checkUsers() {
-			var assigned = getCurrentSORequestAssignedUserIds();
-			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].Users.length; k--;) {
-					if ($.inArray($scope.canAssignUser[i].Users[k].id, assigned) != -1) {
-						$scope.canAssignUser[i].Users[k].checked = true;
+		function checkAssignedUsers(cb) {
+			getCurrentSORequestAssignedUserIds(
+				function(data) {
+					var assigned = $.map(data, function(v, i) {
+						return v.UserId;
+					});
+					for (var i = $scope.canAssignUser.length; i--;) {
+						for (var k = $scope.canAssignUser[i].users.length; k--;) {
+							if ($.inArray($scope.canAssignUser[i].users[k].id, assigned) != -1) {
+								$scope.canAssignUser[i].users[k].checked = true;
+							}
+						}
 					}
-				}
-			}
+					cb();
+				},
+				function(error) {
+					cb();
+				});
+
 		}
 
 		$scope.forceDispatch = function() {
-			var data = autoBatchDispatch();
+			if ($scope.detailDivClass) {
+				if (getSelectedGroupIdFromDispatchDialog().length != 1) {
+					alert('You must choose only one group to dispatch.');
+					return;
+				}
+				soloDispatch();
+			} else {
+				batchDispatch();
+			}
+		}
+
+		function soloDispatch() {
+			var data = getDispatchData();
 			if (data && data.length > 0) {
 				$http({
 					method: 'POST',
-					url: '/restfulAPI/so/FORCEDISPATCH',
+					url: '/restfulAPI/so/FORCESOLODISPATCH',
 					data: data,
 					cache: false
 				}).success(function(data, status) {
-					resetGroupStatus();
+					//resetGroupStatus();
+					updatehSOWithForceDispatchAssign(data);
+					alert('Dispatch success.');
+					$('#dispatchDialog').modal('hide');
+				}).error(function(data, status) {
+					alert('Fail to force dispatch, please dispatch again.' + data);
+				});
+			}
+		}
+
+		function batchDispatch() {
+			var data = getDispatchData();
+			if (data && data.length > 0) {
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/FORCEBATCHDISPATCH',
+					data: data,
+					cache: false
+				}).success(function(data, status) {
+					//resetGroupStatus();
 					updatehSOWithForceDispatchAssign(data);
 					alert('Dispatch success.');
 					$('#dispatchDialog').modal('hide');
@@ -614,15 +699,61 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		}
 
 		$scope.forceAssign = function() {
-			var data = autoBatchAssign();
+			if ($scope.detailDivClass) {
+				soloAssign();
+			} else {
+				batchAssign();
+			}
+		}
+
+		function soloAssign() {
+			var selectedUserIds = getSelectedUserIdsFromAssignDialog();
+			if (!selectedUserIds || selectedUserIds.length == 0) {
+				$http({
+					method: 'POST',
+					url: '/restfulAPI/so/SOLOUNASSIGN',
+					params: {
+						id: $scope.currentSORequest.SORequestId
+					},
+					cache: false
+				}).success(function(data, status) {
+					updatehSOWithForceDispatchAssign(data);
+					alert('Assign success.');
+					$('#assignDialog').modal('hide');
+				}).error(function(data, status) {
+					alert('Fail to force assign, please assign again.')
+				});
+			} else {
+				var data = getAssignData();
+				if (data && data.length > 0) {
+					$http({
+						method: 'POST',
+						url: '/restfulAPI/so/FORCESOLOASSIGN',
+						data: data,
+						cache: false,
+					}).success(function(data, status) {
+						//resetAssignUserStatus();
+						updatehSOWithForceDispatchAssign(data);
+						alert('Assign success.');
+						$('#assignDialog').modal('hide');
+					}).error(function(data, status) {
+						alert('Fail to force assign, please assign again.');
+					})
+				}
+			}
+
+		}
+
+		function batchAssign() {
+			var data = getAssignData();
 			if (data && data.length > 0) {
 				$http({
 					method: 'POST',
-					url: '/restfulAPI/so/FORCEASSIGN',
+					url: '/restfulAPI/so/FORCEBATCHASSIGN',
 					data: data,
 					cache: false,
 				}).success(function(data, status) {
-					resetAssignUserStatus();
+					//resetAssignUserStatus();
 					updatehSOWithForceDispatchAssign(data);
 					alert('Assign success.');
 					$('#assignDialog').modal('hide');
@@ -632,7 +763,64 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}
 		}
 
-		function autoBatchAssign() {
+		$('#assignDialog').on('hidden.bs.modal', function(e) {
+			resetAssignUserStatus();
+		});
+
+		$('#dispatchDialog').on('hidden.bs.modal', function(e) {
+			resetGroupStatus();
+		});
+
+
+		function getAssignData() {
+			var selectedUserIds = getSelectedUserIdsFromAssignDialog();
+			var selectedRequestId = [];
+			if ($scope.detailDivClass) {
+				selectedRequestId.push($scope.currentSORequest.SORequestId);
+			} else {
+				selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+					return v.SORequestId;
+				});
+			}
+			var data = averageDistribute(
+				selectedUserIds,
+				selectedRequestId,
+				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be assigned to ' + selectedUserIds.length.toString() + ' colleagues. Please select again.');
+
+			return data;
+		}
+
+		function isSelectedSOInSameService() {
+			var isInSameService = true;
+			var existedService = null;
+			$.each($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+				if (!i) {
+					existedService = v.Service;
+				}
+				if (v.Service != existedService) {
+					isInSameService = false;
+					return false;
+				}
+			});
+			return isInSameService;
+		}
+
+		function isSelectedSOInSameGroup() {
+			var isInSameGroup = true;
+			var existedGroup = null;
+			$.each($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+				if (!i) {
+					existedGroup = v.Executee;
+				}
+				if (v.ExecuteeTypeId != 2002 || v.Executee != existedGroup) {
+					isInSameGroup = false;
+					return false;
+				}
+			});
+			return isInSameGroup;
+		}
+
+		function getSelectedUserIdsFromAssignDialog() {
 			var selectedUserIds = [];
 			for (var i = $scope.canAssignUser.length; i--;) {
 				for (var k = $scope.canAssignUser[i].users.length; k--;) {
@@ -646,15 +834,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					})(i, k);
 				}
 			}
-			var selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
-				return v.SORequestId;
-			});
-			var data = averageDistribute(
-				selectedUserIds,
-				selectedRequestId,
-				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be assigned to ' + selectedUserIds.length.toString() + ' colleagues. Please select again.');
-
-			return data;
+			return selectedUserIds;
 		}
 
 		function resetGroupStatus() {
@@ -664,9 +844,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		}
 
 		function resetAssignUserStatus() {
-			for (var i = $scope.canAssignUser.length; i--;) {
-				for (var k = $scope.canAssignUser[i].users.length; k--;) {
-					$scope.canAssignUser[i].users[k].checked = false;
+			for (var i = $scope.canAssignedUser.length; i--;) {
+				for (var k = $scope.canAssignedUser[i].users.length; k--;) {
+					$scope.canAssignedUser[i].users[k].checked = false;
 				}
 			}
 		}
@@ -688,7 +868,25 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.siGrid.$gridScope.toggleSelectAll(false);
 		}
 
-		function autoBatchDispatch() {
+		function getDispatchData() {
+			var selectedGroupIds = getSelectedGroupIdFromDispatchDialog();
+			var selectedRequestId = [];
+			if ($scope.detailDivClass) {
+				selectedRequestId.push($scope.currentSORequest.SORequestId);
+			} else {
+				selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+					return v.SORequestId;
+				});
+			}
+			var data = averageDistribute(
+				selectedGroupIds,
+				selectedRequestId,
+				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
+
+			return data;
+		}
+
+		function getSelectedGroupIdFromDispatchDialog() {
 			var selectedGroupIds = [];
 			for (var i = $scope.canDispatchedGroup.length; i--;) {
 				(function(i) {
@@ -697,15 +895,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					}
 				})(i);
 			}
-			var selectedRequestId = $.map($scope.siGrid.$gridScope.selectedItems, function(v, i) {
-				return v.SORequestId;
-			});
-			var data = averageDistribute(
-				selectedGroupIds,
-				selectedRequestId,
-				$scope.siGrid.$gridScope.selectedItems.length.toString() + ' SO can\'t be dispatched to ' + selectedGroupIds.length.toString() + ' groups. Please select again.');
-
-			return data;
+			return selectedGroupIds
 		}
 
 		function averageDistribute(keys, values, alertInfo) {
@@ -1000,18 +1190,34 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.newWorkFlow.type = $scope.workFlowBaseInfo.types[0];
 		}
 
-		function getCurrentSORequestAssignedUserIds() {
-			var assignedUserIds = [];
-			var isDuplicate = {};
-			angular.forEach($scope.currentSORequest.workflow, function(v, i) {
-				if (v.SubPackageId && v.SubPackageId == '') {
-					if (!isDuplicate.hasOwnProperty(v.ExecuteeId.toString())) {
-						assignedUser.push(v.ExecuteeId);
-						isDuplicate[v.ExecuteeId.toString()] = 'ADDED';
-					}
-				}
+		function getCurrentSORequestAssignedUserIds(successCb, errorCb) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETASSIGNEDUSERS',
+				params: {
+					id: $scope.currentSORequest.SORequestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				successCb(data);
+			}).error(function(data, status) {
+				errorCb(data + status);
 			});
-			return assignedUserIds;
+		}
+
+		function getCurrentSORequestDispatchedGroup(successCb, errorCb) {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETDISPATCHEDGROUP',
+				params: {
+					id: $scope.currentSORequest.SORequestId
+				},
+				cache: false
+			}).success(function(data, status) {
+				successCb(data);
+			}).error(function(data, status) {
+				errorCb(data + status);
+			});
 		}
 
 		$scope.showDispatchTips = function() {

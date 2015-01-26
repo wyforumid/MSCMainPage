@@ -1,7 +1,6 @@
 var express = require('express');
 var userCtrl = require('../controllers/userController');
 var companyCtrl = require('../controllers/companyController');
-// var func = require('../controllers/func');
 var router = express.Router();
 
 var user = new userCtrl();
@@ -23,28 +22,25 @@ router.get('/free', function(req, res) {
 
 
 
-
 router.route('/user/:actionName')
-	.put(function(req, res, next) {
-	})
+	.put(function(req, res, next) {})
 	.post(function(req, res, next) {
-		switch(req.params.actionName.toUpperCase()){
+		switch (req.params.actionName.toUpperCase()) {
 			case 'RESETPWD':
-			user.POST.RESETPWD(req, res);
+				user.POST.RESETPWD(req, res);
 				break;
 			case 'REGIST':
-			user.POST.REGIST(req, res);
+				user.POST.REGIST(req, res);
 				break;
 		}
 
 	})
-	.get(function(req, res, next) {
-	});
+	.get(function(req, res, next) {});
 
 router.route('/company/:actionName')
 	.get(function(req, res, next) {
 
-		switch(req.params.actionName.toUpperCase()) {
+		switch (req.params.actionName.toUpperCase()) {
 			case 'ALLOFFICES':
 				company.GET.ALLOFFICES(req, res);
 				break;
