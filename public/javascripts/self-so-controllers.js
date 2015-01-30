@@ -808,11 +808,15 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		function isSelectedSOInSameGroup() {
 			var isInSameGroup = true;
 			var existedGroup = null;
-			$.each($scope.siGrid.$gridScope.selectedItems, function(v, i) {
+			$.each($scope.siGrid.$gridScope.selectedItems, function(i, v) {
 				if (!i) {
+					if(v.ExecuteeTypeId != 2002){
+						isInSameGroup=false;
+						return false;
+					}
 					existedGroup = v.Executee;
 				}
-				if (v.ExecuteeTypeId != 2002 || v.Executee != existedGroup) {
+				if (!(v.ExecuteeTypeId == 2002 && v.Executee == existedGroup)) {
 					isInSameGroup = false;
 					return false;
 				}
