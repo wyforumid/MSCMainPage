@@ -1,460 +1,605 @@
-
 <div class="col-md-1">
 </div>
 <div class="col-md-10 main-container">
-	<div >
-		<ul class="nav nav-tabs" role='tablist' id="navTab">
-			<li role='presentation' >
-				<a data-target="#modify" role="tab" data-toggle="tab">Maintain</a>
-			</li>
-			<li role="presentation" class="active">
-				<a data-target="#new" role="tab" data-toggle="tab">Create</a>
-			</li>
-		</ul>
-		<div class="tab-content">
-			<div role="tabpanel" class="tab-pane" id="modify">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-sm-2">
-							<div class="list-group">
-								<a class="list-group-item" ng-class="{'active':(group.select), 'disabled':(!group.enable)}"  ng-repeat="group in displayMaintainGroup.groupList" ng-click="changeSelectGroup(group)">
-								{{group.name}}
-								</a>
-							</div>
-						</div>
-						<div class="col-sm-10" ng-class="{'show':(displayMaintainGroup.currentSelectGroup.enable), 'hidden':(!displayMaintainGroup.currentSelectGroup.enable)}">
-							<div class="row">
-								<div class="col-sm-12">
-								  	<div class="form-group form-horizontal">
-										<label for="modifyGroupName" class="col-sm-2 control-label">Group Name</label>
-										<div class="col-sm-3">
-											<input type="text" class="form-control" id="modifyGroupName" ng-model="displayMaintainGroup.currentSelectGroup.name" placeholder="Enter group name" />
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-sm-12">
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingOne">
-      <h4 class="panel-title">
-      
-        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOfficeAndDepartment" aria-expanded="true" >
-          Modify Office and Department
-        </a>
-      </h4>
+    <div>
+        <ul class="nav nav-tabs" role='tablist' id="navTab">
+            <li role='presentation'>
+                <a data-target="#modify" role="tab" data-toggle="tab">Maintain</a>
+            </li>
+            <li role="presentation" class="active">
+                <a data-target="#new" role="tab" data-toggle="tab">Create</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" id="modify">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="list-group">
+                                <a class="list-group-item" ng-class="{'active':(group.select), 'disabled':(!group.enable)}" ng-repeat="group in displayMaintainGroup.groupList" ng-click="changeSelectGroup(group)">
+                                    {{group.name}}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-sm-10" ng-class="{'show':(displayMaintainGroup.currentSelectGroup.enable), 'hidden':(!displayMaintainGroup.currentSelectGroup.enable)}">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group form-horizontal">
+                                        <label for="modifyGroupName" class="col-sm-2 control-label">Group Name</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" class="form-control" id="modifyGroupName" ng-model="displayMaintainGroup.currentSelectGroup.name" placeholder="Enter group name" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" role="tab" id="headingOne">
+                                                <h4 class="panel-title">
+
+                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOfficeAndDepartment" aria-expanded="true" aria-controls="collapseOfficeAndDepartment">
+                                                        Modify Office and Department
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseOfficeAndDepartment" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                                <div class="panel-body">
+                                                    <!-- Office and Department -->
+
+                                                    <div>
+                                                        <div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-2 control-label">Office:</label>
+                                                                <div class="col-sm-8">
+                                                                    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+                                                                        <option value="">---Offices---</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-2 control-label">Department:</label>
+                                                                <div class="col-sm-8">
+                                                                    <select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+                                                                        <option value="">---Depts---</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <button class="btn btn-primary btn-sm col-sm-offset-8" ng-click="addOfficeAndDepartment()">Add</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel panel-default col-sm-offset-1 col-sm-5" style="padding-left: 0px; padding-right: 0px;">
+                                                            <div class="panel-heading">
+                                                                Added departments
+                                                            </div>
+                                                            <div class="panel-body">
+                                                                <table class="table">
+                                                                    <thead>
+                                                                    <th>#</th>
+                                                                    <th>Office</th>
+                                                                    <th>Department</th>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr data-ng-repeat="item in modifyGroup.officeAndDepartments">
+                                                                            <td>
+                                                                                <a>
+                                                                                    <span class="glyphicon glyphicon-minus" ng-click="removeOfficeAndDepartment($index)"></span>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td>
+                                                                                {{item.office.name}}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{item.dept.name}}
+                                                                            </td>
+
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" role="tab" id="headingTwo">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseRole"  aria-controls="collapseRole">
+                                                        Modify Role
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            
+                                                <div id="collapseRole" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                                                  <div class="panel-body">
+                                                        <div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label">Role Name:</label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="text" class="form-control" placeholder="Enter new role name" ng-model="modifyGroup.newRoleName">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <button class="btn btn-primary btn-sm col-sm-1 col-sm-offset-8" ng-click="addRole()">Add</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel panel-default col-sm-offset-1 col-sm-5" style="padding-left: 0px; padding-right: 0px;">
+                                                            <div class="panel-heading">
+                                                                Added roles
+                                                            </div>
+                                                            <div class="panel-body">
+
+                                                                <table class="table">
+                                                                    <thead>
+                                                                        <th>#</th>
+                                                                        <th>Role Name</th>
+                                                                    </thead>
+                                                                    <tbody>
+
+	                                                                    <tr data-ng-repeat="item in modifyGroup.roles">
+	                                                                    	<td>
+	                                                                    		<a>
+                                                                                    <span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="removeRole($index)"></span>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td>
+                                                                            	<a class="list-group-item"
+												                                   ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }"
+												                                   ng-click="showSelectedRolePermission($index)">
+												                                   <span class="badge">{{item.selectedCount}}</span>{{item.name}}
+												                                </a>
+                                                                            </td>
+	                                                                    </tr>
+
+                                                                        <!-- <tr data-ng-repeat="item in modifyGroup.roles">
+                                                                            <td>
+                                                                                <a>
+                                                                                    <span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="removeRole($index)"></span>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td>
+                                                                                {{item.name}}
+                                                                            </td>
+
+                                                                        </tr> -->
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                  </div>
+                                                </div>
+                                            
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" role="tab" id="headingThree">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapsePermission"  aria-controls="collapsePermission">
+                                                        Modify Permission
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapsePermission" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
+                                                <div class="panel-body">
+
+
+							                        <!-- <div class="col-md-2 col-md-offset-1">
+							                            <div class="list-group">
+							                                <a class="list-group-item"
+							                                   ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }"
+							                                   ng-repeat="item in modifyGroup.roles"
+							                                   ng-click="showSelectedRolePermission($index)">
+							                                    <span class="badge">{{item.selectedCount}}</span>{{item.name}}
+							                                </a>
+							                            </div>
+							                        </div> -->
+							                        <div class="col-md-12">
+							                            <div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(permission)"></div>
+							                        </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" role="tab" id="headingfour">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseColleagues"  aria-controls="collapseColleagues">
+                                                        Modify Colleagues
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseColleagues" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
+                                                <div class="panel-body">
+                                                    <div style="margin-top: 20px; height: 400px;" id="step4Container" >
+
+								                        <div class="col-md-5" style="float:left;">
+								                            <div class="form-inline">
+								                                <div class="form-group">
+								                                    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+								                                        <option value="">---Offices---</option>
+								                                    </select>
+								                                </div>
+								                                <div class="form-group">
+								                                    <select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts" >
+								                                        <option value="">---Departments---</option>
+								                                    </select>
+								                                </div>
+								                                <div class="form-group">
+								                                    <button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment(selectedOffice, selectedDept);" >
+								                                        Search
+								                                    </button>
+								                                </div>
+								                            </div>
+								                            <div style="overflow-y:auto; height: 100%; width: 100%;">
+								                                <table class="table table-condensed" style="font-size: x-small;">
+								                                    <thead>
+								                                        <tr>
+								                                            <th>Full Name</th>
+								                                            <th></th>
+								                                        </tr>
+								                                    </thead>
+								                                    <tbody>
+
+								                                        <tr ng-show="modifyGroup.searchUsers.length <= 0">
+								                                            <td colspan="3">No records...</td>
+								                                        </tr>
+								                                        <tr data-ng-repeat="searchUser in modifyGroup.searchUsers">
+								                                            <td>{{searchUser.fullName}}</td>
+								                                            <td>
+								                                                <a>
+								                                                    <!-- <span class="glyphicon glyphicon-plus" ng-click="createGroup.addSubmitUser($index)"></span> -->
+								                                                    <span class="glyphicon glyphicon-plus" ng-click="addSubmitUser($index)"></span>
+								                                                </a>
+								                                            </td>
+								                                        </tr>
+								                                    </tbody>
+								                                </table>
+								                            </div>
+								                        </div>
+
+
+								                        <div class="col-md-7">
+								                            <div class="form-inline">
+								                                <table class="table table-condensed">
+								                                    <thead>
+								                                        <tr>
+								                                            <th>#</th>
+								                                            <th>Full Name</th>
+								                                            <th></th>
+								                                        </tr>
+								                                    </thead>
+								                                    <tbody>
+								                                        <tr data-ng-repeat="user in modifyGroup.submitUsers">
+								                                            <td>
+								                                                <a>
+								                                                    <!-- <span class="glyphicon glyphicon-minus" ng-click="createGroup.deleteSubmitUser($index);"></span> -->
+								                                                    <span class="glyphicon glyphicon-minus" ng-click="deleteSubmitUser($index);"></span>
+								                                                </a>
+								                                            </td>
+								                                            <td>{{user.fullName}}</td>
+								                                            <td>
+								                                                <ui-select multiple ng-model="user.roles" theme="bootstrap" close-on-select="false" style="width:400px; ">
+								                                                    <ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
+								                                                    <ui-select-choices repeat="role.name as role in modifyGroup.roles | filter:$select.search">
+								                                                        {{role.name}}
+								                                                    </ui-select-choices>
+								                                                </ui-select>
+								                                            </td>
+								                                        </tr>
+								                                    </tbody>
+								                                </table>
+								                            </div>
+								                        </div>
+								                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="row">
+                            	<div class="col-sm-12">
+                            		<div class="form-group">
+                                    	<button class="btn btn-primary col-md-1" ng-click="submitModifyData()">
+                                    	Submit
+		                        		</button>
+                                    </div>
+                            	</div>
+                            </div>
+                            <div class="row">
+                            	<div class="col-sm-12">
+                            		<div class="form-group">
+                                        <p>
+                                            <pre>
+												displayMaintainGroup = {{displayMaintainGroup | json}}
+												submitGroup = {{modifyGroup.submitGroup | json}}
+											</pre>
+                                        </p>
+                                	</div>
+                            	</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane active" id="new">
+                <div class="newGroup_container">
+                    <div id="stepItems">
+                        <ul class="processor-bar">
+                            <li class="step grid-item size1of4" id="newgroup-step-1"
+                                ng-class="{'current': steps.currentStep == 1, 'passed':steps.currentStep > 1}">
+                                <h4>1 Select departments</h4>
+                            </li>
+                            <li class="step grid-item size1of4" id="newgroup-step-2"
+                                ng-class="{'next': steps.currentStep == 1, 'current':steps.currentStep == 2, 'passed':steps.currentStep > 2}">
+                                <h4>2 Edit group</h4>
+                            </li>
+                            <li class="step grid-item size1of4" id="newgroup-step-3"
+                                ng-class="{'next': steps.currentStep == 2, 'current':steps.currentStep == 3, 'passed':steps.currentStep > 3}">
+                                <h4>3 Add Permission</h4>
+                            </li>
+                            <li class="step grid-item size1of4" id="newgroup-step-4"
+                                ng-class="{'next': steps.currentStep == 3, 'current':steps.currentStep == 4, 'passed':steps.currentStep >= 4}">
+                                <h4>4 Add Colleagues</h4>
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 20px; height: 400px;" id="step1Container" ng-show="steps.list['1'].isShow">
+                        <div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece; height: 100%">
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Office:</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
+                                        <option value="">---Offices---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Department:</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
+                                        <option value="">---Depts---</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary col-md-1 col-md-offset-8" ng-click="addOfficeAndDepartment();">Add</button>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="panel-heading">
+                                Added departments
+                            </div>
+                            <div class="panel-body">
+                                <table class="table">
+                                    <thead>
+                                    <th>#</th>
+                                    <th>Office</th>
+                                    <th>Department</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-ng-repeat="item in createGroup.officeAndDepartments">
+                                            <td>
+                                                <a>
+                                                    <span class="glyphicon glyphicon-minus" ng-click="removeOfficeAndDepartment($index)"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{item.office.name}}
+                                            </td>
+                                            <td>
+                                                {{item.dept.name}}
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style="margin-top: 20px; height: 400px;" id="step2Container" ng-show="steps.list['2'].isShow">
+                        <div class="form-horizontal col-md-4 col-md-offset-4">
+                            <div class="form-group" id="newGroupNameDiv">
+
+                                <input type="text" class="form-control" placeholder="Enter Group Name" ng-model="createGroup.groupName">
+                            </div>
+                        </div>
+
+                        <div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece; height: 100%">
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">Role Name:</label>
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control" placeholder="Enter new role name" ng-model="createGroup.newRoleName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="addRole()">Add</button>
+                            </div>
+                        </div>
+                        <div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="panel-heading">
+                                Added roles
+                            </div>
+                            <div class="panel-body">
+                                <table class="table">
+                                    <thead>
+                                    <th>#</th>
+                                    <th>Role Name</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-ng-repeat="item in createGroup.roles">
+                                            <td>
+                                                <a>
+                                                    <!-- class="glyphicon glyphicon-minus" -->
+                                                    <span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}" ng-click="removeRole($index)"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{item.name}}
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; height: 400px;" id="step3Container" ng-show="steps.list['3'].isShow">
+                        <div class="col-md-2 col-md-offset-1">
+                            <div class="list-group">
+                                <a class="list-group-item"
+                                   ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }"
+                                   ng-repeat="item in createGroup.roles"
+                                   ng-click="showSelectedRolePermission($index)">
+                                    <span class="badge">{{item.selectedCount}}</span>{{item.name}}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-disabled="permissionInfo.editCurrentGroup.isDisabled" ng-model="permissionInfo.editCurrentGroup.isEdit">Editable for {{createGroup.groupName}}
+                                </label>
+                            </div>
+                            <div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(permission)"></div>
+                        </div>
+                    </div>
+
+
+
+                    <div style="margin-top: 20px; height: 400px;" id="step4Container" ng-show="steps.list['4'].isShow">
+
+                        <div class="col-md-5" style="float:left;">
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices" ng-disabled="steps.isSubmitting">
+                                        <option value="">---Offices---</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts" ng-disabled="steps.isSubmitting">
+                                        <option value="">---Departments---</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment(selectedOffice, selectedDept);" ng-disabled="steps.isSubmitting">
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="overflow-y:auto; height: 100%; width: 100%;">
+                                <table class="table table-condensed" style="font-size: x-small;">
+                                    <thead>
+                                        <tr>
+                                            <th>Full Name</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr ng-show="createGroup.searchUsers.length <= 0">
+                                            <td colspan="3">No records...</td>
+                                        </tr>
+                                        <tr data-ng-repeat="searchUser in createGroup.searchUsers">
+                                            <td>{{searchUser.fullName}}</td>
+                                            <td>
+                                                <a>
+                                                    <!-- <span class="glyphicon glyphicon-plus" ng-click="createGroup.addSubmitUser($index)"></span> -->
+                                                    <span class="glyphicon glyphicon-plus" ng-click="addSubmitUser($index)"></span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-7">
+                            <div class="form-inline">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Full Name</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-ng-repeat="user in createGroup.submitUsers">
+                                            <td>
+                                                <a>
+                                                    <!-- <span class="glyphicon glyphicon-minus" ng-click="createGroup.deleteSubmitUser($index);"></span> -->
+                                                    <span class="glyphicon glyphicon-minus" ng-click="deleteSubmitUser($index);"></span>
+                                                </a>
+                                            </td>
+                                            <td>{{user.fullName}}</td>
+                                            <td>
+                                                <ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disabled="steps.isSubmitting" close-on-select="false" style="width:400px; ">
+                                                    <ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
+                                                    <ui-select-choices repeat="role.name as role in createGroup.roles | filter:$select.search">
+                                                        {{role.name}}
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="steps.preStep.pre();" id="preBtn" ng-disabled="steps.isSubmitting || steps.preStep.disabled">
+                            {{steps.preStep.text}}
+                        </button>
+                        <button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="steps.nextStep.next();" id="nextBtn" ng-disabled="steps.isSubmitting || steps.nextStep.disabled">
+                            {{steps.nextStep.text}}
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <p>
+                            <pre>
+								{{userInfo}}
+								{{createGroup.submitGroup | json}}
+							</pre>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="collapseOfficeAndDepartment" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-      <div class="panel-body">
-        <!-- Office and Department -->
-
-        <div>
-			<div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
-				<div class="form-group">
-					<label class="col-sm-2 control-label">Office:</label>
-					<div class="col-sm-8">
-						<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
-							<option value="">---Offices---</option>
-						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-2 control-label">Department:</label>
-					<div class="col-sm-8">
-						<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
-							<option value="">---Depts---</option>
-						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<button class="btn btn-primary btn-sm col-sm-offset-8" ng-click="addDepartment()">Add</button>
-				</div>
-			</div>
-			<div class="panel panel-default col-sm-offset-1 col-sm-5" style="padding-left: 0px; padding-right: 0px;">
-				<div class="panel-heading">
-					Added departments
-				</div>
-				<div class="panel-body">
-					<table class="table">
-						<thead>
-							<th>#</th>
-							<th>Office</th>
-							<th>Department</th>
-						</thead>
-						<tbody>
-							<tr data-ng-repeat="item in displayMaintainGroup.officeAndDepartment">
-								<td>
-									<a>
-										<span class="glyphicon glyphicon-minus" ng-click="minusDepartment($index)"></span>
-									</a>
-								</td>
-								<td>
-									{{item.office.name}}
-								</td>
-								<td>
-									{{item.dept.name}}
-								</td>
-
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingTwo">
-      <h4 class="panel-title">
-        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapseRole" aria-expanded="false" >
-          Modify Role
-        </a>
-      </h4>
-    </div>
-<!-- 
-    <div id="collapseRole" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-      <div class="panel-body">
-	        <div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
-				<div class="form-group">
-					<label class="col-sm-3 control-label">Role Name:</label>
-					<div class="col-sm-7">
-						<input type="text" class="form-control" placeholder="Enter new role name" ng-model="newRoleName">
-					</div>
-				</div>
-				<div class="form-group">
-					<button class="btn btn-primary btn-sm col-sm-1 col-sm-offset-8" ng-click="addRoleName()">Add</button>
-				</div>
-			</div>
-			<div class="panel panel-default col-sm-offset-1 col-sm-5" style="padding-left: 0px; padding-right: 0px;">
-				<div class="panel-heading">
-					Added roles
-				</div>
-				<div class="panel-body">
-					<table class="table">
-						<thead>
-							<th>#</th>
-							<th>Role Name</th>
-						</thead>
-						<tbody>
-							<tr data-ng-repeat="item in originModifyData.roles">
-								<td>
-									<a>
-										<span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="minusRole($index)"></span>
-									</a>
-								</td>
-								<td>
-									{{item.name}}
-								</td>
-
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-      </div>
-    </div>
- -->
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingThree">
-      <h4 class="panel-title">
-        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapsePermission" aria-expanded="false" >
-          Modify Permission
-        </a>
-      </h4>
-    </div>
-    <div id="collapsePermission" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-      <div class="panel-body">
-        Modify Permission
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingfour">
-      <h4 class="panel-title">
-        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" data-target="#collapseColleagues" aria-expanded="false" >
-          Modify Colleagues
-        </a>
-      </h4>
-    </div>
-    <div id="collapseColleagues" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-      <div class="panel-body">
-        Modify Colleagues
-      </div>
-    </div>
-  </div>
-</div>
-<div class="form-group">
-<p>
-<pre>
-displayMaintainGroup = {{displayMaintainGroup | json}}
-originModifyData = {{originModifyData | json}}
-</pre>
-</p>
-</div>
-
-
-
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div role="tabpanel" class="tab-pane active" id="new">
-				<div class="newGroup_container">
-					<div id="stepItems">
-						<ul class="processor-bar">
-							<li class="step grid-item size1of4" id="newgroup-step-1" 
-							ng-class="{'current': steps.currentStep == 1, 'passed':steps.currentStep > 1}">
-								<h4>1 Select departments</h4>
-							</li>
-							<li class="step grid-item size1of4" id="newgroup-step-2" 
-							ng-class="{'next': steps.currentStep == 1, 'current':steps.currentStep == 2, 'passed':steps.currentStep > 2}">
-								<h4>2 Edit group</h4>
-							</li>
-							<li class="step grid-item size1of4" id="newgroup-step-3" 
-							ng-class="{'next': steps.currentStep == 2, 'current':steps.currentStep == 3, 'passed':steps.currentStep > 3}">
-								<h4>3 Add Permission</h4>
-							</li>
-							<li class="step grid-item size1of4" id="newgroup-step-4"
-							ng-class="{'next': steps.currentStep == 3, 'current':steps.currentStep == 4, 'passed':steps.currentStep >= 4}">
-								<h4>4 Add Colleagues</h4>
-							</li>
-						</ul>
-					</div>
-					<div style="margin-top: 20px; height: 400px;" id="step1Container" ng-show="steps.list['1'].isShow">
-						<div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece; height: 100%">
-							<div class="form-group">
-								<label class="col-md-2 control-label">Office:</label>
-								<div class="col-md-8">
-									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices">
-										<option value="">---Offices---</option>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-md-2 control-label">Department:</label>
-								<div class="col-md-8">
-									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts">
-										<option value="">---Depts---</option>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<button class="btn btn-primary col-md-1 col-md-offset-8" ng-click="addOfficeAndDepartment_create();">Add</button>
-							</div>
-						</div>
-
-						<div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
-							<div class="panel-heading">
-								Added departments
-							</div>
-							<div class="panel-body">
-								<table class="table">
-									<thead>
-										<th>#</th>
-										<th>Office</th>
-										<th>Department</th>
-									</thead>
-									<tbody>
-										<tr data-ng-repeat="item in createGroup.officeAndDepartments">
-											<td>
-												<a>
-													<span class="glyphicon glyphicon-minus" ng-click="removeOfficeAndDepartment_create($index)"></span>
-												</a>
-											</td>
-											<td>
-												{{item.office.name}}
-											</td>
-											<td>
-												{{item.dept.name}}
-											</td>
-
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-
-					</div>
-					<div style="margin-top: 20px; height: 400px;" id="step2Container" ng-show="steps.list['2'].isShow">
-						<div class="form-horizontal col-md-4 col-md-offset-4" >
-							<div class="form-group" id="newGroupNameDiv">
-
-								<input type="text" class="form-control" placeholder="Enter Group Name" ng-model="createGroup.groupName">
-							</div>
-						</div>
-
-						<div class="form-horizontal col-md-6" style="border-right: 1px solid #cecece; height: 100%">
-							<div class="form-group">
-								<label class="col-md-3 control-label">Role Name:</label>
-								<div class="col-md-7">
-									<input type="text" class="form-control" placeholder="Enter new role name" ng-model="createGroup.newRoleName">
-								</div>
-							</div>
-							<div class="form-group">
-								<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="addRole_create()">Add</button>
-							</div>
-						</div>
-						<div class="panel panel-default col-md-offset-1 col-md-5" style="padding-left: 0px; padding-right: 0px;">
-							<div class="panel-heading">
-								Added roles
-							</div>
-							<div class="panel-body">
-								<table class="table">
-									<thead>
-										<th>#</th>
-										<th>Role Name</th>
-									</thead>
-									<tbody>
-										<tr data-ng-repeat="item in createGroup.roles">
-											<td>
-												<a>
-													<!-- class="glyphicon glyphicon-minus" -->
-													<span ng-class="{'glyphicon glyphicon-minus':item.name != 'Manager'}"  ng-click="removeRole_create($index)"></span>
-												</a>
-											</td>
-											<td>
-												{{item.name}}
-											</td>
-
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-
-					<div style="margin-top: 20px; height: 400px;" id="step3Container" ng-show="steps.list['3'].isShow">
-						<div class="col-md-2 col-md-offset-1">
-							<div class="list-group">
-								<a class="list-group-item" 
-								ng-class="{'list-group-item-success': (item.selectedCount > 0),'list-group-item-warning':(item.selectedCount == 0),'active':item.edit }" 
-								ng-repeat="item in createGroup.roles" 
-								ng-click="showSelectedRolePermission($index)">
-									<span class="badge">{{item.selectedCount}}</span>{{item.name}}
-								</a>
-							</div>
-						</div>
-						<div class="col-md-9">
-							<div class="checkbox">
-							    <label>
-							      <input type="checkbox" ng-disabled="permissionInfo.editCurrentGroup.isDisabled" ng-model="permissionInfo.editCurrentGroup.isEdit">Editable for {{newGroup.groupName}}
-							    </label>
-						  	</div>
-							<div permission-area categoriedpermissions="permissionInfo.displayedPermission" selectedcountchange="changedPermissionCount(checked)"></div>
-						</div>
-					</div>
-
-
-
-					<div style="margin-top: 20px; height: 400px;" id="step4Container" ng-show="steps.list['4'].isShow">
-
-						<div class="col-md-5" style="float:left;">
-							<div class="form-inline" >
-								<div class="form-group">
-									<select class="form-control" ng-model="selectedOffice" ng-options="office.name for office in company.offices" ng-disabled="steps.isSubmitting">
-										<option value="">---Offices---</option>
-									</select>
-								</div>
-								<div class="form-group">
-									<select class="form-control" ng-model="selectedDept" ng-options="dept.name for dept in company.depts" ng-disabled="steps.isSubmitting">
-										<option value="">---Departments---</option>
-									</select>
-								</div>
-								<div class="form-group">
-									<button class="btn btn-primary btn-sm" ng-click="searchUserByOfficeAndDepartment_create(selectedOffice, selectedDept);" ng-disabled="steps.isSubmitting">
-									Search
-									</button>
-								</div>
-							</div>
-							<div style="overflow-y:auto; height: 100%; width: 100%;">
-								<table class="table table-condensed" style="font-size: x-small;" >
-									<thead>
-										<tr>
-											<th>Full Name</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-
-										<tr ng-show="createGroup.searchUsers.length <= 0">
-											<td colspan="3">No records...</td>
-										</tr>
-										<tr data-ng-repeat="searchUser in createGroup.searchUsers">
-											<td>{{searchUser.fullName}}</td>
-											<td>
-											<a>
-												<span class="glyphicon glyphicon-plus" ng-click="createGroup.addSubmitUser($index)"></span>
-											</a>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-
-						
-						<div class="col-md-7">
-							<div class="form-inline">
-								<table class="table table-condensed">
-									<thead>
-										<tr>
-											<th>#</th>
-											<th>Full Name</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr data-ng-repeat="user in createGroup.submitUsers">
-											<td>
-												<a>
-													<span class="glyphicon glyphicon-minus" ng-click="createGroup.deleteSubmitUser($index);"></span>
-												</a>
-											</td>
-											<td>{{user.fullName}}</td>
-											<td>
-												<ui-select multiple ng-model="user.roles" theme="bootstrap" ng-disabled="steps.isSubmitting" close-on-select="false" style="width:400px; ">
-													<ui-select-match placeholder="Select roles...">{{$item.name}}</ui-select-match>
-													<ui-select-choices repeat="role.name as role in createGroup.roles | filter:$select.search">
-													{{role.name}}
-													</ui-select-choices>
-												</ui-select>
-											</td>
-										</tr>
-									</tbody>
-								</table>	
-							</div>
-						</div>
-					</div>
-					<div>
-						<button class="btn btn-primary col-md-1 col-md-offset-9" ng-click="steps.preStep.pre();" id="preBtn" ng-disabled="steps.isSubmitting || steps.preStep.disabled">
-						{{steps.preStep.text}}
-						</button>
-						<button class="btn btn-primary col-md-1 col-md-offset-1" ng-click="steps.nextStep.next();" id="nextBtn" ng-disabled="steps.isSubmitting || steps.nextStep.disabled">
-						{{steps.nextStep.text}}
-						</button>
-					</div>
-
-<!-- <div class="form-group">
-<p>
-<pre>
-{{userInfo}}
-{{createGroup | json}}
-</pre>
-</p>
-</div> -->
-		</div>
-	</div>
-</div>
-</div>
 </div>
 <div class="col-md-1">
 
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="changedGroup" tabindex="-1" role="dialog" aria-labelledby="changedGroupTitle" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="changedGroupTitle">Maintain</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to discard the modified data?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 

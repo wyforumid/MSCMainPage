@@ -120,3 +120,10 @@ exports.getGroupRelationbyGroupId = function(groupId, callback) {
 	params.push(new Parameter('groupId', mssql.Int, groupId));
 	db.qureyMultipleSP('SP_GetRelationbyGroupId', params, callback)
 }
+
+exports.getGroupRelation = function(groupId, userId, callback) {
+	var params = [];
+	params.push(new Parameter('groupId', mssql.Int, groupId));
+	params.push(new Parameter('userId', mssql.Int, userId));
+	db.qureyMultipleSP('SP_GetRelation', params, callback)
+}

@@ -50,7 +50,7 @@ module.exports = function() {
 		},
 		GROUPRELATION: function(req, res) {
 			getAPIData(req, res, function(cb) {
-				permissionAPI.getGroupRelationbyGroupId(req.query.groupId, function(err, data) {
+				permissionAPI.getGroupRelation(req.query.groupId, req.query.userId, function(err, data) {
 					cb(err, data);
 				})
 			});

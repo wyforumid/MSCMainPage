@@ -1,6 +1,20 @@
 angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select', 'selfFilters'])
-	.controller('permissionGroupCtrl', function($scope, fundationService, $http, $filter, $rootScope) {
+	.controller('permissionGroupCtrl', function($scope, fundationService, $http, $filter, $rootScope, $q) {
 
+		$scope.currentStatus = "C";
+
+		function getCurrentGroup() {
+
+			var currentGroup;
+
+			if ($scope.currentStatus == "C") {
+				currentGroup = $scope.createGroup;
+			} else if ($scope.currentStatus == "M") {
+				currentGroup = $scope.modifyGroup;
+			}
+
+			return currentGroup;
+		}
 
 		var Group = function() {};
 
@@ -9,16 +23,16 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			setGroupName: function(name) {
 				this.groupName = name;
 			},
-			addOfficeAndDepartment: function(selectedOffice, selectedDept) {
+			addOfficeAndDepartment: function(office, dept) {
 
 				this.officeAndDepartments.push({
 					office: {
-						id: selectedOffice.id,
-						name: selectedOffice.name
+						id: office.id,
+						name: office.name
 					},
 					dept: {
-						id: selectedDept.id,
-						name: selectedDept.name
+						id: dept.id,
+						name: dept.name
 					}
 				});
 
@@ -103,7 +117,17 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				}
 
 				return false;
+			},
+			addSubmitUser: function(index) {
+				if (!this.checkUserIsExists(this.searchUsers[index], this.submitUsers)) {
+					this.searchUsers[index].roles = {};
+					this.submitUsers.push(this.searchUsers[index]);
+				}
+			},
+			deleteSubmitUser: function(index) {
+				this.submitUsers.splice(index, 1);
 			}
+
 		};
 
 		var CreateGroup = function() {
@@ -112,6 +136,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				this.roles.push({
 					id: this.managerRoleId,
 					name: "Manager",
+					isCheckedDispatch: false,
 					editCurrentGroup: {
 						isEdit: true,
 						isDisabled: true
@@ -128,17 +153,6 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			this.hasRoleByNewRoleName = function() {
 
 				return this.HasRole(this.newRoleName);
-			}
-
-			this.IsIncludeManagerId = function(permissionIds) {
-
-				for (var i = permissionIds.length; i--;) {
-					if (permissionIds[i] == this.managerRoleId) {
-						return true;
-					}
-				}
-
-				return false;
 			}
 
 			this.IsIncludeManagerId = function(permissionIds) {
@@ -162,17 +176,17 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			}
 
 
-			this.addSubmitUser = function(index) {
-				if (!this.checkUserIsExists(this.searchUsers[index], this.submitUsers)) {
-					this.searchUsers[index].roles = {};
-					this.submitUsers.push(this.searchUsers[index]);
-				}
-			}
+			// this.addSubmitUser = function(index) {
+			// 	if (!this.checkUserIsExists(this.searchUsers[index], this.submitUsers)) {
+			// 		this.searchUsers[index].roles = {};
+			// 		this.submitUsers.push(this.searchUsers[index]);
+			// 	}
+			// }
 
 
-			this.deleteSubmitUser = function(index, count) {
-				this.submitUsers.splice(index, 1);
-			}
+			// this.deleteSubmitUser = function(index, count) {
+			// 	this.submitUsers.splice(index, 1);
+			// }
 
 			this.managerRoleId = -999;
 			this.newRoleName = "";
@@ -191,8 +205,31 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			// }
 		};
 
+		var ModifyGroup = function(group) {
+
+			this.isChanged = false;
+			this.group = {};
+			this.newRoleName = "";
+			this.officeAndDepartments = [];
+			this.roles = [];
+			this.permissions = [];
+			this.searchUsers = [];
+			this.submitUsers = [];
+
+			this.origin = {
+				group: {},
+				officeAndDepartments: [],
+				roles: [],
+				permissions: [],
+				submitUsers: []
+			}
+
+
+		};
+
 		CreateGroup.prototype = new Group();
 		$scope.createGroup = new CreateGroup();
+
 
 
 		$scope.steps = {
@@ -306,65 +343,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						$scope.steps.initialStepCSS();
 					},
 					initialData: function() {
-						async.parallel([
-								function(callback) {
-									fundationService.getAllPermissions(
-										function(data) {
-											$scope.permissionInfo.originPermissions = data;
-											callback(null, data);
-										},
-										function(data, status) {
-											alert('Fail to fetch all permissions.');
-											callback(data, status);
-										},
-										false
-									);
-								},
-								function(callback) {
-									fundationService.getAllPermissionCategories(
-										function(data) {
-											$scope.permissionInfo.originCategories = data;
-											callback(null, data);
-										},
-										function(data, status) {
-											alert('Fail to fetch all categories.');
-											callback(data, status);
-										},
-										false
-									);
-								},
-								function(callback) {
-									$http({
-										method: 'GET',
-										url: '/restfulAPI/permission/OWNPERMISSIONS',
-										cache: false,
-										params: {
-											id: $rootScope.userInfo.userId
-
-										},
-
-									}).success(function(data, status) {
-										$scope.permissionInfo.ownPermissions = $.map(data, function(v, i) {
-											return v.PermissionId;
-										});
-										callback(null, data);
-									}).error(function(data, status) {
-										alert('Fail to fetch your own permissions.');
-										callback(data, status);
-									});
-								}
-							],
-							function(err, results) {
-								if (err) {
-									alert('Loading data is error. Please pre and then next to this step again.');
-								} else {
-									$scope.permissionInfo.categoringPermission();
-									$scope.selectedRoleIndex = 0;
-									initialSelectedRolePermission();
-								}
-							});
-
-							$scope.showSelectedRolePermission(0);
+						initialAllPermission();
+						$scope.showSelectedRolePermission(0);
 					},
 					validateBeforeNext: function() {
 						return true;
@@ -403,71 +383,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					},
 					formatData: function() {
 
-						$scope.createGroup.submitGroup = {
-							name: $scope.createGroup.groupName,
+						var currentGroup = getCurrentGroup();
+
+						currentGroup.submitGroup = {
+							name: currentGroup.groupName,
 							departmentGroup: [],
 							roles: []
 						}
 
-						for (var i = $scope.createGroup.officeAndDepartments.length; i--;) {
-
-							$scope.createGroup.submitGroup.departmentGroup.push({
-								officeId: $scope.createGroup.officeAndDepartments[i].office.id,
-								departmentId: $scope.createGroup.officeAndDepartments[i].dept.id
-							});
-
-						}
-
-
-						for (var i = $scope.createGroup.roles.length; i--;) {
-
-							var role = {
-								name: $scope.createGroup.roles[i].name,
-								userIds: [],
-								permissionIds: []
-							}
-
-							if ($scope.createGroup.roles[i].editCurrentGroup.isEdit) {
-								role.permissionIds.push($scope.createGroup.managerRoleId);
-							}
-
-							for (var j = $scope.createGroup.roles[i].permission.length; j--;) {
-								for (var k = $scope.createGroup.roles[i].permission[j].permissions.length; k--;) {
-									if ($scope.createGroup.roles[i].permission[j].permissions[k].checked) {
-										role.permissionIds.push($scope.createGroup.roles[i].permission[j].permissions[k].id);
-									}
-								}
-							}
-
-
-							for (var j = $scope.createGroup.submitUsers.length; j--;) {
-								for (var k = $scope.createGroup.submitUsers[j].roles.length; k--;) {
-									if ($scope.createGroup.submitUsers[j].roles[k] === role.name) {
-										role.userIds.push($scope.createGroup.submitUsers[j].userId);
-									}
-								}
-							}
-
-							$scope.createGroup.submitGroup.roles.push(role);
-						}
-
-
-						for (var i = $scope.createGroup.submitGroup.roles.length; i--;) {
-
-							if ($scope.createGroup.submitGroup.roles[i].name === "Manager" && 
-								!$scope.createGroup.IsIncludeManagerId($scope.createGroup.submitGroup.roles[i].permissionIds)) {
-								$scope.createGroup.submitGroup.roles[i].permissionIds.push($scope.createGroup.managerRoleId);
-
-
-
-							}
-
-							if ($scope.createGroup.submitGroup.roles[i].name === "Manager" && 
-								!$scope.createGroup.IsIncludeOriginUserId($scope.createGroup.submitGroup.roles[i].userIds)) {
-								$scope.createGroup.submitGroup.roles[i].userIds.push($rootScope.userInfo.userId);
-							}
-						}
-
+						setSubmitGroup(currentGroup);
 					}
 				}
 			},
@@ -567,27 +491,26 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 					} else if ($scope.steps.currentStep == 4 && $scope.steps.list[currentStepString].validateBeforeNext()) {
 
-						$scope.steps.isSubmitting = true;
 						$scope.steps.list[currentStepString].formatData();
-						console.log($scope.createGroup.submitGroup);
+						$scope.steps.isSubmitting = true;
 
 
-						$http({
+						// $http({
 
-							method: 'POST',
-							url: '/restfulAPI/permission/ADDGROUP',
-							cache: false,
-							data: {
-								newGroup: $scope.createGroup.submitGroup
-							}
+						// 	method: 'POST',
+						// 	url: '/restfulAPI/permission/ADDGROUP',
+						// 	cache: false,
+						// 	data: {
+						// 		newGroup: $scope.createGroup.submitGroup
+						// 	}
 
-						}).success(function(data, status) {
-							alert(data[0].message);
-							$scope.steps.isSubmitting = false;
-						}).error(function(data, status) {
-							alert(data);
-							$scope.steps.isSubmitting = false;
-						});
+						// }).success(function(data, status) {
+						// 	alert(data[0].message);
+						// 	$scope.steps.isSubmitting = false;
+						// }).error(function(data, status) {
+						// 	alert(data);
+						// 	$scope.steps.isSubmitting = false;
+						// });
 					}
 
 
@@ -597,25 +520,33 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 
 		$scope.showSelectedRolePermission = function(index) {
+
 			$scope.selectedRoleIndex = index;
+
 			initialSelectedRolePermission();
 			initialCanEditCurrentGroup();
 		}
 
-		$scope.searchUserByOfficeAndDepartment_create = function(office, department) {
 
-			$scope.createGroup.searchUserByOfficeAndDepartment(office, department, function(data) {
-				$scope.createGroup.searchUsers = data;
+		$scope.searchUserByOfficeAndDepartment = function(office, department) {
+
+			var currentGroup = getCurrentGroup();
+
+			currentGroup.searchUserByOfficeAndDepartment(office, department, function(data) {
+				currentGroup.searchUsers = data;
 			});
-
 		}
+
 
 		function initialSelectedRolePermission() {
 
-			if ($scope.createGroup.roles[$scope.selectedRoleIndex]) {
-				$scope.permissionInfo.displayedPermission = $scope.createGroup.roles[$scope.selectedRoleIndex].permission;
+			var currentGroup = getCurrentGroup();
 
-				$.each($scope.createGroup.roles, function(i, v) {
+			if (currentGroup.roles[$scope.selectedRoleIndex]) {
+
+				$scope.permissionInfo.displayedPermission = currentGroup.roles[$scope.selectedRoleIndex].permission;
+
+				$.each(currentGroup.roles, function(i, v) {
 
 					if (i != $scope.selectedRoleIndex) {
 						v.edit = false;
@@ -633,23 +564,28 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		function initialCanEditCurrentGroup() {
 
-			if ($scope.createGroup.roles[$scope.selectedRoleIndex]) {
-				$scope.permissionInfo.editCurrentGroup = $scope.createGroup.roles[$scope.selectedRoleIndex].editCurrentGroup;
+			var currentGroup = getCurrentGroup();
+
+			if (currentGroup.roles[$scope.selectedRoleIndex]) {
+				$scope.permissionInfo.editCurrentGroup = currentGroup.roles[$scope.selectedRoleIndex].editCurrentGroup;
 			}
 		}
 
-		$scope.changedPermissionCount = function(value) {
+		$scope.changedPermissionCount = function(permission) {
 
-			if (!$scope.createGroup.roles[$scope.selectedRoleIndex].hasOwnProperty('selectedCount')) {
-				$scope.createGroup.roles[$scope.selectedRoleIndex].selectedCount = 0;
+			var currentGroup = getCurrentGroup();
+
+			if (!currentGroup.roles[$scope.selectedRoleIndex].hasOwnProperty('selectedCount')) {
+				currentGroup.roles[$scope.selectedRoleIndex].selectedCount = 0;
 			}
 
-			if (value) {
-				$scope.createGroup.roles[$scope.selectedRoleIndex].selectedCount++;
+			if (permission.checked) {
+				currentGroup.roles[$scope.selectedRoleIndex].selectedCount++;
+				currentGroup.roles[$scope.selectedRoleIndex].isCheckedDispatch = true;
 			} else {
-				$scope.createGroup.roles[$scope.selectedRoleIndex].selectedCount--;
+				currentGroup.roles[$scope.selectedRoleIndex].selectedCount--;
+				currentGroup.roles[$scope.selectedRoleIndex].isCheckedDispatch = false;
 			}
-
 		}
 
 		$('#navTab a').click(function(e) {
@@ -657,7 +593,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$('#navTab a:last').tab('show');
 		});
 
-		$scope.currentStep = 0;
+		// $scope.currentStep = 0;
 
 		$scope.company = {
 			offices: [],
@@ -694,6 +630,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 								disabled: $scope.permissionInfo.ownPermissions.indexOf(1) != -1 ? false : ($scope.permissionInfo.ownPermissions.indexOf(pv.id) == -1),
 								checked: false
 							});
+
 						}
 
 					});
@@ -701,7 +638,9 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 				$scope.permissionInfo.displayedPermission = $scope.permissionInfo.categoriedPermission;
 
-				$.each($scope.createGroup.roles, function(i, v) {
+				var currentGroup = getCurrentGroup();
+
+				$.each(currentGroup.roles, function(i, v) {
 					if (v.permission && v.permission.length > 0) {
 						return true;
 					} else {
@@ -735,46 +674,54 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 		}
 
 
-		$scope.addOfficeAndDepartment_create = function() {
+		$scope.addOfficeAndDepartment = function() {
 
-			if ($scope.createGroup.hasSelectedOffice($scope.selectedOffice) && $scope.createGroup.hasSelectedDept($scope.selectedDept)) {
+			var currentGroup = getCurrentGroup();
 
-				if ($scope.createGroup.hasDepartment($scope.selectedOffice, $scope.selectedDept)) {
+			if (currentGroup.hasSelectedOffice($scope.selectedOffice) && currentGroup.hasSelectedDept($scope.selectedDept)) {
+
+				if (currentGroup.hasDepartment($scope.selectedOffice, $scope.selectedDept)) {
 					alert('This department is already selected.');
 				} else {
-
-					$scope.createGroup.addOfficeAndDepartment($scope.selectedOffice, $scope.selectedDept);
+					currentGroup.addOfficeAndDepartment($scope.selectedOffice, $scope.selectedDept);
 				}
 
 			} else {
 				alert('Please select office and department first.');
 			}
-
 		}
 
-		$scope.removeOfficeAndDepartment_create = function(index) {
 
-			if ($scope.createGroup.officeAndDepartments && $scope.createGroup.officeAndDepartments.length >= index) {
-				$scope.createGroup.removeOfficeAndDepartment(index, 1);
+
+		$scope.removeOfficeAndDepartment = function(index) {
+
+			var currentGroup = getCurrentGroup();
+
+			if (currentGroup.officeAndDepartments && currentGroup.officeAndDepartments.length >= index) {
+				currentGroup.removeOfficeAndDepartment(index, 1);
 			} else {
 				alert('Something is wrong. Please reset it and start over.');
 			}
 		}
 
-		$scope.addRole_create = function() {
 
-			if ($scope.createGroup.isNullOrEmptyByNewRoleName()) {
+		$scope.addRole = function() {
+
+			var currentGroup = getCurrentGroup();
+
+			if (currentGroup.isNullOrEmpty(currentGroup.newRoleName)) {
 				alert("The role name is null");
 				return;
 			}
 
-			if ($scope.createGroup.hasRoleByNewRoleName()) {
-				alert('The role of \'' + $scope.createGroup.newRoleName + '\' is already existed.');
+			if (currentGroup.HasRole(currentGroup.newRoleName)) {
+				alert('The role of \'' + currentGroup.newRoleName + '\' is already existed.');
 				return;
 			}
 
-			$scope.createGroup.addRole({
-				name: $scope.createGroup.newRoleName,
+			currentGroup.addRole({
+				name: currentGroup.newRoleName,
+				isCheckedDispatch: false,
 				editCurrentGroup: {
 					isEdit: false,
 					isDisabled: false
@@ -782,229 +729,349 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				permission: []
 			});
 
-			$scope.createGroup.newRoleName = "";
+			currentGroup.newRoleName = "";
+
+			if ($scope.currentStatus == "M") {
+				var currentGroup = getCurrentGroup();
+
+				$.each(currentGroup.roles, function(i, v) {
+					if (v.permission && v.permission.length > 0) {
+						return true;
+					} else {
+						v.permission = copyCategoryPermission();
+					}
+
+				});
+			}
+
 		}
 
-		$scope.removeRole_create = function(index) {
+		$scope.removeRole = function(index) {
 
-			if ($scope.createGroup.roles && $scope.createGroup.roles.length >= index) {
-				$scope.createGroup.removeRole(index, 1);
+			var currentGroup = getCurrentGroup();
+
+			if (currentGroup.roles && currentGroup.roles.length >= index) {
+				currentGroup.removeRole(index, 1);
 			} else {
 				alert('Something is wrong. Please reset it and start over.');
 			}
 		}
 
+		$scope.addSubmitUser = function(index) {
+
+			var currentGroup = getCurrentGroup();
+			currentGroup.addSubmitUser(index);
+		}
+
+		$scope.deleteSubmitUser = function(index) {
+			var currentGroup = getCurrentGroup();
+			currentGroup.deleteSubmitUser(index);
+		}
+
+
 		$scope.steps.initialStep();
 
+
+		function initialAllPermission() {
+			async.parallel([
+					function(callback) {
+						fundationService.getAllPermissions(
+							function(data) {
+								$scope.permissionInfo.originPermissions = data;
+								callback(null, data);
+							},
+							function(data, status) {
+								alert('Fail to fetch all permissions.');
+								callback(data, status);
+							},
+							false
+						);
+					},
+					function(callback) {
+						fundationService.getAllPermissionCategories(
+							function(data) {
+								$scope.permissionInfo.originCategories = data;
+								callback(null, data);
+							},
+							function(data, status) {
+								alert('Fail to fetch all categories.');
+								callback(data, status);
+							},
+							false
+						);
+					},
+					function(callback) {
+						$http({
+							method: 'GET',
+							url: '/restfulAPI/permission/OWNPERMISSIONS',
+							cache: false,
+							params: {
+								id: $rootScope.userInfo.userId
+							},
+
+						}).success(function(data, status) {
+							$scope.permissionInfo.ownPermissions = $.map(data, function(v, i) {
+								return v.PermissionId;
+							});
+							callback(null, data);
+						}).error(function(data, status) {
+							alert('Fail to fetch your own permissions.');
+							callback(data, status);
+						});
+					}
+				],
+				function(err, results) {
+					if (err) {
+						alert('Loading data is error. Please pre and then next to this step again.');
+					} else {
+						$scope.permissionInfo.categoringPermission();
+						$scope.selectedRoleIndex = 0;
+						initialSelectedRolePermission();
+					}
+
+					if ($scope.currentStatus == "M") {
+						initialPermission();
+					}
+
+				});
+		}
+
+		function setSubmitGroup(currentGroup) {
+
+			for (var i = currentGroup.officeAndDepartments.length; i--;) {
+
+				currentGroup.submitGroup.departmentGroup.push({
+					officeId: currentGroup.officeAndDepartments[i].office.id,
+					departmentId: currentGroup.officeAndDepartments[i].dept.id
+				});
+
+			}
+
+
+			for (var i = currentGroup.roles.length; i--;) {
+
+				var role = {
+					name: currentGroup.roles[i].name,
+					userIds: [],
+					permissionIds: []
+				}
+
+				if (currentGroup.roles[i].editCurrentGroup.isEdit) {
+					role.permissionIds.push(currentGroup.managerRoleId);
+				}
+
+				for (var j = currentGroup.roles[i].permission.length; j--;) {
+					for (var k = currentGroup.roles[i].permission[j].permissions.length; k--;) {
+						if (currentGroup.roles[i].permission[j].permissions[k].checked) {
+							role.permissionIds.push(currentGroup.roles[i].permission[j].permissions[k].id);
+						}
+					}
+				}
+
+
+				for (var j = currentGroup.submitUsers.length; j--;) {
+					for (var k = currentGroup.submitUsers[j].roles.length; k--;) {
+						if (currentGroup.submitUsers[j].roles[k] === role.name) {
+							role.userIds.push(currentGroup.submitUsers[j].userId);
+						}
+					}
+				}
+
+				currentGroup.submitGroup.roles.push(role);
+			}
+
+
+			for (var i = currentGroup.submitGroup.roles.length; i--;) {
+
+				if (currentGroup.IsIncludeManagerId && typeof(currentGroup.IsIncludeManagerId == "function")) {
+					if (currentGroup.submitGroup.roles[i].name === "Manager" &&
+						!currentGroup.IsIncludeManagerId(currentGroup.submitGroup.roles[i].permissionIds)) {
+						currentGroup.submitGroup.roles[i].permissionIds.push(currentGroup.managerRoleId);
+					}
+				}
+
+				if (currentGroup.IsIncludeOriginUserId && typeof(currentGroup.IsIncludeOriginUserId == "function")) {
+					if (currentGroup.submitGroup.roles[i].name === "Manager" &&
+						!currentGroup.IsIncludeOriginUserId(currentGroup.submitGroup.roles[i].userIds)) {
+						currentGroup.submitGroup.roles[i].userIds.push($rootScope.userInfo.userId);
+					}
+				}
+
+			}
+
+		}
 
 		/*------------------------------------------------------------------------------------------*/
 		/*-----------------------------------------Maintain-----------------------------------------*/
 		/*------------------------------------------------------------------------------------------*/
 
+
+
+		ModifyGroup.prototype = new Group();
+		//$scope.modifyGroup = new ModifyGroup();
+
 		$scope.displayMaintainGroup = {
-			groupList: [{
-				id: 1,
-				name: "Administrator"
-			}, {
-				id: 2,
-				name: "G1"
-			}, {
-				id: 3,
-				name: "G1R1-trzhou"
-			}],
-			currentSelectGroup: {},
-			officeAndDepartment: [],
-			roles: []
-		}
-
-		// $scope.submitModifyGroup = {
-		// 	group: {
-		// 		id: 1,
-		// 		name: ""
-		// 	},
-		// 	officeAndDepartment: {
-		// 		add: [],
-		// 		del: []
-		// 	}
-		// }
-
-		$scope.originModifyData = {
-			group: {},
-			officeAndDepartment: [],
-			roles: []
+			groupList: [],
+			isFirstLoadGroup: true,
+			currentSelectGroup: {}
 		}
 
 
 		function clearData() {
 
 			$scope.displayMaintainGroup.currentSelectGroup = {};
-			$scope.displayMaintainGroup.officeAndDepartment = [];
-			$scope.displayMaintainGroup.roles = [];
 
-			$scope.originModifyData.group = {};
-			$scope.originModifyData.officeAndDepartment = [];
-			$scope.originModifyData.roles = [];
+		}
 
+		function resetGroupSetting() {
+			for (var i = $scope.displayMaintainGroup.groupList.length; i--;) {
+				$scope.displayMaintainGroup.groupList[i].select = false;
+			}
 		}
 
 		$scope.changeSelectGroup = function(group) {
 
-			for (var i = $scope.displayMaintainGroup.groupList.length; i--;) {
-				$scope.displayMaintainGroup.groupList[i].select = false;
-			}
+			if ($scope.displayMaintainGroup.isFirstLoadGroup) {
+				if (group.enable) {
+					resetGroupSetting();
+					clearData();
+					group.select = true;
+					$scope.displayMaintainGroup.isFirstLoadGroup = false;
+					$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
 
-			if (group.enable) {
-
-				clearData();
-
-				group.select = true;
-
-				$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
-				$.extend(true, $scope.originModifyData.group, group);
-
-				$http({
-					method: 'GET',
-					url: '/restfulAPI/permission/GROUPRELATION',
-					cache: false,
-					params: {
-						groupId: group.id
-					}
-				}).success(function(data, status) {
-
-					if (data && data.length > 0) {
-
-						for (var i = data[0].length; i--;) {
-
-							$scope.originModifyData.officeAndDepartment.push({
-								id: data[0][i].id,
-								office: {
-									id: data[0][i].officeId,
-									name: data[0][i].officeName
-								},
-								dept: {
-									id: data[0][i].departmentId,
-									name: data[0][i].departmentName
-								}
-							});
-
-							$scope.displayMaintainGroup.officeAndDepartment.push({
-								id: data[0][i].id,
-								office: {
-									id: data[0][i].officeId,
-									name: data[0][i].officeName
-								},
-								dept: {
-									id: data[0][i].departmentId,
-									name: data[0][i].departmentName
-								}
-							});
-						}
-
-
-						for (var i = data[1].length; i--;) {
-
-							$scope.originModifyData.roles.push({
-								id: data[1][i].roleId,
-								name: data[1][i].roleName
-							});
-
-							$scope.displayMaintainGroup.roles.push({
-								id: data[1][i].roleId,
-								name: data[1][i].roleName
-							});
-						}
-					}
-
-				}).error(function(data, status) {
-					alert(data);
-				});
-
-			} else {
-				$scope.displayMaintainGroup.currentSelectGroup = {};
-				// $scope.submitModifyGroup.group = {};
-			}
-
-		}
-
-		$scope.addDepartment = function() {
-			if ($scope.selectedOffice && $scope.selectedDept && $scope.selectedOffice.id && $scope.selectedDept.id) {
-				var isExisted = false;
-				$.each($scope.displayMaintainGroup.officeAndDepartment, function(i, v) {
-					if (v.office.id == $scope.selectedOffice.id && v.dept.id == $scope.selectedDept.id) {
-						isExisted = true;
-						return false;
-					}
-				});
-
-				if (isExisted) {
-					alert('This department is already selected.');
-					return;
+					$scope.modifyGroup = new ModifyGroup($scope.displayMaintainGroup.currentSelectGroup);
+					getAllRelation($scope.displayMaintainGroup.currentSelectGroup, initialModifyData);
+					initialAllPermission();
 				}
 
-				addDeptData({
-					id: $scope.selectedOffice.id,
-					name: $scope.selectedOffice.name
-				}, {
-					id: $scope.selectedDept.id,
-					name: $scope.selectedDept.name
-				});
-
 			} else {
-				alert("Please select office and department first.");
+
 			}
 		}
 
-		$scope.minusDepartment = function(index) {
-			if ($scope.displayMaintainGroup.officeAndDepartment && $scope.displayMaintainGroup.officeAndDepartment.length >= index) {
-				delDeptData(index);
-			} else {
-				alert('Something is wrong. Please reset it and start over.');
-			}
-		}
+		function initialPermission() {
+			var currentGroup = getCurrentGroup();
 
-		//function/////////////////////////////////////////////////////////////////////
+			$.each(currentGroup.roles, function(roleIndex, v) {
 
-		function addDeptData(office, deparment) {
+				var tempRole = v;
 
-			$scope.displayMaintainGroup.officeAndDepartment.push({
-				office: office,
-				dept: deparment
+				if (v.permission && v.permission.length > 0) {
+					$.each(v.permission, function(categoryIndex, c) {
+						$.each(c.permissions, function(permissionIndex, p) {
+							$.each($scope.modifyGroup.permissions, function(mpIndex, mp) {
+
+								if (mp.roleId == tempRole.id && mp.permissionId == p.id) {
+									p.checked = true;
+									return true;
+								}
+
+							});
+						});
+
+					});
+				}
+
 			});
 
+		}
 
-			// $.extend(true, $scope.submitModifyGroup.officeAndDepartment.add, $scope.displayMaintainGroup.officeAndDepartment);
+		function initialModifyData(data, status) {
 
-			// for (var i = $scope.submitModifyGroup.officeAndDepartment.add.length; i--;) {
-			// 	if ($scope.submitModifyGroup.officeAndDepartment.add[i].id) {
-			// 		$scope.submitModifyGroup.officeAndDepartment.add.splice(i, 1);
-			// 	}
-			// }
+			for (var i = data[0].length; i--;) {
+				$scope.modifyGroup.addOfficeAndDepartment({
+					id: data[0][i].officeId,
+					name: data[0][i].officeName
+				}, {
+					id: data[0][i].departmentId,
+					name: data[0][i].departmentName
+				});
+			}
 
+			for (var i = data[1].length; i--;) {
+
+				$scope.modifyGroup.addRole({
+					id: data[1][i].roleId,
+					name: data[1][i].roleName,
+					isCheckedDispatch: false,
+					editCurrentGroup: {
+						isEdit: false,
+						isDisabled: false
+					},
+					permission: []
+				});
+
+			}
+
+			for (var i = data[2].length; i--;) {
+
+				$scope.modifyGroup.permissions.push(data[2][i]);
+				$scope.modifyGroup.origin.permissions.push(data[2][i]);
+			}
+
+
+			for (var i = data[4].length; i--;) {
+				data[4][i].roles = [];
+				$scope.modifyGroup.submitUsers.push(data[4][i]);
+			}
+
+			for (var i = data[3].length; i--;) {
+				for (var j = $scope.modifyGroup.submitUsers.length; j--;) {
+					if (data[3][i].userId == $scope.modifyGroup.submitUsers[j].userId) {
+						$scope.modifyGroup.submitUsers[j].roles.push(data[3][i].roleName);
+					}
+				}
+			}
+
+
+			$.extend(true, $scope.modifyGroup.group, $scope.displayMaintainGroup.currentSelectGroup);
+			$.extend(true, $scope.modifyGroup.origin.group, $scope.displayMaintainGroup.currentSelectGroup);
+			$.extend(true, $scope.modifyGroup.origin.officeAndDepartments, $scope.modifyGroup.officeAndDepartments);
+			$.extend(true, $scope.modifyGroup.origin.roles, $scope.modifyGroup.roles);
+			$.extend(true, $scope.modifyGroup.origin.submitUsers, $scope.modifyGroup.submitUsers);
+		}
+
+		$scope.submitModifyData = function() {
+
+			var currentGroup = getCurrentGroup();
+
+			currentGroup.submitGroup = {
+				group: currentGroup.group,
+				departmentGroup: [],
+				roles: []
+			}
+
+			setSubmitGroup(currentGroup);
 
 		}
 
 
+		function getAllRelation(group, callback) {
 
-		function delDeptData(index) {
-			var delDept = $scope.displayMaintainGroup.officeAndDepartment[index];
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/permission/GROUPRELATION',
+				cache: false,
+				params: {
+					groupId: group.id,
+					userId: $rootScope.userInfo.userId
+				}
+			}).success(function(data, status) {
 
-			// if (delDept.id) {
-			// 	$scope.submitModifyGroup.officeAndDepartment.del.push(delDept);
-			// }
+				callback(data, status);
 
-			$scope.displayMaintainGroup.officeAndDepartment.splice(index, 1);
+			}).error(function(data, status) {
+				alert(data);
+			});
 		}
 
 
-		// $scope.$watch('displayMaintainGroup.officeAndDepartment.length', function(nV, oV) {
-
-		// 	console.log("nV => ", nV)
-		// 	console.log("oV => ", oV)
-		// });
 
 		$('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
 
 			if (e.currentTarget.outerText === "Maintain") {
+
+				$scope.currentStatus = "M";
 
 				$http({
 					method: 'GET',
@@ -1019,6 +1086,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					alert(data);
 				});
 
+			} else {
+				$scope.currentStatus = "C";
 			}
 
 		});
