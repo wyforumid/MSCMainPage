@@ -88,7 +88,27 @@ angular.module('selfDirectives', [])
 			},
 			restrict: 'A',
 			templateUrl: '/partialviews/permission/permissionTemplate.html',
-
+			link: function(scope, element, attrs) {
+				scope.chekcedAll = function($event) {
+					var checkbox = $event.target,
+						result = checkbox.checked,
+						categoryId = checkbox.id.replace('all_', ''),
+						targetCateogry;
+					for (var i = 0; i < scope.data.length; i++) {
+						if (scope.data[i].categoryId == categoryId) {
+							targetCateogry = scope.data[i];
+							break;
+						}
+					}
+					var targetPermissions = targetCateogry.permissions;
+					for (var k = 0; k < targetPermissions.length; k++) {
+						if (!targetPermissions[k].disabled) {
+							targetPermissions[k].checked = result;
+							scope.changedPermissionCount({permission : targetPermissions[k]});
+						}
+					}
+				}
+			}
 		}
 	})
 	.directive('menu', function() {
