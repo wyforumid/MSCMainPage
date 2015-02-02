@@ -20,7 +20,8 @@ module.exports = function() {
 					} else {
 						if (data && data.length > 0) {
 							var filePath = soRequestAttachFolder + data[0].SaveFilePath.toString();
-							res.download(filePath, data[0].Notes);
+							var extension = filePath.substr(filePath.lastIndexOf('.'));
+							res.download(filePath, data[0].Notes + extension);
 						} else {
 							res.writeHead(200, {
 								"Content-Type": "application/json"

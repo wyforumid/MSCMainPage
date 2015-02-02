@@ -12,22 +12,22 @@ exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
 }
 
-exports.forceDispatch = function(dispatchInfo, callback) {
-	var data = dispatchAssignTable(dispatchInfo);
-	if (data == null) {
-		callback('Dispatch information can\'t by analysed.', null);
-		return;
-	}
+// exports.forceDispatch = function(dispatchInfo, callback) {
+// 	var data = dispatchAssignTable(dispatchInfo);
+// 	if (data == null) {
+// 		callback('Dispatch information can\'t by analysed.', null);
+// 		return;
+// 	}
 
-	var params = [];
-	params.push(new Parameter('Info', mssql.TVP, data));
-	params.push(new Parameter('isDispatch', mssql.Bit, true));
+// 	var params = [];
+// 	params.push(new Parameter('Info', mssql.TVP, data));
+// 	params.push(new Parameter('isDispatch', mssql.Bit, true));
 
-	db.querySP('SP_ForceDispatchAssign', params, callback);
+// 	db.querySP('SP_ForceDispatchAssign', params, callback);
 
-}
+// }
 
-exports.dispatch = function(dispatchInfo, userId, cacheId, callback) {
+exports.batchDispatch = function(dispatchInfo, userId, cacheId, callback) {
 	var data = dispatchAssignTable(dispatchInfo);
 	if (data == null) {
 		callback('Dispatch information can\'t by analysed.', null);
@@ -42,7 +42,7 @@ exports.dispatch = function(dispatchInfo, userId, cacheId, callback) {
 	db.querySP('SP_BatchChangeJobPackageStatus', params, callback);
 }
 
-exports.assign = function(assignInfo, userId, cacheId, callback) {
+exports.batchAssign = function(assignInfo, userId, cacheId, callback) {
 	var data = dispatchAssignTable(assignInfo);
 	if (data == null) {
 		callback('Assign information can\'t by analysed.', null);
@@ -56,21 +56,56 @@ exports.assign = function(assignInfo, userId, cacheId, callback) {
 	db.querySP('SP_BatchChangeJobPackageStatus', params, callback);
 }
 
+exports.soloDispatch = function(dispatchInfo,userId,cacheId,callback){
+	var data = dispatchAssignTable(dispatchInfo);
+	if (data == null) {
+		callback('Dispatch information can\'t by analysed.', null);
+		return;
+	}
+	var params = [];
+	params.push(new Parameter('executorId', mssql.Int, userId));
+	params.push(new Parameter('statusInfo', mssql.TVP, data));
+	params.push(new Parameter('statusType', mssql.Int, 2));
 
-exports.forceAssign = function(assignInfo, callback) {
+	db.querySP('SP_SoloChangeJobPackageStatus', params, callback);
+}
+
+exports.soloAssign = function(assignInfo, userId, cacheId, callback) {
 	var data = dispatchAssignTable(assignInfo);
 	if (data == null) {
 		callback('Assign information can\'t by analysed.', null);
 		return;
 	}
-
 	var params = [];
-	params.push(new Parameter('Info', mssql.TVP, data));
-	params.push(new Parameter('isDispatch', mssql.Bit, false));
+	params.push(new Parameter('executorId', mssql.Int, userId));
+	params.push(new Parameter('statusInfo', mssql.TVP, data));
+	params.push(new Parameter('statusType', mssql.Int, 1));
 
-	db.querySP('SP_ForceDispatchAssign', params, callback);
-
+	db.querySP('SP_SoloChangeJobPackageStatus', params, callback);
 }
+
+exports.unassignSO = function(soRequestId, userId, callback) {
+	var params = [];
+	params.push(new Parameter('executorId', mssql.Int, userId));
+	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
+	db.querySP('SP_SoloUnassignSO', params, callback);
+}
+
+
+// exports.forceAssign = function(assignInfo, callback) {
+// 	var data = dispatchAssignTable(assignInfo);
+// 	if (data == null) {
+// 		callback('Assign information can\'t by analysed.', null);
+// 		return;
+// 	}
+
+// 	var params = [];
+// 	params.push(new Parameter('Info', mssql.TVP, data));
+// 	params.push(new Parameter('isDispatch', mssql.Bit, false));
+
+// 	db.querySP('SP_ForceDispatchAssign', params, callback);
+
+// }
 
 
 
@@ -117,7 +152,7 @@ exports.GetSORequestRelatedBookings = function(soRequestId, callback) {
 // 	db.querySP('SP_SaveSOSupportingFile', params, callback);
 // }
 
-exports.updateJobPackage = function(userId,data, callback) {
+exports.updateJobPackage = function(userId, data, callback) {
 	var params = [];
 
 	params.push(new Parameter('updateType', mssql.Int, data.typeId));
@@ -139,6 +174,18 @@ exports.getAssignableUser = function(userId, callback) {
 	var params = [];
 	params.push(new Parameter('userId', mssql.Int, userId));
 	db.qureyMultipleSP('SP_GetAssignableUser', params, callback);
+}
+
+exports.getAssignedUsers = function(soRequestId, callback) {
+	var params = [];
+	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
+	db.querySP('SP_GetSOAssignedUsers', params, callback);
+}
+
+exports.getDispatchedGroupId = function(soRequestId, callback) {
+	var params = [];
+	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
+	db.querySP('SP_GetSODispatchedGroup', params, callback);
 }
 
 

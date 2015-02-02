@@ -2,10 +2,12 @@ var mssql = require('mssql');
 
 var config = {
 
+
 	user:'developer',
 	password:'SDev@78963',
 	server:'hkhkg-srv-sql03',
 	database:'EfficientStaff2015_Test'
+
 
 }
 

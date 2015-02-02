@@ -82,11 +82,33 @@ module.exports = function() {
 					}
 				});
 			});
+		},
+		GETASSIGNEDUSERS: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.getAssignedUsers(req.query.id, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
+		},
+		GETDISPATCHEDGROUP: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.getDispatchedGroupId(req.query.id, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
 		}
 	}
 
 	this.POST = {
-		FORCEDISPATCH: function(req, res) {
+		FORCEBATCHDISPATCH: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
 				// soAPI.forceDispatch(req.body, function(err, data) {
 				// 	try {
@@ -96,7 +118,7 @@ module.exports = function() {
 				// 	}
 				// });
 				var userInfo = req.getUserInfo();
-				soAPI.dispatch(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
+				soAPI.batchDispatch(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
@@ -105,17 +127,10 @@ module.exports = function() {
 				});
 			});
 		},
-		FORCEASSIGN: function(req, res) {
+		FORCEBATCHASSIGN: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
-				// soAPI.forceAssign(req.body, function(err, data) {
-				// 	try {
-				// 		callback(err, data);
-				// 	} catch (ex) {
-				// 		callback(ex, data);
-				// 	}
-				// })
 				var userInfo = req.getUserInfo();
-				soAPI.assign(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
+				soAPI.batchAssign(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
 					try {
 						callback(err, data);
 					} catch (ex) {
@@ -123,6 +138,42 @@ module.exports = function() {
 					}
 				});
 			})
+		},
+		FORCESOLODISPATCH: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				var userInfo = req.getUserInfo();
+				soAPI.soloDispatch(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			})
+		},
+		FORCESOLOASSIGN: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				var userInfo = req.getUserInfo();
+				soAPI.soloAssign(req.body, userInfo.userId, userInfo.cacheId, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			})
+		},
+		SOLOUNASSIGN: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				var userInfo = req.getUserInfo();
+				soAPI.unassignSO(req.query.id, userInfo.userId, function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(ex, data);
+					}
+				});
+			});
 		},
 		UPLOADWORKFLOWFILE: function(req, res) {
 			var form = func.multiparty();

@@ -93,6 +93,8 @@
 		<div class="margin-botton-div">
 			<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
 			<button class="btn btn-primary" ng-show="hasPermission(4)" ng-click="openWorkFlowDialog();">Add workflow</button>
+			<button class="btn btn-primary" ng-show="hasPermission(2)" ng-click="openAssignUserDialog()">Assign</button>
+			<button class="btn btn-primary" ng-show="hasPermission(3)" ng-click="openDispatchGroupDialog()">Dispatch</button>
 			<!-- data-toggle="modal" data-target="#workflowDialog" -->
 		</div>
 		<!-- <div class="well"> -->
@@ -348,15 +350,6 @@
 						</div>
 					</div>
 					<div>
-						<!-- <div class="form-group">
-							<label class="form-label col-md-2 col-md-offset-1" style="padding-top:7px;">
-								To:
-							</label>
-							<div class="col-md-3">
-								<select class="form-control" ng-model="newWorkFlow.Job" data-ng-options="item.name for item in workFlowBaseInfo.assignedUsers">
-								</select>
-							</div>
-						</div> -->
 						<div class="form-group">
 							<label class="form-label col-md-2 col-md-offset-1">
 								Remark:
@@ -383,28 +376,6 @@
 							</div>
 						</div>
 					</div>
-					<!-- <div ng-show="newWorkFlow.type.id == 5">
-						<div class="form-group">
-							<div class="input-group col-md-6 col-md-offset-2">
-								<span class="input-group-addon">Change Inputter </span>
-								<select class="form-control" ng-model="newWorkFlow.unassignJob" data-ng-options="item.name for item in workFlowBaseInfo.assignedUsers">
-									<option>---Select User---</option>
-								</select>
-								<span class="input-group-btn">
-									<button class="btn btn-primary"> To</button>
-								</span>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="form-label col-md-1 col-md-offset-2">OR</label>
-						</div>
-						<div class="form-group ">
-							<button class="btn btn-primary col-md-2 col-md-offset-2" ng-click="addMoreInputter()">Add new Inputter</button>
-						</div>
-						<div class="form-group ">
-							<button class="btn btn-primary col-md-2 col-md-offset-9" data-dismiss="modal">Close</button>
-						</div>
-					</div> -->
 				</div>
 			</div>
 			<div class="modal-footer">
