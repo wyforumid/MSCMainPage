@@ -2,9 +2,9 @@ var mssql = require('mssql');
 
 var config = {
 
-	user:'test',
-	password:'test',
-	server:'10.150.9.98',
+	user:'developer',
+	password:'SDev@78963',
+	server:'hkhkg-srv-sql03',
 	database:'EfficientStaff2015_Test'
 
 }
