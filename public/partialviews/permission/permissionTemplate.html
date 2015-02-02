@@ -4,7 +4,7 @@
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-target="#cate_collapse{{item.categoryId}}" aria-expanded="true" aria-controls="cate_collapse{{item.categoryId}}">
 					{{item.categoryName}}
-				</a>
+				</a>&nbsp;&nbsp;&nbsp;&nbsp;<label><input type="checkbox" id="all_{{item.categoryId}}" ng-click="chekcedAll($event)" />All</label>
 			</h4>
 		</div>
 		<div id="cate_collapse{{item.categoryId}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="cate_{{item.categoryId}}">
