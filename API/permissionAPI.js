@@ -127,3 +127,107 @@ exports.getGroupRelation = function(groupId, userId, callback) {
 	params.push(new Parameter('userId', mssql.Int, userId));
 	db.qureyMultipleSP('SP_GetRelation', params, callback)
 }
+
+exports.modifyGroup = function(modifyGroup, userId, callback) {
+	
+
+	var deleteOfficeDept = createOfficeDeptTable();
+	var addOfficeDept = createOfficeDeptTable()
+
+	var deleteRoles = createRoleNamesTable();
+	var addRoles = createRoleNamesTable();
+
+	var deleteRolePermission = craeteRolePermissionTable();
+	var addRolePermission = craeteRolePermissionTable();
+
+	var deleteRoleUsers = createGroupRoleTable();
+	var addRoleUsers = createGroupRoleTable();
+
+
+	for (var i = modifyGroup.deleteOfficeAndDepartments.length; i--;) {
+		deleteOfficeDept.rows.add(modifyGroup.deleteOfficeAndDepartments[i].office.id, modifyGroup.deleteOfficeAndDepartments[i].dept.id);
+	}
+
+	for (var i = modifyGroup.addOfficeAndDepartments.length; i--;) {
+		addOfficeDept.rows.add(modifyGroup.addOfficeAndDepartments[i].office.id, modifyGroup.addOfficeAndDepartments[i].dept.id);
+	}
+
+	for (var i = modifyGroup.deleteRoles.length; i--;) {
+		deleteRoles.rows.add(modifyGroup.deleteRoles[i].name);
+	}
+
+	for (var i = modifyGroup.addRoles.length;i--;) {
+		addRoles.rows.add(modifyGroup.addRoles[i].name);
+	}
+
+	for (var i = modifyGroup.deleteRolePermissions.length; i--;) {
+		for (var j = modifyGroup.deleteRolePermissions[i].permissionIds.length; j--;) {
+			deleteRolePermission.rows.add(modifyGroup.deleteRolePermissions[i].name, modifyGroup.deleteRolePermissions[i].permissionIds[j]);
+		}
+	}
+
+	for (var i = modifyGroup.addRolePermissions.length; i--;) {
+		for (var j = modifyGroup.addRolePermissions[i].permissionIds.length; j--;) {
+			addRolePermission.rows.add(modifyGroup.addRolePermissions[i].name, modifyGroup.addRolePermissions[i].permissionIds[j]);
+		}
+	}
+
+	for (var i = modifyGroup.deleteSubmitUsers.length; i--;) {
+		for (var j = modifyGroup.deleteSubmitUsers[i].userIds.length; j--;) {
+			deleteRoleUsers.rows.add(modifyGroup.deleteSubmitUsers[i].name, modifyGroup.deleteSubmitUsers[i].userIds[j]);
+		}
+	}
+
+	for (var i = modifyGroup.addSubmitUser.length; i--;) {
+		for (var j = modifyGroup.addSubmitUser[i].userIds.length; j--;) {
+			addRoleUsers.rows.add(modifyGroup.addSubmitUser[i].name, modifyGroup.addSubmitUser[i].userIds[j]);
+		}
+	}
+
+	var params = [];
+	params.push(new Parameter('userId', mssql.Int, userId));
+	params.push(new Parameter('groupId', mssql.Int, modifyGroup.groupId));
+	params.push(new Parameter('groupName', mssql.NVarChar(60), modifyGroup.groupName));
+
+	params.push(new Parameter('deleteOfficeDept', mssql.TVP, deleteOfficeDept));
+	params.push(new Parameter('addOfficeDept', mssql.TVP, addOfficeDept));
+
+	params.push(new Parameter('deleteRoles', mssql.TVP, deleteRoles));
+	params.push(new Parameter('addRoles', mssql.TVP, addRoles));
+
+	params.push(new Parameter('deleteRolePermissions', mssql.TVP, deleteRolePermission));
+	params.push(new Parameter('addRolePermissions', mssql.TVP, addRolePermission));
+
+	params.push(new Parameter('deleteRoleUsers', mssql.TVP, deleteRoleUsers));
+	params.push(new Parameter('addRoleUsers', mssql.TVP, addRoleUsers));
+	
+	db.querySP('SP_ModifyGroup', params, callback);
+}
+
+function createOfficeDeptTable() {
+	var officeDept = new mssql.Table();
+	officeDept.columns.add('OfficeId', mssql.Int);
+	officeDept.columns.add('DeptId', mssql.Int);
+	return officeDept;
+}
+
+function createRoleNamesTable() {
+	var roleNamesTVP = new mssql.Table();
+	roleNamesTVP.columns.add('RoleName', mssql.NVarChar(60));
+	return roleNamesTVP;
+}
+
+function craeteRolePermissionTable() {
+	var rolePermissionTVP = new mssql.Table();
+	rolePermissionTVP.columns.add('RoleName', mssql.NVarChar(60));
+	rolePermissionTVP.columns.add('PermissionId', mssql.Int);
+	return rolePermissionTVP;
+}
+
+function createGroupRoleTable() {
+	var groupRoleTVP = new mssql.Table();
+	groupRoleTVP.columns.add('RoleName', mssql.NVarChar(60));
+	groupRoleTVP.columns.add('UserId', mssql.Int);
+	return groupRoleTVP;
+}
+

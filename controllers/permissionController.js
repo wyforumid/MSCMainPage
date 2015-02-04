@@ -101,6 +101,15 @@ module.exports = function() {
 						callback(err, data);
 					});
 			});
+		},
+		MODIFYGROUP: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+
+				permissionAPI.modifyGroup(req.body.modifyGroup, req.body.userId, function(err, data) {
+					callback(err, data);
+				});
+
+			});
 		}
 	};
 

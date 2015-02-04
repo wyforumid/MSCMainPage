@@ -205,7 +205,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			// }
 		};
 
-		var ModifyGroup = function(group) {
+		var ModifyGroup = function() {
 
 			this.isChanged = false;
 			this.group = {};
@@ -944,7 +944,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					$scope.displayMaintainGroup.isFirstLoadGroup = false;
 					$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
 
-					$scope.modifyGroup = new ModifyGroup($scope.displayMaintainGroup.currentSelectGroup);
+					$scope.modifyGroup = new ModifyGroup();
 					getAllRelation($scope.displayMaintainGroup.currentSelectGroup, initialModifyData);
 					initialAllPermission();
 				}
@@ -1008,6 +1008,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 			}
 
+
 			for (var i = data[2].length; i--;) {
 
 				$scope.modifyGroup.permissions.push(data[2][i]);
@@ -1036,15 +1037,138 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$.extend(true, $scope.modifyGroup.origin.submitUsers, $scope.modifyGroup.submitUsers);
 		}
 
-		$scope.submitModifyData = function() {
+
+		
+		function arrangeOfficeAndDepartments(originOfficeAndDepartments, compareOfficeAndDepartments) {
+			for (var i = originOfficeAndDepartments.length; i--;) {
+				for (var j = compareOfficeAndDepartments.length; j--;) {
+
+					if (!originOfficeAndDepartments[i] || !compareOfficeAndDepartments[j]) {
+						break;
+					}
+
+					if (originOfficeAndDepartments[i].office.id == compareOfficeAndDepartments[j].office.id &&
+						originOfficeAndDepartments[i].dept.id == compareOfficeAndDepartments[j].dept.id) {
+						originOfficeAndDepartments.splice(i, 1);
+						compareOfficeAndDepartments.splice(j, 1);
+					}
+				}
+			}
+
+			return [ originOfficeAndDepartments, compareOfficeAndDepartments ];
+		}
+
+		function arrangeRoles(origineRoles, compareRoles) {
+			for (var i = origineRoles.length; i--;) {
+				for (var j = compareRoles.length; j--;) {
+					if (!origineRoles[i] || !compareRoles[j]) {
+						break;
+					}
+
+					if (origineRoles[i].name == compareRoles[j].name) {
+						origineRoles.splice(i, 1);
+						compareRoles.splice(j, 1);
+					}
+				}
+			}
+
+			for (var i = origineRoles.length; i--;) {
+				origineRoles[i].permission = [];
+			}
+
+			for (var i = compareRoles.length; i--;) {
+				compareRoles[i].permission = [];
+			}
+
+
+			return [ origineRoles, compareRoles ];
+		}
+
+		function arrangeRolesPermissions() {
+			origineRolesPermissions = getCheckedPermission($scope.modifyGroup.origin.roles);
+			compareRolesPermissions = getCheckedPermission($scope.modifyGroup.roles);
+
+			for (var i = origineRolesPermissions.length; i--;) {
+				for (var j = compareRolesPermissions.length; j--;) {
+					if (origineRolesPermissions[i].name == compareRolesPermissions[j].name) {
+
+						for (var k = origineRolesPermissions[i].permissionIds.length; k--;) {
+							for (var l = compareRolesPermissions[j].permissionIds.length; l--;) {
+
+								if (!origineRolesPermissions[i].permissionIds[k] || !compareRolesPermissions[j].permissionIds[l]) {
+									break;
+								}
+
+								if (origineRolesPermissions[i].permissionIds[k] == compareRolesPermissions[j].permissionIds[l]) {
+									origineRolesPermissions[i].permissionIds.splice(k, 1);
+									compareRolesPermissions[j].permissionIds.splice(l, 1);
+								}
+
+							}
+						}
+					}
+				}
+			}
+
+			return [ origineRolesPermissions, compareRolesPermissions ];
+		}
+
+		function arrangeRolesUserIds(originSubmitUsers, compareSubmitUsers) {
+			var tempOriginUserIds = [], tempCompareUserIds = [];
+
+			for (var i = $scope.modifyGroup.roles.length; i--;) {
+
+				var tempRole = {
+					name: $scope.modifyGroup.roles[i].name,
+					userIds: []
+				}
+
+				tempOriginUserIds.push(tempRole);
+			}
+
+			$.extend(true, tempCompareUserIds, tempOriginUserIds);
+
+			for (var i = tempOriginUserIds.length; i--;) {
+				for (var k = originSubmitUsers.length; k--;) {
+					for (var j = originSubmitUsers[k].roles.length; j--;) {
+						if (originSubmitUsers[k].roles[j] == tempOriginUserIds[i].name) {
+							tempOriginUserIds[i].userIds.push(originSubmitUsers[k].userId);
+						}
+					}
+				}
+			}
+
+			for (var i = tempCompareUserIds.length; i--;) {
+				for (var k = compareSubmitUsers.length; k--;) {
+					for (var j = compareSubmitUsers[k].roles.length; j--;) {
+						if (compareSubmitUsers[k].roles[j] == tempCompareUserIds[i].name) {
+							tempCompareUserIds[i].userIds.push(compareSubmitUsers[k].userId);
+						}
+					}
+				}
+			}
+
+			for (var i = tempOriginUserIds.length; i--;) {
+				for (var j = tempCompareUserIds.length; j--;) {
+					if (tempOriginUserIds[i].name == tempCompareUserIds[j].name) {
+						for (var k = tempOriginUserIds[i].userIds.length; k--;) {
+							for (var l = tempCompareUserIds[j].userIds.length; l--;) {
+								if (tempOriginUserIds[i].userIds[k] == tempCompareUserIds[j].userIds[l]) {
+									tempOriginUserIds[i].userIds.splice(k);
+									tempCompareUserIds[j].userIds.splice(l);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			return [ tempOriginUserIds, tempCompareUserIds ];
+		}
+
+		function setSubmitModifyData() {
 
 			var currentGroup = getCurrentGroup();
-
-			currentGroup.submitGroup = {
-				group: currentGroup.group,
-				departmentGroup: [],
-				roles: []
-			}
 
 			var originOfficeAndDepartments = [],
 				origineRoles = [], 
@@ -1064,84 +1188,75 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$.extend(true, compareRoles, $scope.modifyGroup.roles);
 			$.extend(true, compareSubmitUsers, $scope.modifyGroup.submitUsers);
 
-			for (var i = originOfficeAndDepartments.length; i--;) {
-				for (var j = compareOfficeAndDepartments.length; j--;) {
+			var tempOfficeAndDepartments = arrangeOfficeAndDepartments(originOfficeAndDepartments, compareOfficeAndDepartments);
+			originOfficeAndDepartments = tempOfficeAndDepartments[0];
+			compareOfficeAndDepartments = tempOfficeAndDepartments[1];
 
-					if (!originOfficeAndDepartments[i] || !compareOfficeAndDepartments[j]) {
-						break;
-					}
+			var tempRoles = arrangeRoles(origineRoles, compareRoles);
+			origineRoles = tempRoles[0];
+			compareRoles = tempRoles[1];
 
-					if (originOfficeAndDepartments[i].office.id == compareOfficeAndDepartments[j].office.id &&
-						originOfficeAndDepartments[i].dept.id == compareOfficeAndDepartments[j].dept.id) {
-						originOfficeAndDepartments.splice(i, 1);
-						compareOfficeAndDepartments.splice(j, 1);
-					}
-				}
-			}
+			var tempRolesPermissions = arrangeRolesPermissions();
+			origineRolesPermissions = tempRolesPermissions[0];
+			compareRolesPermissions = tempRolesPermissions[1];
 
-			for (var i = origineRoles.length; i--;) {
-				for (var j = compareRoles.length; j--;) {
-					if (!origineRoles[i] || !compareRoles[j]) {
-						break;
-					}
+			var tempSubmitUsers = arrangeRolesUserIds(originSubmitUsers, compareSubmitUsers);
+			var tempOriginUserIds = [], tempCompareUserIds = [];
+			tempOriginUserIds = tempSubmitUsers[0];
+			tempCompareUserIds = tempSubmitUsers[1];
 
-					if (origineRoles[i].name == compareRoles[j].name) {
-						origineRoles.splice(i, 1);
-						compareRoles.splice(j, 1);
-					}
-				}
-			}
-
-
-			origineRolesPermissions = getCheckedPermission(origineRoles);
-			compareRolesPermissions = getCheckedPermission(compareRoles);
-
-			for (var i = origineRolesPermissions.length; i--;) {
-				
-			}
-
-			// for (var i = Things.length - 1; i >= 0; i--) {
-			// }
-
-
-			var submitData = {
+			$scope.modifyGroup.submitGroup = {
 				groupId: currentGroup.group.id,
 				groupName: currentGroup.group.name,
 				deleteOfficeAndDepartments:[],
 				addOfficeAndDepartments:[],
 				deleteRoles:[],
-				addRoles:[]
+				addRoles:[],
+				deleteRolePermissions:[],
+				addRolePermissions:[],
+				deleteSubmitUsers:[],
+				addSubmitUser:[]
 			}
 
-			for (var i = originOfficeAndDepartments.length; i--;) {
-				submitData.deleteOfficeAndDepartments.push(originOfficeAndDepartments[i]);
-			}
+			$.extend(true, $scope.modifyGroup.submitUsers.groupId, currentGroup.group.id);
+			$.extend(true, $scope.modifyGroup.submitUsers.groupName, currentGroup.group.name);
+			$scope.modifyGroup.submitGroup.deleteOfficeAndDepartments = originOfficeAndDepartments;
+			$scope.modifyGroup.submitGroup.addOfficeAndDepartments = compareOfficeAndDepartments;
+			$scope.modifyGroup.submitGroup.deleteRoles = origineRoles;
+			$scope.modifyGroup.submitGroup.addRoles = compareRoles;
+			$scope.modifyGroup.submitGroup.deleteRolePermissions = origineRolesPermissions;
+			$scope.modifyGroup.submitGroup.addRolePermissions = compareRolesPermissions;
+			$scope.modifyGroup.submitGroup.deleteSubmitUsers = tempOriginUserIds;
+			$scope.modifyGroup.submitGroup.addSubmitUser = tempCompareUserIds;
+		}
 
-			for (var i = compareOfficeAndDepartments.length; i--;) {
-				submitData.addOfficeAndDepartments.push(compareOfficeAndDepartments[i]);
-			}
+		$scope.submitModifyData = function() {
 
-			for (var i = origineRoles.length; i--;) {
-				submitData.deleteRoles.push(origineRoles[i]);
-			}
+			setSubmitModifyData();
 
-			for (var i = origineRoles.length; i--;) {
-				submitData.addRoles.push(compareRoles[i]);
-			}
+			$http({
 
-			// for (var i = origineRoles.length; i--;) {
-			// 	for (var j = compareRoles.length; j--;) {
-			// 		if (origineRoles[i].toUpperCase() == compareRoles[j].toUpperCase()) {
+				method: 'POST',
+				url: '/restfulAPI/permission/MODIFYGROUP',
+				cache: false,
+				data: {
+					userId: $rootScope.userInfo.userId,
+					modifyGroup: $scope.modifyGroup.submitGroup
+				}
 
-			// 		}
-			// 	}
-			// }
+			}).success(function(data, status) {
+				alert(data[0].message);
+				
+			}).error(function(data, status) {
+				alert(data);
+				
+			});
 
 		}
 
 		function getCheckedPermission(roles) {
 
-			var roles = [];
+			var roleList = [];
 
 			for (var i = roles.length; i--;) {
 
@@ -1156,10 +1271,10 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					}
 				}
 
-				roles.push(role);
+				roleList.push(role);
 			}
 
-			return roles;
+			return roleList;
 
 		}
 
