@@ -13,7 +13,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			por: null,
 			pol: null,
 			startDate: moment().format('YYYY-MM-DD'),
-			endDate: moment().add(1,'days').format('YYYY-MM-DD')
+			endDate: moment().add(1, 'days').format('YYYY-MM-DD'),
+			noResult: 'No result.'
 		}
 		$scope.filters = {
 			OriginalType: null,
@@ -239,7 +240,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.searchCondition.por = null;
 			$scope.searchCondition.pol = null;
 			$scope.searchCondition.startDate = moment().format('YYYY-MM-DD');
-			$scope.searchCondition.endDate = moment().add(1,'days').format('YYYY-MM-DD');
+			$scope.searchCondition.endDate = moment().add(1, 'days').format('YYYY-MM-DD');
 		}
 
 		$scope.searchSO = function() {
@@ -248,11 +249,11 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				url: '/restfulAPI/so/SEARCHSO',
 				params: {
 					soId: $scope.searchCondition.bookingId,
-					group: $scope.searchCondition.dispatchedGroup,
-					user: $scope.searchCondition.assignedUser,
-					service: $scope.searchCondition.service,
-					por: $scope.searchCondition.por,
-					pol: $scope.searchCondition.pol,
+					group: $scope.searchCondition.dispatchedGroup == $scope.searchCondition.noResult ? null : $scope.searchCondition.dispatchedGroup,
+					user: $scope.searchCondition.assignedUser == $scope.searchCondition.noResult ? null : $scope.searchCondition.assignedUser,
+					service: $scope.searchCondition.service == $scope.searchCondition.noResult ? null : $scope.searchCondition.service,
+					por: $scope.searchCondition.por == $scope.searchCondition.noResult ? null : $scope.searchCondition.por,
+					pol: $scope.searchCondition.pol == $scope.searchCondition.noResult ? null : $scope.searchCondition.pol,
 					startDate: $scope.searchCondition.startDate,
 					endDate: $scope.searchCondition.endDate
 				},
@@ -1370,8 +1371,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 
 
-		function initialAutoComplete(elementId, url) {
-			$('#'+elementId).autocomplete({
+		function initialAutoComplete(elementId, url, propertyName) {
+			$('#' + elementId).autocomplete({
 				source: function(request, response) {
 					$http({
 						method: 'GET',
@@ -1385,23 +1386,31 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 						angular.forEach(data, function(v, i) {
 							values.push(v.Name);
 						})
-						if(values && values.length > 0){
-							response(values);	
-						}else{
-							response(['No result.']);
+						if (values && values.length > 0) {
+							response(values);
+						} else {
+							response([$scope.searchCondition.noResult]);
 						}
 					}).error(function(data, status) {
-						response(['No result.']);
+						response([$scope.searchCondition.noResult]);
 					});
+				},
+				select: function(event, ui) {
+					if (ui.item.label == $scope.searchCondition.noResult) {
+						$scope.searchCondition[propertyName] = null;
+					} else {
+						$scope.searchCondition[propertyName] = ui.item.label;
+					}
+
 				}
 			});
 		}
 
-		initialAutoComplete('inputSearchService','/restfulAPI/foundation/AUTOCOMPLETESERVICE');
-		initialAutoComplete('inputSearchGroup','/restfulAPI/foundation/AUTOCOMPLETEGROUP');
-		initialAutoComplete('inputSearchUser','/restfulAPI/foundation/AUTOCOMPLETEUSER');
-		initialAutoComplete('inputSearchPOR','/restfulAPI/foundation/AUTOCOMPLETEPOR');
-		initialAutoComplete('inputSearchPOL','/restfulAPI/foundation/AUTOCOMPLETEPOL');
+		initialAutoComplete('inputSearchService', '/restfulAPI/foundation/AUTOCOMPLETESERVICE', 'service');
+		initialAutoComplete('inputSearchGroup', '/restfulAPI/foundation/AUTOCOMPLETEGROUP', 'dispatchedGroup');
+		initialAutoComplete('inputSearchUser', '/restfulAPI/foundation/AUTOCOMPLETEUSER', 'assignedUser');
+		initialAutoComplete('inputSearchPOR', '/restfulAPI/foundation/AUTOCOMPLETEPOR', 'por');
+		initialAutoComplete('inputSearchPOL', '/restfulAPI/foundation/AUTOCOMPLETEPOL', 'pol');
 
 
 	})
