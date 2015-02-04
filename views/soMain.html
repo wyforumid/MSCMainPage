@@ -8,16 +8,18 @@
 		<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
 		<link rel="stylesheet" type="text/css" href="/stylesheets/ng-grid.css">
 		<link rel="stylesheet" type="text/css" href="/stylesheets/angular-toggle-switch-bootstrap-3.css">
+		<link rel="stylesheet" type="text/css" href="/stylesheets/datetimepicker.css">
+		<link rel="stylesheet" type="text/css" href="/stylesheets/jquery-ui.css">
 	</head>
 	<body style="padding-top: 70px; background: #e7e8eb;">
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation" data-ng-controller="navCtrl">
 			<ul class="nav navbar-nav">
 				<li><a href="/">Main</a></li>
 				<li class="dropdown">
-					<a href="" class="dropdown-toggle" data-toggle="dropdown">Function<span  class="caret"></span></a>
+					<a href="" class="dropdown-toggle" data-toggle="dropdown" ng-show="hasPermission([2,3,4,5])">Function<span  class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-							<a href="/SO#/main">SO</a>
+							<a href="/SO#/main" ng-show="hasPermission([2,3,4,5])">SO</a>
 						</li>
 						<li ng-repeat="item in userInfo.menu">
 							<a ng-href="#{{item}}" >{{item}}</a>
@@ -26,11 +28,11 @@
 				</li>
 				<li><a href="#setPermission"></a></li>
 				<li class="dropdown">
-					<a href="" class="dropdown-toggle" data-toggle="dropdown">Permission System<span  class="caret"></span></a>
+					<a href="" class="dropdown-toggle" data-toggle="dropdown" ng-show="hasPermission([6,7,8])">Permission System<span  class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-							<a href="/main#/Permission/Group" >Group</a>
-							<a href="/main#/Permission/ModifyPermission">Permission</a>
+							<a href="/main#/Permission/Group" ng-show="hasPermission([6,7])" >Group</a>
+							<a href="/main#/Permission/ModifyPermission" ng-show="hasPermission([8])">Permission</a>
 						</li>
 					</ul>
 				</li>
@@ -62,6 +64,9 @@
 		<script type="text/javascript" src="/javascripts/jquery.cookie.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery-dateFormat.min.js"></script>
 		<script type="text/javascript" src="/javascripts/calendar.js"></script>
+		<script type="text/javascript" src="/javascripts/moment.min.js"></script>
+		<script type="text/javascript" src="/javascripts/datetimepicker_modify.js"></script>
+		<script type="text/javascript" src="/javascripts/jquery-ui.js"></script>
 		<script type="text/javascript">
 			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch', 'angularFileUpload'])
 				.config(['$routeProvider', function($routeProvider) {
@@ -104,17 +109,31 @@
 				}])
 				.controller('navCtrl', function($scope, $rootScope) {
 					$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
-					$rootScope.hasPermission = function(permissionId) {
+					$rootScope.hasPermission = function(permissionIds) {
 						if (!$rootScope.userInfo) {
 							$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
 						}
-
-						if ($rootScope.userInfo && $rootScope.userInfo.permissions.indexOf(permissionId) != -1) {
-							return true;
-						} else {
+						if(!$rootScope.userInfo || !$rootScope.userInfo.permissions ||$rootScope.userInfo.permissions.length == 0){
 							return false;
 						}
+						var owned = $rootScope.userInfo.permissions;
 
+						if(owned.indexOf(1) != -1){
+							return true;
+						}
+						var result = false;
+						if(permissionIds && angular.isArray(permissionIds) && permissionIds.length > 0){
+							$.each(permissionIds,function(i,v){
+								if(owned.indexOf(v) != -1){
+									result = true;
+									return false;
+								}
+							});
+							return result;
+						}
+						else{
+							return false;
+						}
 					}
 				})
 </script>

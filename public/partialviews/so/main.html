@@ -38,6 +38,21 @@
 				</select>
 			</div>
 			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.Vessel" ng-options="item for item in analyseResult.Vessel">
+					<option value="">---Vessel---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.Voyage" ng-options="item for item in analyseResult.Voyage">
+					<option value="">---Voyage---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<select class="form-control" ng-model="filters.POR" ng-options="item for item in analyseResult.POR">
+					<option value="">---POR---</option>
+				</select>
+			</div>
+			<div class="col-md-12 margin-botton-div">
 				<select class="form-control" ng-model="filters.POL" ng-options="item for item in analyseResult.POL">
 					<option value="">---POL---</option>
 				</select>
@@ -55,33 +70,48 @@
 		</div>
 		<div class="row" id="searchZone" ng-hide="isFilterZone">
 			<div class="col-md-12 margin-botton-div">
-				<select class="form-control">
-					<option value="">---Status---</option>
-				</select>
+				<input type="text" class="form-control" ng-model="searchCondition.bookingId" placeholder="Enter Id" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
-				<input type="text" class="form-control" placeholder="Enter Id" />
+				<input type="text" id="inputSearchGroup" class="form-control" ng-model="searchCondition.dispatchedGroup" placeholder="Enter Dispatched Group" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
-				<input type="text" class="form-control" placeholder="Enter Executee" />
+				<input type="text" id="inputSearchUser" class="form-control" ng-model="searchCondition.assignedUser" placeholder="Enter Assigned User" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
-				<input type="text" class="form-control" placeholder="Enter Service" />
+				<input type="text" id="inputSearchService" class="form-control" ng-model="searchCondition.service" placeholder="Enter Service" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
-				<input type="text" class="form-control" placeholder="Enter POL" />
+				<input type="text" id="inputSearchPOR" class="form-control" ng-model="searchCondition.por" placeholder="Enter POR" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
-				<select class="form-control">
-					<option value="">---IsPreAssign---</option>
-				</select>
+				<input type="text" id="inputSearchPOL" class="form-control" ng-model="searchCondition.pol" placeholder="Enter POL" />
 			</div>
-
+			<div class="col-md-12 margin-botton-div dropdown">
+				<a class="dropdown-toggle" id="startDate" role="button" data-toggle="dropdown" data-target="#">
+					<div class="input-group">
+						<input type="text" class="form-control" ng-model="searchCondition.startDate" placeholder="Enter Start Date"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+					</div>
+				</a>
+				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+					<datetimepicker ng-model="searchCondition.startDate" data-datetimepicker-config="{dropdownSelector:'#startDate', startView:'day', minView:'day',dateFormat:'YYYY-MM-DD'}" />
+				</ul>
+			</div>
+			<div class="col-md-12 margin-botton-div dropdown">
+				<a class="dropdown-toggle" id="endDate" role="button" data-toggle="dropdown" data-target="#">
+					<div class="input-group">
+						<input type="text" class="form-control" ng-model="searchCondition.endDate" placeholder="Enter End Date"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar" ></i></span>
+					</div>
+				</a>
+				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+					<datetimepicker ng-model="searchCondition.endDate" data-datetimepicker-config="{dropdownSelector:'#endDate', startView:'day', minView:'day',dateFormat:'YYYY-MM-DD'}" />
+				</ul>
+			</div>
 			<div class="col-md-6">
-				<button class="btn btn-primary">Search</button>	
+				<button class="btn btn-primary" ng-click="searchSO()">Search</button>	
 			</div>
 			<div class="col-md-6">
-				<button class="btn btn-primary">Reset</button>	
+				<button class="btn btn-primary" ng-click="resetSearchCondition()">Reset</button>	
 			</div>
 		</div>
 	</div>
@@ -95,9 +125,7 @@
 			<button class="btn btn-primary" ng-show="hasPermission(4)" ng-click="openWorkFlowDialog();">Add workflow</button>
 			<button class="btn btn-primary" ng-show="hasPermission(2)" ng-click="openAssignUserDialog()">Assign</button>
 			<button class="btn btn-primary" ng-show="hasPermission(3)" ng-click="openDispatchGroupDialog()">Dispatch</button>
-			<!-- data-toggle="modal" data-target="#workflowDialog" -->
 		</div>
-		<!-- <div class="well"> -->
 		<div>
 			<ul class="nav nav-tabs" role="tablist" id="detailTab">
 				<li role="presentation" class="active">
@@ -248,7 +276,7 @@
 							<span class="badge btn-success">xx</span> : Finished SO request count today.
 						</h6>
 						<h6>
-							<span class="badge btn-info">xx</span> : Dispatch SO request count to this group today.
+							<span class="badge btn-info">xx</span> : Dispatched SO request count to this group today.
 						</h6>
 						<a ng-click="hideDispatchTips()">hide tips</a>
 					</div>
@@ -298,7 +326,7 @@
 							<span class="badge btn-success">xx</span> : Finished SO request count today.
 						</h6>
 						<h6>
-							<span class="badge btn-info">xx</span> : Dispatch SO request count to this colleague today.
+							<span class="badge btn-info">xx</span> : Assigned SO request count to this colleague today.
 						</h6>
 						<a ng-click="hideAssignTips()">hide tips</a>
 					</div>

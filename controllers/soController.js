@@ -26,6 +26,27 @@ module.exports = function() {
 
 			});
 		},
+		SEARCHSO:function(req,res){
+			func.getData(req,res,function(cb){
+				soAPI.searchSO(
+					req.query.soId,
+					req.query.group,
+					req.query.user,
+					req.query.service,
+					req.query.por,
+					req.query.pol,
+					req.query.startDate,
+					req.query.endDate,
+					function(err,data){
+						try{
+							cb(err,data);
+						}
+						catch(ex){
+							cb(ex,data);
+						}
+					});
+			});
+		},
 		GETSOWORKFLOW: function(req, res) {
 			func.jsonResponse(req, res, function(callback) {
 				soAPI.GetSOWorkflow(req.query.id, function(err, data) {
