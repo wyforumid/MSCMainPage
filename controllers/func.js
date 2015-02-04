@@ -74,11 +74,21 @@ exports.moveFileToTargetFolder = function(requestInfo, cb) {
 	createEssentialFolder(function(err) {
 		if (err) cb(err, null);
 		requestInfo.filePath = soRequestAttachFolder + getMiddleFolderPath() + renameFileName(requestInfo.fileName);
-		fs.rename(requestInfo.fileTempPath, requestInfo.filePath, function(err) {
-			if (err) cb(err, null);
-			requestInfo.filePath = requestInfo.filePath.replace(soRequestAttachFolder, '');
-			cb(null, requestInfo);
-		});
+
+		var is = fs.createReadStream(requestInfo.fileTempPath);
+		var os = fs.createWriteStream(requestInfo.filePath);
+		is.pipe(os);
+		is.on('end', function() {
+			fs.unlink(requestInfo.fileTempPath, function(err) {
+				if (err) {
+					cb(err, null);
+				} else {
+					requestInfo.filePath = requestInfo.filePath.replace(soRequestAttachFolder, '');
+					cb(null, requestInfo);
+				}
+			})
+
+		})
 	});
 
 }

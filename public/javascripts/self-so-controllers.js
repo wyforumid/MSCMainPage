@@ -1,15 +1,28 @@
-angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFileUpload'])
+angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFileUpload', 'ui.bootstrap.datetimepicker'])
 	.controller('SOCtrl', function($scope, $http, $upload, $rootScope) {
-		$scope.searchingResult = [];
+		$scope.mainResult = [];
+		//$scope.searchResult = [];
 		$scope.filterResult = [];
 		$scope.analyseResult = {};
 		$scope.currentSORequest = {};
-		// $scope.searchCondition = {BookingNo:[]};
+		$scope.searchCondition = {
+			bookingId: null,
+			dispatchedGroup: null,
+			assignedUser: null,
+			service: null,
+			por: null,
+			pol: null,
+			startDate: moment().format('YYYY-MM-DD'),
+			endDate: moment().add(1,'days').format('YYYY-MM-DD')
+		}
 		$scope.filters = {
 			OriginalType: null,
 			StatusName: null,
 			ExecuteeName: null,
 			Service: null,
+			Vessel: null,
+			Voyage: null,
+			POR: null,
 			POL: null,
 			IsPreAssign: null
 		};
@@ -20,19 +33,31 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.detailDivClass = false;
 		$scope.canDispatchedGroup = [];
 		$scope.canAssignedUser = [];
-		$scope.pageModal = 1; //1 for main display 2 for search display. for now only auto refresh on main display modal.
+		//$scope.pageModal = $scope.isFilterZone ? 1 : 2; //1 for main display 2 for search display. for now only auto refresh on main display modal.
 		$scope.refreshResult = [];
 		$scope.refreshCurrentSORequest = {};
 		$scope.isUpdatedInRefresh = false;
 
-		$scope.$watch('pageModal', function(nV, oV) {
-			if (nV == 1) {
+		// $scope.$watch('pageModal', function(nV, oV) {
+		// 	if (nV == 1) {
+		// 		setTimeout(mainRefresh, 10000);
+		// 	}
+		// });
+		$scope.$watch('isFilterZone', function(nV, oV) {
+			if (nV == true) {
+				copySearchingResultToFilterResult();
+				analyseSearchingResult();
 				setTimeout(mainRefresh, 10000);
+			} else {
+				$scope.filterResult = [];
 			}
 		});
 
 		function mainRefresh() {
-			if ($scope.pageModal == 2) {
+			// if ($scope.pageModal == 2) {
+			// 	return;
+			// }
+			if (!$scope.isFilterZone) {
 				return;
 			}
 			async.parallel([
@@ -68,13 +93,15 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 								callback(err, null);
 							})
 					}
-
 				}
 			], function(err, results) {
 				if (err) {
 					return;
 				}
-				if ($scope.pageModal == 2) {
+				// if ($scope.pageModal == 2) {
+				// 	return;
+				// }
+				if (!$scope.isFilterZone) {
 					return;
 				}
 				compareRefreshSO(results[0]);
@@ -83,22 +110,22 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					compareRefreshCurrentSO(results[1]);
 				}
 
-				if ($scope.pageModal == 1) {
+				// if ($scope.pageModal == 1) {
+				// 	setTimeout(mainRefresh, 10000);
+				// }
+				if ($scope.isFilterZone) {
 					setTimeout(mainRefresh, 10000);
 				}
 
 			});
-
-
-
 		}
 
 		function compareRefreshSO(refreshData) {
 			var existed = false;
 			for (var i = refreshData.length; i--;) {
 				existed = false;
-				for (var k = $scope.searchingResult.length; k--;) {
-					if (refreshData[i].SORequestId == $scope.searchingResult[k].SORequestId) {
+				for (var k = $scope.mainResult.length; k--;) {
+					if (refreshData[i].SORequestId == $scope.mainResult[k].SORequestId) {
 						existed = true;
 						break;
 					}
@@ -134,8 +161,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.refreshDataUpdate = function() {
 			//remove update flag setted last time
-			for (var i = $scope.searchingResult.length; i--;) {
-				$scope.searchingResult[i].isUpdateOne = false;
+			for (var i = $scope.mainResult.length; i--;) {
+				$scope.mainResult[i].isUpdateOne = false;
 			}
 
 			if ($scope.currentSORequest.workflow && $scope.currentSORequest.workflow.length > 0) {
@@ -149,7 +176,11 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			//add update data
 			for (var i = $scope.refreshResult.length; i--;) {
 				if ($scope.refreshResult[i].isUpdateOne) {
-					$scope.searchingResult.push(angular.copy($scope.refreshResult[i]));
+					if ($scope.refreshResult[i].ReceivedTime) {
+						$scope.refreshResult[i].ReceivedTime = $.format.date($scope.refreshResult[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+					}
+
+					$scope.mainResult.push(angular.copy($scope.refreshResult[i]));
 				}
 			}
 			if ($scope.refreshCurrentSORequest) {
@@ -174,7 +205,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.$watch('isFilterZone', function(nV, oV) {
 			if (!nV) {
-				if (!$rootScope.hasPermission(5)) {
+				if (!$rootScope.hasPermission([5])) {
 					alert('You have no right to search.');
 					$scope.isFilterZone = true;
 				}
@@ -199,6 +230,55 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 			},
 			true);
+
+		$scope.resetSearchCondition = function() {
+			$scope.searchCondition.bookingId = null;
+			$scope.searchCondition.dispatchedGroup = null;
+			$scope.searchCondition.assignedUser = null;
+			$scope.searchCondition.service = null;
+			$scope.searchCondition.por = null;
+			$scope.searchCondition.pol = null;
+			$scope.searchCondition.startDate = moment().format('YYYY-MM-DD');
+			$scope.searchCondition.endDate = moment().add(1,'days').format('YYYY-MM-DD');
+		}
+
+		$scope.searchSO = function() {
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/SEARCHSO',
+				params: {
+					soId: $scope.searchCondition.bookingId,
+					group: $scope.searchCondition.dispatchedGroup,
+					user: $scope.searchCondition.assignedUser,
+					service: $scope.searchCondition.service,
+					por: $scope.searchCondition.por,
+					pol: $scope.searchCondition.pol,
+					startDate: $scope.searchCondition.startDate,
+					endDate: $scope.searchCondition.endDate
+				},
+				cache: false
+			}).success(function(data, status) {
+				if (data && angular.isArray(data)) {
+					if (data.length == 0) {
+						alert('No result.');
+						return;
+					}
+					for (var i = data.length; i--;) {
+						if (!data[i]) {
+							data[i] = {};
+						}
+						if (data[i].ReceivedTime) {
+							data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+						}
+
+						data[i].isUpdateOne = false;
+					}
+					$scope.filterResult = data;
+				}
+			}).error(function(data, status) {
+				alert('Fitch SO request error.' + status + data);
+			});
+		}
 
 		$scope.showStatus = function(item) {
 			if (item.JobStatusName) {
@@ -271,7 +351,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		function copySearchingResultToFilterResult() {
 			$scope.filterResult = [];
-			$.each($scope.searchingResult, function(i, v) {
+			$.each($scope.mainResult, function(i, v) {
 				var data = angular.extend(v);
 				data.checkingDetails = false;
 				$scope.filterResult.push(data);
@@ -301,7 +381,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				clearAnalyseResult();
 				return;
 			}
-			clearAnalyseResult($scope.searchingResult[0]);
+			clearAnalyseResult($scope.mainResult[0]);
 
 			var analyseData = $scope.analyseResult;
 
@@ -348,6 +428,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					ExecuteeObj: {},
 					Service: [],
 					ServiceObj: {},
+					Vessel: [],
+					VesselObj: {},
+					Voyage: [],
+					VoyageObj: {},
+					POR: [],
+					PORObj: {},
 					POL: [],
 					POLObj: {},
 					IsPreAssign: [],
@@ -367,10 +453,13 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 						if (!data[i]) {
 							data[i] = {};
 						}
+						if (data[i].ReceivedTime) {
+							data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+						}
 
 						data[i].isUpdateOne = false;
 					}
-					$scope.searchingResult = data;
+					$scope.mainResult = data;
 					copySearchingResultToFilterResult();
 					analyseSearchingResult();
 				} else {
@@ -410,6 +499,18 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				displayName: 'Service',
 				width: 160
 			}, {
+				field: 'Vessel',
+				displayName: 'Vessel',
+				width: 160
+			}, {
+				field: 'Voyage',
+				displayName: 'Voyage',
+				width: 160
+			}, {
+				field: 'POR',
+				displayName: 'POR',
+				width: 160
+			}, {
 				field: 'POL',
 				displayName: 'POL',
 				width: 160
@@ -417,6 +518,10 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				field: 'IsPreAssign',
 				displayName: 'Is Pre Assign',
 				width: 100
+			}, {
+				field: 'ReceivedTime',
+				displayName: 'Received Time',
+				width: 150
 			}];
 		}
 
@@ -487,16 +592,33 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		});
 
 		$scope.canExecute = function(data) {
+
+
 			switch (data.StatusName) {
 				case 'Enter':
 				case 'Synchronizing':
-				case 'AutoDispatched':
 				case 'AutoAssigned':
-				case 'ForceDispatch':
 				case 'ForceAssign':
 				case 'Finished':
 					return false;
+				case 'Synchronized':
+				case 'Undispatch':
+				case 'Cancelled':
+				case 'Confirmed':
+					if ($rootScope.hasPermission([3])) {
+						return true;
+					} else {
+						return false;
+					}
+				case 'AutoDispatched':
+				case 'ForceDispatch':
+					if ($rootScope.hasPermission([3, 2])) {
+						return true;
+					} else {
+						return false;
+					}
 				default:
+
 					return true;
 			}
 		}
@@ -810,8 +932,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			var existedGroup = null;
 			$.each($scope.siGrid.$gridScope.selectedItems, function(i, v) {
 				if (!i) {
-					if(v.ExecuteeTypeId != 2002){
-						isInSameGroup=false;
+					if (v.ExecuteeTypeId != 2002) {
+						isInSameGroup = false;
 						return false;
 					}
 					existedGroup = v.Executee;
@@ -858,9 +980,9 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		function updatehSOWithForceDispatchAssign(data) {
 			if (data && data.length > 0) {
 				for (var i = data.length; i--;) {
-					for (var k = $scope.searchingResult.length; k--;) {
-						if ($scope.searchingResult[k].SORequestId == data[i].SORequestId) {
-							$scope.searchingResult[k] = data[i];
+					for (var k = $scope.mainResult.length; k--;) {
+						if ($scope.mainResult[k].SORequestId == data[i].SORequestId) {
+							$scope.mainResult[k] = data[i];
 						}
 					}
 				}
@@ -1130,6 +1252,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$scope.uploader.attachment = null;
 			$scope.uploader.progressbar = 0;
 			$scope.uploader.percentage = null;
+			$scope.newWorkFlow.remark = null;
 			prepareWorkFlowBaseInfo();
 			$('#workflowDialog').modal('show');
 		}
@@ -1141,6 +1264,7 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
 						if (err) {
 							alert('Fail to fetch work flow.' + err);
+							$scope.uploader.progressbar = 0;
 						} else {
 							for (var i = result.length; i--;) {
 								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
@@ -1243,5 +1367,41 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			$('#assignTipDiv').hide();
 			$('#assignShowTipId').show();
 		}
+
+
+
+		function initialAutoComplete(elementId, url) {
+			$('#'+elementId).autocomplete({
+				source: function(request, response) {
+					$http({
+						method: 'GET',
+						url: url,
+						params: {
+							key: request.term
+						},
+						cache: false
+					}).success(function(data, status) {
+						var values = [];
+						angular.forEach(data, function(v, i) {
+							values.push(v.Name);
+						})
+						if(values && values.length > 0){
+							response(values);	
+						}else{
+							response(['No result.']);
+						}
+					}).error(function(data, status) {
+						response(['No result.']);
+					});
+				}
+			});
+		}
+
+		initialAutoComplete('inputSearchService','/restfulAPI/foundation/AUTOCOMPLETESERVICE');
+		initialAutoComplete('inputSearchGroup','/restfulAPI/foundation/AUTOCOMPLETEGROUP');
+		initialAutoComplete('inputSearchUser','/restfulAPI/foundation/AUTOCOMPLETEUSER');
+		initialAutoComplete('inputSearchPOR','/restfulAPI/foundation/AUTOCOMPLETEPOR');
+		initialAutoComplete('inputSearchPOL','/restfulAPI/foundation/AUTOCOMPLETEPOL');
+
 
 	})

@@ -12,20 +12,31 @@ exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
 }
 
-// exports.forceDispatch = function(dispatchInfo, callback) {
-// 	var data = dispatchAssignTable(dispatchInfo);
-// 	if (data == null) {
-// 		callback('Dispatch information can\'t by analysed.', null);
-// 		return;
-// 	}
+exports.searchSO = function(soId, groupName, assignedUserName, service, por, pol, startDate, endDate, callback) {
+	var params = [];
+	var soId = parseInt(soId);
+	if(!_.isNumber(soId)){
+		soId = null;
+	}
+	params.push(new Parameter('soId', mssql.Int, soId));
+	params.push(new Parameter('dispathedGroupName', mssql.VarChar(60), groupName));
+	params.push(new Parameter('assignedUserName', mssql.VarChar(60), assignedUserName));
+	params.push(new Parameter('service', mssql.VarChar(60), service));
+	params.push(new Parameter('por', mssql.VarChar(100), pol));
+	params.push(new Parameter('pol', mssql.VarChar(35), pol));
+	if(startDate){
+		params.push(new Parameter('startTime', mssql.DateTime, new Date(startDate)));
+	}else{
+		params.push(new Parameter('startTime', mssql.DateTime, null));
+	}
+	if(endDate){
+		params.push(new Parameter('endTime', mssql.DateTime, new Date(endDate)));
+	}else{
+		params.push(new Parameter('endTime', mssql.DateTime, null));
+	}
+	db.querySP('SP_SearchSO', params, callback);
+}
 
-// 	var params = [];
-// 	params.push(new Parameter('Info', mssql.TVP, data));
-// 	params.push(new Parameter('isDispatch', mssql.Bit, true));
-
-// 	db.querySP('SP_ForceDispatchAssign', params, callback);
-
-// }
 
 exports.batchDispatch = function(dispatchInfo, userId, cacheId, callback) {
 	var data = dispatchAssignTable(dispatchInfo);
@@ -56,7 +67,7 @@ exports.batchAssign = function(assignInfo, userId, cacheId, callback) {
 	db.querySP('SP_BatchChangeJobPackageStatus', params, callback);
 }
 
-exports.soloDispatch = function(dispatchInfo,userId,cacheId,callback){
+exports.soloDispatch = function(dispatchInfo, userId, cacheId, callback) {
 	var data = dispatchAssignTable(dispatchInfo);
 	if (data == null) {
 		callback('Dispatch information can\'t by analysed.', null);
@@ -90,24 +101,6 @@ exports.unassignSO = function(soRequestId, userId, callback) {
 	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
 	db.querySP('SP_SoloUnassignSO', params, callback);
 }
-
-
-// exports.forceAssign = function(assignInfo, callback) {
-// 	var data = dispatchAssignTable(assignInfo);
-// 	if (data == null) {
-// 		callback('Assign information can\'t by analysed.', null);
-// 		return;
-// 	}
-
-// 	var params = [];
-// 	params.push(new Parameter('Info', mssql.TVP, data));
-// 	params.push(new Parameter('isDispatch', mssql.Bit, false));
-
-// 	db.querySP('SP_ForceDispatchAssign', params, callback);
-
-// }
-
-
 
 exports.GetSOWorkflow = function(soRequestId, callback) {
 	var id = parseInt(soRequestId);
@@ -145,13 +138,6 @@ exports.GetSORequestRelatedBookings = function(soRequestId, callback) {
 	db.querySP('SP_GetSORequestRelatedBookings', params, callback);
 }
 
-// exports.insertAttachmentToDB = function(relativeFilePath, callback) {
-// 	var params = [];
-// 	params.push(new Parameter('relativeFilePath', mssql.NVarChar(500), relativeFilePath));
-// 	params.push(new Parameter('note', mssql.VarChar(500), 'update'));
-// 	db.querySP('SP_SaveSOSupportingFile', params, callback);
-// }
-
 exports.updateJobPackage = function(userId, data, callback) {
 	var params = [];
 
@@ -187,7 +173,6 @@ exports.getDispatchedGroupId = function(soRequestId, callback) {
 	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
 	db.querySP('SP_GetSODispatchedGroup', params, callback);
 }
-
 
 function dispatchAssignTable(data) {
 	if (data && data.length > 0) {
