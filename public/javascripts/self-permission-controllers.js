@@ -495,22 +495,22 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						$scope.steps.isSubmitting = true;
 
 
-						// $http({
+						$http({
 
-						// 	method: 'POST',
-						// 	url: '/restfulAPI/permission/ADDGROUP',
-						// 	cache: false,
-						// 	data: {
-						// 		newGroup: $scope.createGroup.submitGroup
-						// 	}
+							method: 'POST',
+							url: '/restfulAPI/permission/ADDGROUP',
+							cache: false,
+							data: {
+								newGroup: $scope.createGroup.submitGroup
+							}
 
-						// }).success(function(data, status) {
-						// 	alert(data[0].message);
-						// 	$scope.steps.isSubmitting = false;
-						// }).error(function(data, status) {
-						// 	alert(data);
-						// 	$scope.steps.isSubmitting = false;
-						// });
+						}).success(function(data, status) {
+							alert(data[0].message);
+							$scope.steps.isSubmitting = false;
+						}).error(function(data, status) {
+							alert(data);
+							$scope.steps.isSubmitting = false;
+						});
 					}
 
 
@@ -831,6 +831,11 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 					if ($scope.currentStatus == "M") {
 						initialPermission();
+						$.extend(true, $scope.modifyGroup.group, $scope.displayMaintainGroup.currentSelectGroup);
+						$.extend(true, $scope.modifyGroup.origin.group, $scope.displayMaintainGroup.currentSelectGroup);
+						$.extend(true, $scope.modifyGroup.origin.officeAndDepartments, $scope.modifyGroup.officeAndDepartments);
+						$.extend(true, $scope.modifyGroup.origin.roles, $scope.modifyGroup.roles);
+						$.extend(true, $scope.modifyGroup.origin.submitUsers, $scope.modifyGroup.submitUsers);
 					}
 
 				});
@@ -1041,7 +1046,120 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				roles: []
 			}
 
-			setSubmitGroup(currentGroup);
+			var originOfficeAndDepartments = [],
+				origineRoles = [], 
+				origineRolesPermissions = [],
+				originSubmitUsers = [];
+
+			var compareOfficeAndDepartments = [],
+				compareRoles = [], 
+				compareRolesPermissions = [],
+				compareSubmitUsers = [];
+
+			$.extend(true, originOfficeAndDepartments, $scope.modifyGroup.origin.officeAndDepartments);
+			$.extend(true, origineRoles, $scope.modifyGroup.origin.roles);
+			$.extend(true, originSubmitUsers, $scope.modifyGroup.origin.submitUsers);
+
+			$.extend(true, compareOfficeAndDepartments, $scope.modifyGroup.officeAndDepartments);
+			$.extend(true, compareRoles, $scope.modifyGroup.roles);
+			$.extend(true, compareSubmitUsers, $scope.modifyGroup.submitUsers);
+
+			for (var i = originOfficeAndDepartments.length; i--;) {
+				for (var j = compareOfficeAndDepartments.length; j--;) {
+
+					if (!originOfficeAndDepartments[i] || !compareOfficeAndDepartments[j]) {
+						break;
+					}
+
+					if (originOfficeAndDepartments[i].office.id == compareOfficeAndDepartments[j].office.id &&
+						originOfficeAndDepartments[i].dept.id == compareOfficeAndDepartments[j].dept.id) {
+						originOfficeAndDepartments.splice(i, 1);
+						compareOfficeAndDepartments.splice(j, 1);
+					}
+				}
+			}
+
+			for (var i = origineRoles.length; i--;) {
+				for (var j = compareRoles.length; j--;) {
+					if (!origineRoles[i] || !compareRoles[j]) {
+						break;
+					}
+
+					if (origineRoles[i].name == compareRoles[j].name) {
+						origineRoles.splice(i, 1);
+						compareRoles.splice(j, 1);
+					}
+				}
+			}
+
+
+			origineRolesPermissions = getCheckedPermission(origineRoles);
+			compareRolesPermissions = getCheckedPermission(compareRoles);
+
+			for (var i = origineRolesPermissions.length; i--;) {
+				
+			}
+
+			// for (var i = Things.length - 1; i >= 0; i--) {
+			// }
+
+
+			var submitData = {
+				groupId: currentGroup.group.id,
+				groupName: currentGroup.group.name,
+				deleteOfficeAndDepartments:[],
+				addOfficeAndDepartments:[],
+				deleteRoles:[],
+				addRoles:[]
+			}
+
+			for (var i = originOfficeAndDepartments.length; i--;) {
+				submitData.deleteOfficeAndDepartments.push(originOfficeAndDepartments[i]);
+			}
+
+			for (var i = compareOfficeAndDepartments.length; i--;) {
+				submitData.addOfficeAndDepartments.push(compareOfficeAndDepartments[i]);
+			}
+
+			for (var i = origineRoles.length; i--;) {
+				submitData.deleteRoles.push(origineRoles[i]);
+			}
+
+			for (var i = origineRoles.length; i--;) {
+				submitData.addRoles.push(compareRoles[i]);
+			}
+
+			// for (var i = origineRoles.length; i--;) {
+			// 	for (var j = compareRoles.length; j--;) {
+			// 		if (origineRoles[i].toUpperCase() == compareRoles[j].toUpperCase()) {
+
+			// 		}
+			// 	}
+			// }
+
+		}
+
+		function getCheckedPermission(roles) {
+
+			var roles = [];
+
+			for (var i = roles.length; i--;) {
+
+				var role = { name: roles[i].name, permissionIds: [] };
+
+				for (var j = roles[i].permission.length; j--;) {
+					for (var k = roles[i].permission[j].permissions.length ; k--;) {
+
+						if (roles[i].permission[j].permissions[k].checked) {
+							role.permissionIds.push(roles[i].permission[j].permissions[k].id);
+						}
+					}
+				}
+
+				roles.push(role);
+			}
+
+			return roles;
 
 		}
 
