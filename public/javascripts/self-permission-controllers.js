@@ -1,4 +1,4 @@
-angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select', 'selfFilters'])
+angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.select', 'selfFilters', 'selfRootController'])
 	.controller('permissionGroupCtrl', function($scope, fundationService, $http, $filter, $rootScope, $q) {
 
 		$scope.currentStatus = "C";
@@ -1281,6 +1281,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.submitModifyData = function() {
 
+			$rootScope.loadingShow("loading...");
 
 			if (modifySubmitCheck()) {
 
@@ -1297,12 +1298,15 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					}
 
 				}).success(function(data, status) {
-					alert(data[0].message);
-					window.location = '/main#/Permission';
+					$rootScope.loadingHide();
+					$rootScope.successAlert(data[0].message);
+					// alert(data[0].message);
+					//window.location = '/main#/Permission';
 					//loadSelectedGroupRelation($scope.displayMaintainGroup.currentSelectGroup);
 				}).error(function(data, status) {
-					alert(data);
-					
+					// alert(data);
+					$rootScope.loadingHide();
+					$rootScope.dangerAlert(data);
 				});
 			}
 
