@@ -45,10 +45,39 @@
 		<div ng-view>
 
 		</div>
+		
+		<div ng-controller="rootCtrl">
+			<div class="modal" id="extraModal" data-backdrop="false">
+			<div class="modal-dialog modal-dialog-center">
+				<div class="modal-content alert alert-danger" ng-show="cover.status=='danger'">
+					<div class="modal-header" style="padding:0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body" role="alert" >
+						{{cover.info}}
+					</div>
+				</div>
+				<div class="modal-content alert alert-success" ng-show="cover.status=='success'">
+					<div class="modal-header"  style="padding:0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body" role="alert" >
+						{{cover.info}}
+					</div>
+				</div>
+				<div class="modal-content modal-body progress" style="padding:0" ng-show="cover.status=='load'">
+					<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+						<span>{{cover.info}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
 		<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
 		<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
 		<script type="text/javascript" src="/javascripts/angular.js"></script>
 		<script type="text/javascript" src="/javascripts/select.js"></script>
+		<script type="text/javascript" src="/javascripts/self-root.js"></script>
 		<script type="text/javascript" src="/javascripts/self-services.js"></script>
 		<script type="text/javascript" src="/javascripts/self-directives.js"></script>
 		<script type="text/javascript" src="/javascripts/self-filters.js"></script>
@@ -68,7 +97,7 @@
 		<script type="text/javascript" src="/javascripts/datetimepicker_modify.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery-ui.js"></script>
 		<script type="text/javascript">
-			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch', 'angularFileUpload'])
+			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch', 'angularFileUpload','selfRootController'])
 				.config(['$routeProvider', function($routeProvider) {
 					$routeProvider
 						.when('/main', {
@@ -113,29 +142,54 @@
 						if (!$rootScope.userInfo) {
 							$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
 						}
-						if(!$rootScope.userInfo || !$rootScope.userInfo.permissions ||$rootScope.userInfo.permissions.length == 0){
+						if (!$rootScope.userInfo || !$rootScope.userInfo.permissions || $rootScope.userInfo.permissions.length == 0) {
 							return false;
 						}
 						var owned = $rootScope.userInfo.permissions;
 
-						if(owned.indexOf(1) != -1){
+						if (owned.indexOf(1) != -1) {
 							return true;
 						}
 						var result = false;
-						if(permissionIds && angular.isArray(permissionIds) && permissionIds.length > 0){
-							$.each(permissionIds,function(i,v){
-								if(owned.indexOf(v) != -1){
+						if (permissionIds && angular.isArray(permissionIds) && permissionIds.length > 0) {
+							$.each(permissionIds, function(i, v) {
+								if (owned.indexOf(v) != -1) {
 									result = true;
 									return false;
 								}
 							});
 							return result;
-						}
-						else{
+						} else {
 							return false;
 						}
 					}
-				})
+					$('.modal').on('shown.bs.modal', function() {
+						var contentHeight = $(window).height() - 60;
+						var headerHeight = $(this).find('.modal-header').outerHeight() || 2;
+						var footerHeight = $(this).find('.modal-footer').outerHeight() || 2;
+
+						$(this).find('.modal-content').css({
+							'max-height': function() {
+								return contentHeight;
+							}
+						});
+
+						$(this).find('.modal-body').css({
+							'max-height': function() {
+								return (contentHeight - (headerHeight + footerHeight));
+							}
+						});
+
+						$(this).find('.modal-dialog').css({
+							'margin-top': function() {
+								return -($(this).outerHeight() / 2);
+							},
+							'margin-left': function() {
+								return -($(this).outerWidth() / 2);
+							}
+						});
+					});
+				});
 </script>
 </body>
 </html>

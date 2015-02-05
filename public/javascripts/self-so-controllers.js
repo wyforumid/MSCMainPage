@@ -1,4 +1,4 @@
-angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFileUpload', 'ui.bootstrap.datetimepicker'])
+angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggle-switch', 'selfFilters', 'angularFileUpload', 'ui.bootstrap.datetimepicker'])
 	.controller('SOCtrl', function($scope, $http, $upload, $rootScope) {
 		$scope.mainResult = [];
 		//$scope.searchResult = [];
@@ -105,7 +105,10 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				if (!$scope.isFilterZone) {
 					return;
 				}
-				compareRefreshSO(results[0]);
+				if (results[0] && results[0].length > 0) {
+					compareRefreshSO(results[0]);
+				}
+
 
 				if (results[1]) {
 					compareRefreshCurrentSO(results[1]);
@@ -207,7 +210,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.$watch('isFilterZone', function(nV, oV) {
 			if (!nV) {
 				if (!$rootScope.hasPermission([5])) {
-					alert('You have no right to search.');
+					// alert('You have no right to search.');
+					$rootScope.dangerAlert('You have no right to search.');
 					$scope.isFilterZone = true;
 				}
 			}
@@ -261,7 +265,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			}).success(function(data, status) {
 				if (data && angular.isArray(data)) {
 					if (data.length == 0) {
-						alert('No result.');
+						// alert('No result.');
+						$rootScope.dangerAlert('No result.');
 						return;
 					}
 					for (var i = data.length; i--;) {
@@ -277,7 +282,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					$scope.filterResult = data;
 				}
 			}).error(function(data, status) {
-				alert('Fitch SO request error.' + status + data);
+				// alert('Fitch SO request error.' + status + data);
+				$rootScope.dangerAlert('Fitch SO request error.' + status + data);
 			});
 		}
 
@@ -409,7 +415,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				};
 
 				if (!resultDataModel) {
-					alert('Result Model is null.');
+					// alert('Result Model is null.');
+					$rootScope.successAlert('Result Model is null.');
 				}
 
 				for (var prop in resultDataModel) {
@@ -447,7 +454,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 			function(data, status) {
 				if (data && angular.isArray(data)) {
 					if (data.length == 0) {
-						alert('No result.');
+						//alert('No result.');
+						$rootScope.successAlert('No result.');
 						return;
 					}
 					for (var i = data.length; i--;) {
@@ -464,11 +472,13 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					copySearchingResultToFilterResult();
 					analyseSearchingResult();
 				} else {
-					alert(data);
+					// alert(data);
+					$rootScope.successAlert(data);
 				}
 			},
 			function(data, status) {
-				alert('Fitch SO request error.' + status + data);
+				// alert('Fitch SO request error.' + status + data);
+				$rootScope.dangerAlert('Fitch SO request error.' + status + data);
 			});
 
 
@@ -693,7 +703,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.openDispatchGroupDialog = function() {
 			if (!isSelectedSOInSameService()) {
-				alert('You can\'t batch dispatch SO which belongs to different service.');
+				// alert('You can\'t batch dispatch SO which belongs to different service.');
+				$rootScope.dangerAlert('You can\'t batch dispatch SO which belongs to different service.');
 				return;
 			}
 			loadDispatchableGroups(function() {
@@ -706,7 +717,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}
 
 			}, function(err) {
-				alert('Loading dispatch group error.' + err);
+				// alert('Loading dispatch group error.' + err);
+				$rootScope.dangerAlert('Loading dispatch group error.' + err);
 			});
 
 		}
@@ -733,7 +745,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 
 		$scope.openAssignUserDialog = function() {
 			if (!isSelectedSOInSameGroup()) {
-				alert('You can\'t batch assign SO which belongs to different groups.')
+				// alert('You can\'t batch assign SO which belongs to different groups.');
+				$rootScope.dangerAlert('You can\'t batch assign SO which belongs to different groups.');
 				return;
 			}
 			loadAssignableUser(function() {
@@ -745,7 +758,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					$('#assignDialog').modal('show');
 				}
 			}, function(err) {
-				alert('Loading assign user error.' + err);
+				// alert('Loading assign user error.' + err);
+				$rootScope.dangerAlert('Loading assign user error.' + err);
 			});
 
 		}
@@ -774,7 +788,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.forceDispatch = function() {
 			if ($scope.detailDivClass) {
 				if (getSelectedGroupIdFromDispatchDialog().length != 1) {
-					alert('You must choose only one group to dispatch.');
+					// alert('You must choose only one group to dispatch.');
+					$rootScope.dangerAlert('You must choose only one group to dispatch.');
 					return;
 				}
 				soloDispatch();
@@ -794,10 +809,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}).success(function(data, status) {
 					//resetGroupStatus();
 					updatehSOWithForceDispatchAssign(data);
-					alert('Dispatch success.');
+					// alert('Dispatch success.');
+					$rootScope.successAlert('Dispatch success.');
 					$('#dispatchDialog').modal('hide');
 				}).error(function(data, status) {
-					alert('Fail to force dispatch, please dispatch again.' + data);
+					// alert('Fail to force dispatch, please dispatch again.' + data);
+					$rootScope.dangerAlert('Fail to force dispatch, please dispatch again.' + data);
 				});
 			}
 		}
@@ -813,10 +830,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}).success(function(data, status) {
 					//resetGroupStatus();
 					updatehSOWithForceDispatchAssign(data);
-					alert('Dispatch success.');
+					// alert('Dispatch success.');
+					$rootScope.successAlert('Dispatch success.');
 					$('#dispatchDialog').modal('hide');
 				}).error(function(data, status) {
-					alert('Fail to force dispatch, please dispatch again.');
+					// alert('Fail to force dispatch, please dispatch again.');
+					$rootScope.dangerAlert('Fail to force dispatch, please dispatch again.');
 				});
 			}
 		}
@@ -841,10 +860,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					cache: false
 				}).success(function(data, status) {
 					updatehSOWithForceDispatchAssign(data);
-					alert('Assign success.');
+					// alert('Assign success.');
+					$rootScope.successAlert('Assign success.');
 					$('#assignDialog').modal('hide');
 				}).error(function(data, status) {
-					alert('Fail to force assign, please assign again.')
+					// alert('Fail to force assign, please assign again.');
+					$rootScope.dangerAlert('Fail to force assign, please assign again.');
 				});
 			} else {
 				var data = getAssignData();
@@ -857,10 +878,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					}).success(function(data, status) {
 						//resetAssignUserStatus();
 						updatehSOWithForceDispatchAssign(data);
-						alert('Assign success.');
+						// alert('Assign success.');
+						$rootScope.successAlert('Assign success.');
 						$('#assignDialog').modal('hide');
 					}).error(function(data, status) {
-						alert('Fail to force assign, please assign again.');
+						// alert('Fail to force assign, please assign again.');
+						$rootScope.dangerAlert('Fail to force assign, please assign again.');
 					})
 				}
 			}
@@ -878,10 +901,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				}).success(function(data, status) {
 					//resetAssignUserStatus();
 					updatehSOWithForceDispatchAssign(data);
-					alert('Assign success.');
+					// alert('Assign success.');
+					$rootScope.successAlert('Assign success.');
 					$('#assignDialog').modal('hide');
 				}).error(function(data, status) {
-					alert('Fail to force assign, please assign again.');
+					// alert('Fail to force assign, please assign again.');
+					$rootScope.dangerAlert('Fail to force assign, please assign again.');
 				})
 			}
 		}
@@ -1048,7 +1073,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					})(i);
 				}
 				if (values.length < keys.length) {
-					alert(alertInfo);
+					// alert(alertInfo);
+					$rootScope.dangerAlert(alertInfo);
 					return null;
 				} else {
 					var count = Math.ceil(values.length / keys.length);
@@ -1080,7 +1106,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 				$scope.filterResult[i].checkingDetails = true;
 			}
 			showSODetails(requestId, function(data) {}, function(data, status) {
-				alert('Fail to load data. Please try it again, thanks.' + data + status);
+				// alert('Fail to load data. Please try it again, thanks.' + data + status);
+				$rootScope.dangerAlert('Fail to load data. Please try it again, thanks.' + data + status);
 			})
 
 		}
@@ -1244,7 +1271,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.selectFileChanged = function() {
 			$scope.uploader.progressbar = $scope.uploader.percentage = 0;
 			if ($scope.uploader.attachment != '' && $scope.uploader.attachment[0].name.substr($scope.uploader.attachment.length - 4).toUpperCase() == 'EXE') {
-				alert('Executable files can\' be uploaded.');
+				// alert('Executable files can\' be uploaded.');
+				$rootScope.dangerAlert('Executable files can\' be uploaded.');
 				$scope.uploader.attachment = null;
 			}
 		}
@@ -1261,10 +1289,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 		$scope.addWorkFlow = function() {
 			if ($scope.uploader.attachment && $scope.uploader.attachment != '') {
 				$scope.uploadAttachmentWithWorkFlowInfo(function() {
-					alert('Save successfully.');
+					// alert('Save successfully.');
+					$rootScope.successAlert('Save successfully.');
 					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
 						if (err) {
-							alert('Fail to fetch work flow.' + err);
+							// alert('Fail to fetch work flow.' + err);
+							$rootScope.dangerAlert('Fail to fetch work flow.' + err);
 							$scope.uploader.progressbar = 0;
 						} else {
 							for (var i = result.length; i--;) {
@@ -1275,7 +1305,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					});
 					$('#workflowDialog').modal('hide');
 				}, function(data, status) {
-					alert('Fail to save.' + data + status);
+					// alert('Fail to save.' + data + status);
+					$rootScope.dangerAlert('Fail to save.' + data + status);
 				});
 			} else {
 				$http({
@@ -1290,10 +1321,12 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					},
 					cache: false
 				}).success(function(data, status) {
-					alert('Success.')
+					// alert('Success.');
+					$rootScope.successAlert('Success.');
 					getOwnWorkFlow($scope.currentSORequest.SORequestId, function(err, result) {
 						if (err) {
-							alert('Fail to fetch work flow.' + err);
+							// alert('Fail to fetch work flow.' + err);
+							$rootScope.dangerAlert('Fail to fetch work flow.' + err);
 						} else {
 							for (var i = result.length; i--;) {
 								result[i].OperateTime = $.format.date(result[i].OperateTime, 'yyyy-MM-dd HH:mm:ss');
@@ -1303,7 +1336,8 @@ angular.module('selfSOControllers', ['toggle-switch', 'selfFilters', 'angularFil
 					});
 					$('#workflowDialog').modal('hide');
 				}).error(function(data, status) {
-					alert(data + status);
+					// alert(data + status);
+					$rootScope.dangerAlert(data + status);
 				});
 			}
 		}
