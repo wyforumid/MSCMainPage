@@ -1,6 +1,7 @@
-<div class="col-md-1">
-</div>
-<div class="col-md-10 main-container">
+<!-- <div class="col-md-1">
+test
+</div> -->
+<div class="col-md-12 main-container">
     <div>
         <ul class="nav nav-tabs" role='tablist' id="navTab">
             <li role='presentation'>
@@ -40,14 +41,13 @@
                                             <div class="panel-heading" role="tab" id="headingOne">
                                                 <h4 class="panel-title">
 
-                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOfficeAndDepartment" aria-expanded="true" aria-controls="collapseOfficeAndDepartment">
+                                                    <a data-toggle="collapse"  data-target="#collapseOfficeAndDepartment" aria-expanded="true" aria-controls="collapseOfficeAndDepartment">
                                                         Modify Office and Department
                                                     </a>
                                                 </h4>
                                             </div>
                                             <div id="collapseOfficeAndDepartment" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                                                 <div class="panel-body">
-                                                    <!-- Office and Department -->
 
                                                     <div>
                                                         <div class="form-horizontal col-sm-6" style="border-right: 1px solid #cecece;">
@@ -108,7 +108,7 @@
                                         <div class="panel panel-default">
                                             <div class="panel-heading" role="tab" id="headingTwo">
                                                 <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseRole"  aria-controls="collapseRole">
+                                                    <a data-toggle="collapse"  data-target="#collapseRole"  aria-controls="collapseRole">
                                                         Modify Role
                                                     </a>
                                                 </h4>
@@ -177,7 +177,8 @@
                                         <div class="panel panel-default">
                                             <div class="panel-heading" role="tab" id="headingThree">
                                                 <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapsePermission"  aria-controls="collapsePermission">
+                                                    <a data-toggle="collapse"  data-target="#collapsePermission"  aria-controls="collapsePermission">
+                                                    <!-- data-parent="#accordion" -->
                                                         Modify Permission
                                                     </a>
                                                 </h4>
@@ -207,7 +208,7 @@
                                         <div class="panel panel-default">
                                             <div class="panel-heading" role="tab" id="headingfour">
                                                 <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseColleagues"  aria-controls="collapseColleagues">
+                                                    <a data-toggle="collapse"  data-target="#collapseColleagues"  aria-controls="collapseColleagues">
                                                         Modify Colleagues
                                                     </a>
                                                 </h4>
@@ -311,18 +312,18 @@
                                     </div>
                             	</div>
                             </div>
-                            <div class="row">
+                            <!-- <div class="row">
                             	<div class="col-sm-12">
                             		<div class="form-group">
                                         <p>
                                             <pre>
-												<!-- displayMaintainGroup = {{displayMaintainGroup | json}} -->
+												displayMaintainGroup = {{displayMaintainGroup | json}}
 												submitGroup = {{modifyGroup.submitGroup | json}}
 											</pre>
                                         </p>
                                 	</div>
                             	</div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -565,41 +566,23 @@
                         </button>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <p>
                             <pre>
 								{{userInfo}}
 								{{createGroup.submitGroup | json}}
 							</pre>
                         </p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="col-md-1">
+<!-- <div class="col-md-1">
+test
+</div> -->
 
-</div>
 
-
-<!-- Modal -->
-<div class="modal fade" id="changedGroup" tabindex="-1" role="dialog" aria-labelledby="changedGroupTitle" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="changedGroupTitle">Maintain</h4>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to discard the modified data?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-        <button type="button" class="btn btn-primary">Yes</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 

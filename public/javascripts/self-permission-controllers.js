@@ -126,8 +126,30 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			},
 			deleteSubmitUser: function(index) {
 				this.submitUsers.splice(index, 1);
-			}
+			},
+			hasOfficeAndDepartmentsData: function() {
 
+				if (this.officeAndDepartments && this.officeAndDepartments.length > 0) {
+					return true;
+				} 
+
+				return false;
+			},
+			CheckhasSetRole: function () {
+
+				if (this.submitUsers.length <= 0) {
+					return false;
+				}
+
+				for (var i = this.submitUsers.length; i--;) {
+
+					if (this.submitUsers[i].roles.length <= 0) {
+						return false;
+					}
+				}
+
+				return true;
+			}
 		};
 
 		var CreateGroup = function() {
@@ -270,12 +292,20 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					},
 					validateBeforeNext: function() {
 
-						if ($scope.createGroup.officeAndDepartments && $scope.createGroup.officeAndDepartments.length > 0) {
-							return true;
-						} else {
+						var isValidate = $scope.createGroup.hasOfficeAndDepartmentsData()
+
+						if (!isValidate) {
 							alert('You need add some depertment which this new group belongs to.');
-							return false;
 						}
+						
+						return isValidate;
+
+						// if ($scope.createGroup.officeAndDepartments && $scope.createGroup.officeAndDepartments.length > 0) {
+						// 	return true;
+						// } else {
+						// 	alert('You need add some depertment which this new group belongs to.');
+						// 	return false;
+						// }
 
 					},
 					formatData: function() {
@@ -314,19 +344,19 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						var isValidate = true,
 							msg = 'Something wrong. Please check these point: ';
 
-						if ($scope.createGroup.groupName == '') {
+						if ($scope.createGroup.isNullOrEmpty($scope.createGroup.groupName)) {
 							isValidate = false;
 							msg += ' ~the group name is neccessary for new group.';
 						}
+						
+						// if ($scope.createGroup.groupName == '') {
+						// 	isValidate = false;
+						// 	msg += ' ~the group name is neccessary for new group.';
+						// }
 
 						if ($scope.steps.isExistedName()) {
 							isValidate = false;
 							msg += '  ~the group name is existed.';
-						}
-
-						if ($scope.createGroup.roles.length <= 1) {
-							isValidate = false;
-							msg += ' ~the role is neccessary for new group.';
 						}
 
 						if (!isValidate) {
@@ -358,28 +388,29 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 					},
 					initialData: function() {
 
-						for (var i = $scope.createGroup.submitUsers.length; i--;) {
-
-							for (var j = $scope.createGroup.submitUsers[i].roles.length; j--;) {
-
-								if ($scope.createGroup.HasRole($scope.createGroup.submitUsers[i].roles[j])) {
-									$scope.createGroup.submitUsers[i].roles.splice(j, 1);
-								}
-							}
-						}
+						recheckSubmitUsers($scope.createGroup);
 					},
 					validateBeforeNext: function() {
 
-						for (var i = $scope.createGroup.submitUsers.length; i--;) {
+						var isValidate = $scope.createGroup.CheckhasSetRole();
 
-							if ($scope.createGroup.submitUsers[i].roles.length <= 0) {
-								alert($scope.createGroup.submitUsers[i].fullName + " has not been set role.");
-								return false;
-							}
-
+						if (!isValidate) {
+							alert("May not add users or not set roles for users");
 						}
 
-						return true;
+						return isValidate;
+
+
+						// for (var i = $scope.createGroup.submitUsers.length; i--;) {
+
+						// 	if ($scope.createGroup.submitUsers[i].roles.length <= 0) {
+						// 		alert($scope.createGroup.submitUsers[i].fullName + " has not been set role.");
+						// 		return false;
+						// 	}
+
+						// }
+
+						// return true;
 					},
 					formatData: function() {
 
@@ -613,6 +644,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 				$scope.permissionInfo.categoriedPermission = [];
 				$.each($scope.permissionInfo.originCategories, function(ci, cv) {
 					$scope.permissionInfo.categoriedPermission.push({
+						isHide: (cv.id == 1),
 						categoryId: cv.id,
 						categoryName: cv.name,
 						permissions: []
@@ -655,6 +687,7 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			var temp = [];
 			$.each($scope.permissionInfo.categoriedPermission, function(ci, cv) {
 				temp.push({
+					isHide: cv.isHide,
 					categoryId: cv.categoryId,
 					categoryName: cv.categoryName,
 					permissions: []
@@ -752,6 +785,11 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 			if (currentGroup.roles && currentGroup.roles.length >= index) {
 				currentGroup.removeRole(index, 1);
+
+				if ($scope.currentStatus == "M") {
+					recheckSubmitUsers(currentGroup);
+				}
+
 			} else {
 				alert('Something is wrong. Please reset it and start over.');
 			}
@@ -771,6 +809,19 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.steps.initialStep();
 
+
+		function recheckSubmitUsers(currentGroup) {
+
+			for (var i = currentGroup.submitUsers.length; i--;) {
+
+				for (var j = currentGroup.submitUsers[i].roles.length; j--;) {
+
+					if (!currentGroup.HasRole(currentGroup.submitUsers[i].roles[j])) {
+						currentGroup.submitUsers[i].roles.splice(j, 1);
+					}
+				}
+			}
+		}
 
 		function initialAllPermission() {
 			async.parallel([
@@ -837,6 +888,9 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						$.extend(true, $scope.modifyGroup.origin.roles, $scope.modifyGroup.roles);
 						$.extend(true, $scope.modifyGroup.origin.submitUsers, $scope.modifyGroup.submitUsers);
 					}
+
+					
+					
 
 				});
 		}
@@ -917,7 +971,6 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.displayMaintainGroup = {
 			groupList: [],
-			isFirstLoadGroup: true,
 			currentSelectGroup: {}
 		}
 
@@ -936,21 +989,19 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.changeSelectGroup = function(group) {
 
-			if ($scope.displayMaintainGroup.isFirstLoadGroup) {
-				if (group.enable) {
-					resetGroupSetting();
-					clearData();
-					group.select = true;
-					$scope.displayMaintainGroup.isFirstLoadGroup = false;
-					$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
+			loadSelectedGroupRelation(group);
+		}
 
-					$scope.modifyGroup = new ModifyGroup();
-					getAllRelation($scope.displayMaintainGroup.currentSelectGroup, initialModifyData);
-					initialAllPermission();
-				}
+		function loadSelectedGroupRelation(group) {
+			if (group.enable) {
+				resetGroupSetting();
+				clearData();
+				group.select = true;
+				$.extend(true, $scope.displayMaintainGroup.currentSelectGroup, group);
 
-			} else {
-
+				$scope.modifyGroup = new ModifyGroup();
+				getAllRelation($scope.displayMaintainGroup.currentSelectGroup, initialModifyData);
+				initialAllPermission();
 			}
 		}
 
@@ -1036,8 +1087,6 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 			$.extend(true, $scope.modifyGroup.origin.roles, $scope.modifyGroup.roles);
 			$.extend(true, $scope.modifyGroup.origin.submitUsers, $scope.modifyGroup.submitUsers);
 		}
-
-
 		
 		function arrangeOfficeAndDepartments(originOfficeAndDepartments, compareOfficeAndDepartments) {
 			for (var i = originOfficeAndDepartments.length; i--;) {
@@ -1154,8 +1203,8 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 						for (var k = tempOriginUserIds[i].userIds.length; k--;) {
 							for (var l = tempCompareUserIds[j].userIds.length; l--;) {
 								if (tempOriginUserIds[i].userIds[k] == tempCompareUserIds[j].userIds[l]) {
-									tempOriginUserIds[i].userIds.splice(k);
-									tempCompareUserIds[j].userIds.splice(l);
+									tempOriginUserIds[i].userIds.splice(k,1);
+									tempCompareUserIds[j].userIds.splice(l,1);
 								}
 							}
 						}
@@ -1232,26 +1281,51 @@ angular.module('selfPermissionCtrls', ['selfServices', 'selfDirectives', 'ui.sel
 
 		$scope.submitModifyData = function() {
 
-			setSubmitModifyData();
 
-			$http({
+			if (modifySubmitCheck()) {
 
-				method: 'POST',
-				url: '/restfulAPI/permission/MODIFYGROUP',
-				cache: false,
-				data: {
-					userId: $rootScope.userInfo.userId,
-					modifyGroup: $scope.modifyGroup.submitGroup
-				}
+				setSubmitModifyData();
 
-			}).success(function(data, status) {
-				alert(data[0].message);
-				
-			}).error(function(data, status) {
-				alert(data);
-				
-			});
+				$http({
 
+					method: 'POST',
+					url: '/restfulAPI/permission/MODIFYGROUP',
+					cache: false,
+					data: {
+						userId: $rootScope.userInfo.userId,
+						modifyGroup: $scope.modifyGroup.submitGroup
+					}
+
+				}).success(function(data, status) {
+					alert(data[0].message);
+					window.location = '/main#/Permission';
+					//loadSelectedGroupRelation($scope.displayMaintainGroup.currentSelectGroup);
+				}).error(function(data, status) {
+					alert(data);
+					
+				});
+			}
+
+		}
+
+		function modifySubmitCheck() {
+
+			if (!$scope.modifyGroup.hasOfficeAndDepartmentsData()) {
+				alert('You need add some depertment which this new group belongs to.');
+				return false;
+			}
+
+			if ($scope.modifyGroup.isNullOrEmpty($scope.modifyGroup.group.name)) {
+				alert('The group name is neccessary, please enter group name.');
+				return false;
+			}
+
+			if (!$scope.modifyGroup.CheckhasSetRole()) {
+				alert("May not add users or not set roles for users.");
+				return false;
+			}
+
+			return true;
 		}
 
 		function getCheckedPermission(roles) {
