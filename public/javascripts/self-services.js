@@ -1,9 +1,13 @@
 angular.module('selfServices', [])
-	.factory('fundationService', function($http) {
+	.factory('fundationService', function($http, $rootScope) {
 		var allOffices = [],
 			allDepts = [],
 			allPermissionCategories = [],
 			allPermissions = [];
+		$rootScope.cover = {
+			status: 'success',
+			info: null
+		};
 
 		function fetchFoundationData(url, storePlace, successCallback, errorCallback) {
 			$http({
@@ -55,5 +59,30 @@ angular.module('selfServices', [])
 				}
 
 			}
+			// ,
+			// successAlert: function(msg) {
+			// 	$rootScope.cover.status = 'success';
+			// 	$rootScope.cover.info = msg;
+			// 	$('#extraModal').modal('show');
+			// },
+			// dangerAlert: function(msg) {
+			// 	$rootScope.cover.status = 'danger';
+			// 	$rootScope.cover.info = msg;
+			// 	$('#extraModal').modal('show');
+			// },
+			// loadingShow: function(msg) {
+			// 	$rootScope.cover.status = 'danger';
+			// 	$rootScope.cover.info = msg;
+			// 	$('#extraModal').modal('show');
+			// },
+			// loadingChangeMessage: function(msg) {
+			// 	$rootScope.cover.info = msg;
+			// },
+			// loadingHide: function() {
+			// 	$rootScope.cover.status = 'danger';
+			// 	$rootScope.cover.info = msg;
+			// 	$('#extraModal').modal('show');
+			// }
 		}
+
 	});

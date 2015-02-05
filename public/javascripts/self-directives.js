@@ -103,8 +103,14 @@ angular.module('selfDirectives', [])
 					var targetPermissions = targetCateogry.permissions;
 					for (var k = 0; k < targetPermissions.length; k++) {
 						if (!targetPermissions[k].disabled) {
-							targetPermissions[k].checked = result;
-							scope.changedPermissionCount({permission : targetPermissions[k]});
+							if(targetPermissions[k].checked == result){
+								continue;
+							}else{
+								targetPermissions[k].checked = result;
+								scope.changedPermissionCount({permission : targetPermissions[k]});	
+							}
+
+							
 						}
 					}
 				}
