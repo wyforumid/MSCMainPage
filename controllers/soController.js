@@ -26,10 +26,11 @@ module.exports = function() {
 
 			});
 		},
-		SEARCHSO:function(req,res){
-			func.getData(req,res,function(cb){
+		SEARCHSO: function(req, res) {
+			func.getData(req, res, function(cb) {
 				soAPI.searchSO(
 					req.query.soId,
+					req.query.sender,
 					req.query.group,
 					req.query.user,
 					req.query.service,
@@ -37,12 +38,11 @@ module.exports = function() {
 					req.query.pol,
 					req.query.startDate,
 					req.query.endDate,
-					function(err,data){
-						try{
-							cb(err,data);
-						}
-						catch(ex){
-							cb(ex,data);
+					function(err, data) {
+						try {
+							cb(err, data);
+						} catch (ex) {
+							cb(ex, data);
 						}
 					});
 			});

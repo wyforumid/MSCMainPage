@@ -12,26 +12,27 @@ exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
 }
 
-exports.searchSO = function(soId, groupName, assignedUserName, service, por, pol, startDate, endDate, callback) {
+exports.searchSO = function(soId, sender, groupName, assignedUserName, service, por, pol, startDate, endDate, callback) {
 	var params = [];
 	var soId = parseInt(soId);
-	if(!_.isNumber(soId)){
+	if (!_.isNumber(soId)) {
 		soId = null;
 	}
 	params.push(new Parameter('soId', mssql.Int, soId));
+	params.push(new Parameter('sender', mssql.NVarChar(60), sender));
 	params.push(new Parameter('dispathedGroupName', mssql.VarChar(60), groupName));
 	params.push(new Parameter('assignedUserName', mssql.VarChar(60), assignedUserName));
 	params.push(new Parameter('service', mssql.VarChar(60), service));
 	params.push(new Parameter('por', mssql.VarChar(100), pol));
 	params.push(new Parameter('pol', mssql.VarChar(35), pol));
-	if(startDate){
+	if (startDate) {
 		params.push(new Parameter('startTime', mssql.DateTime, new Date(startDate)));
-	}else{
+	} else {
 		params.push(new Parameter('startTime', mssql.DateTime, null));
 	}
-	if(endDate){
+	if (endDate) {
 		params.push(new Parameter('endTime', mssql.DateTime, new Date(endDate)));
-	}else{
+	} else {
 		params.push(new Parameter('endTime', mssql.DateTime, null));
 	}
 	db.querySP('SP_SearchSO', params, callback);
