@@ -15,6 +15,8 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 		$scope.currentSORequest = {};
 		$scope.searchCondition = {
 			bookingId: null,
+			bookingNo: null,
+			inttraNo: null,
 			sender: null,
 			dispatchedGroup: null,
 			assignedUser: null,
@@ -84,7 +86,7 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 						},
 						function(data, status) {
 							callback(data + status, null);
-						});
+						}, false);
 				},
 				function(callback) {
 					if ($scope.listDivClass) {
@@ -248,6 +250,8 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 
 		$scope.resetSearchCondition = function() {
 			$scope.searchCondition.bookingId = null;
+			$scope.searchCondition.inttraNo = null;
+			$scope.searchCondition.bookingNo = null;
 			$scope.searchCondition.sender = null;
 			$scope.searchCondition.dispatchedGroup = null;
 			$scope.searchCondition.assignedUser = null;
@@ -264,6 +268,8 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 				url: '/restfulAPI/so/SEARCHSO',
 				params: {
 					soId: $scope.searchCondition.bookingId,
+					bookingNo: $scope.searchCondition.bookingNo,
+					inttraNo: $scope.searchCondition.inttraNo,
 					sender: $scope.searchCondition.sender == $scope.searchCondition.noResult ? null : $scope.searchCondition.sender,
 					group: $scope.searchCondition.dispatchedGroup == $scope.searchCondition.noResult ? null : $scope.searchCondition.dispatchedGroup,
 					user: $scope.searchCondition.assignedUser == $scope.searchCondition.noResult ? null : $scope.searchCondition.assignedUser,
@@ -377,7 +383,11 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 			})
 		}
 
-		function loadMainData(successCb, errorCb) {
+		function loadMainData(successCb, errorCb, isModal) {
+			if (isModal) {
+				$rootScope.loadingShow('Fetching data...');
+			}
+
 			$http({
 				method: 'GET',
 				url: '/restfulAPI/so/GETMAINSOREQUEST',
@@ -463,36 +473,32 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 		}
 
 		loadMainData(
-			function(data, status) {
+			function(data, status, isModal) {
+				$rootScope.loadingChangeMessage('Calculating data...')
+
 				if (data && angular.isArray(data)) {
 					if (data.length == 0) {
-						//alert('No result.');
+						$rootScope.loadingHide();
 						$rootScope.successAlert('No result.');
 						return;
 					}
-					// for (var i = data.length; i--;) {
-					// 	if (!data[i]) {
-					// 		data[i] = {};
-					// 	}
-					// 	if (data[i].ReceivedTime) {
-					// 		data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
-					// 	}
-
-					// 	data[i].isUpdateOne = false;
-					// }
 					formatSORequestData(data);
 					$scope.mainResult = data;
 					copySearchingResultToFilterResult();
 					analyseSearchingResult();
+					if (isModal) {
+						$rootScope.loadingHide();
+					}
+					$rootScope.loadingHide();
 				} else {
-					// alert(data);
+					$rootScope.loadingHide();
 					$rootScope.successAlert(data);
 				}
 			},
 			function(data, status) {
-				// alert('Fitch SO request error.' + status + data);
+				$rootScope.loadingHide();
 				$rootScope.dangerAlert('Fitch SO request error.' + status + data);
-			});
+			}, true);
 
 		function formatSORequestData(data) {
 			for (var i = data.length; i--;) {
@@ -877,7 +883,7 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 					$('#dispatchDialog').modal('hide');
 				}).error(function(data, status) {
 					// alert('Fail to force dispatch, please dispatch again.');
-					$rootScope.dangerAlert('Fail to force dispatch, please dispatch again.');
+					$rootScope.dangerAlert('Fail to force dispatch, please dispatch again.' + data);
 				});
 			}
 		}
@@ -1503,31 +1509,27 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 					items = event.items;
 
 				for (var i = items.length; i--;) {
-					if (items[i].length == 17 || items[i].length == 19) {
-						if (items[i].substr(0, 3) != '181') {
+					if (items[i] == '')
+						if (items[i].length == 17 || items[i].length == 19) {
+							if (items[i].substr(0, 3) != '181') {
+								(function(i) {
+									msg += 'Booking(' + items[i] + ')' + ' is not start with \'181\'.||';
+								})(i);
+								$('#books').tagsinput('remove', items[i]);
+							}
+						} else {
 							(function(i) {
-								msg += 'Booking(' + items[i] + ')' + ' is not start with \'181\'.||';
+								msg += 'Booking(' + items[i] + ')' + '\'s length is not 17 or 19.||';
 							})(i);
 							$('#books').tagsinput('remove', items[i]);
 						}
-					} else {
-						(function(i) {
-							msg += 'Booking(' + items[i] + ')' + '\'s length is not 17 or 19.||';
-						})(i);
-						$('#books').tagsinput('remove', items[i]);
-					}
 				}
-				$rootScope.dangerAlert(msg);
+				if (msg != '') {
+					$rootScope.dangerAlert(msg);
+				}
+
 			}
-			// if (event.item.length == 17 || event.item.length == 19) {
-			// 	if (event.item.substr(0, 3) != '181') {
-			// 		$rootScope.dangerAlert('Booking(' + event.item + ')' + ' is not start with \'181\'.');
-			// 		$('#books').tagsinput('remove', event.item);
-			// 	}
-			// } else {
-			// 	$rootScope.dangerAlert('Booking(' + event.item + ')' + '\'s length is not 17 or 19.');
-			// 	$('#books').tagsinput('remove', event.item);
-			// }
+			$rootScope.loadingHide();
 		});
 
 	})

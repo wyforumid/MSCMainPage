@@ -1,8 +1,9 @@
 var db = require('../DB/dbutil');
 var Parameter = require('../DB/parameter');
 var mssql = require('mssql');
-var us = require('underscore');
+// var us = require('underscore');
 var _ = require('underscore');
+var _s = require('underscore.string')
 
 exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
@@ -12,13 +13,21 @@ exports.GetMainDisplaySORequest = function(userCacheId, callback) {
 
 }
 
-exports.searchSO = function(soId, sender, groupName, assignedUserName, service, por, pol, startDate, endDate, callback) {
+exports.searchSO = function(soId, bookingNo, inttraNo, sender, groupName, assignedUserName, service, por, pol, startDate, endDate, callback) {
 	var params = [];
 	var soId = parseInt(soId);
 	if (!_.isNumber(soId)) {
 		soId = null;
 	}
+	if(_s.isBlank(bookingNo)){
+		bookingNo=null;
+	}
+	if(_s.isBlank(inttraNo)){
+		inttraNo=null;
+	}
 	params.push(new Parameter('soId', mssql.Int, soId));
+	params.push(new Parameter('bookingNo', mssql.VarChar(30), bookingNo));
+	params.push(new Parameter('inttraNo', mssql.VarChar(30), inttraNo));
 	params.push(new Parameter('sender', mssql.NVarChar(60), sender));
 	params.push(new Parameter('dispathedGroupName', mssql.VarChar(60), groupName));
 	params.push(new Parameter('assignedUserName', mssql.VarChar(60), assignedUserName));
@@ -105,7 +114,8 @@ exports.unassignSO = function(soRequestId, userId, callback) {
 
 exports.GetSOWorkflow = function(soRequestId, callback) {
 	var id = parseInt(soRequestId);
-	if (!us.isNumber(id)) {
+	// if (!us.isNumber(id)) {
+	if (!_.isNumber(id)) {
 		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
 		return;
 	}
@@ -117,7 +127,8 @@ exports.GetSOWorkflow = function(soRequestId, callback) {
 
 exports.GetSOBaseInfo = function(soRequestId, callback) {
 	var id = parseInt(soRequestId);
-	if (!us.isNumber(id)) {
+	//if (!us.isNumber(id)) {
+	if (!_.isNumber(id)) {
 		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
 		return;
 	}
@@ -129,7 +140,8 @@ exports.GetSOBaseInfo = function(soRequestId, callback) {
 
 exports.GetSORequestRelatedBookings = function(soRequestId, callback) {
 	var id = parseInt(soRequestId);
-	if (!us.isNumber(id)) {
+	//if (!us.isNumber(id)) {
+	if (!_.isNumber(id)) {
 		callback('SO request Id \'' + soRequestId + '\' is not a number.', null);
 		return;
 	}

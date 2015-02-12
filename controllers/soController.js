@@ -30,6 +30,8 @@ module.exports = function() {
 			func.getData(req, res, function(cb) {
 				soAPI.searchSO(
 					req.query.soId,
+					req.query.bookingNo,
+					req.query.inttraNo,
 					req.query.sender,
 					req.query.group,
 					req.query.user,

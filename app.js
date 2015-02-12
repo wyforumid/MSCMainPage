@@ -68,6 +68,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
+app.use(function(req, res, next) {
+    res.setHeader('X-UA-Compatible', 'Edge');
+    next();
+})
+
 app.use(favicon());
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -82,10 +87,7 @@ app.use(session({
     }
 }));
 
-app.use(function(req, res, next) {
-    res.setHeader('X-UA-Compatible', 'edge');
-    next();
-})
+
 
 app.use(function(req, res, next) {
     var d = domain.create();

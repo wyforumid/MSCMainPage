@@ -73,6 +73,12 @@
 				<input type="text" class="form-control" ng-model="searchCondition.bookingId" placeholder="Enter Id" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" ng-model="searchCondition.bookingNo" placeholder="Enter Booking No" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
+				<input type="text" class="form-control" ng-model="searchCondition.inttraNo" placeholder="Enter Inttra No" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
 				<input type="text" id="inputSearchSender" class="form-control" ng-model="searchCondition.sender" placeholder="Enter Sender Name" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
@@ -206,7 +212,7 @@
 								<th>Total TEU</th>
 								<th>Is Copay Booking</th>
 								<th>Booking Confirmation Time</th>
-								<th>Finished User</th>
+								<th>Assigned User</th>
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in currentSORequest.bookings | orderBy:''-BookingConfirmationTime">
@@ -217,7 +223,7 @@
 									<td>{{item.TotalTEU}}</td>
 									<td>{{item.IsCopyBooking}}</td>
 									<td>{{item.BookingConfirmationTime}}</td>
-									<td>{{item.FinishedUser}}</td>
+									<td>{{item.AssignedUserName}}</td>
 								</tr>
 							</tbody>
 						</table>

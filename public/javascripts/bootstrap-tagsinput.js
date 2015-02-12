@@ -95,9 +95,6 @@
           }
 
           if (!dontPushVal) {
-            self.$element.trigger($.Event('beforeItemsAdded', {
-              items: self.itemsArray
-            }));
             self.pushVal();
             self.$element.trigger($.Event('itemsAdded', {
               items: self.itemsArray
@@ -157,9 +154,6 @@
       }
 
       if (!dontPushVal) {
-        self.$element.trigger($.Event('beforeItemsAdded', {
-          items: self.itemsArray
-        }));
         self.pushVal();
         self.$element.trigger($.Event('itemsAdded', {
           items: self.itemsArray
