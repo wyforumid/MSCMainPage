@@ -81,6 +81,12 @@ app.use(session({
         maxAge: 10 * 60 * 60 * 1000
     }
 }));
+
+app.use(function(req, res, next) {
+    res.setHeader('X-UA-Compatible', 'edge');
+    next();
+})
+
 app.use(function(req, res, next) {
     var d = domain.create();
     d.on('error', function(err) {

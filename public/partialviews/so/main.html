@@ -73,6 +73,9 @@
 				<input type="text" class="form-control" ng-model="searchCondition.bookingId" placeholder="Enter Id" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
+				<input type="text" id="inputSearchSender" class="form-control" ng-model="searchCondition.sender" placeholder="Enter Sender Name" />
+			</div>
+			<div class="col-md-12 margin-botton-div">
 				<input type="text" id="inputSearchGroup" class="form-control" ng-model="searchCondition.dispatchedGroup" placeholder="Enter Dispatched Group" />
 			</div>
 			<div class="col-md-12 margin-botton-div">
@@ -384,6 +387,14 @@
 							</label>
 							<div class="col-md-8">
 								<textarea class="form-control" rows="3" ng-model="newWorkFlow.remark"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="form-label col-md-2 col-md-offset-1">
+								bookings:
+							</label>
+							<div class="col-md-8">
+								<input id="books" type="text" class="form-control" data-role="tagsinput" ng-model="newWorkFlow.books">
 							</div>
 						</div>
 						<div class="form-group">

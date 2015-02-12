@@ -10,6 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="/stylesheets/angular-toggle-switch-bootstrap-3.css">
 		<link rel="stylesheet" type="text/css" href="/stylesheets/datetimepicker.css">
 		<link rel="stylesheet" type="text/css" href="/stylesheets/jquery-ui.css">
+		<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-tagsinput.css">
 	</head>
 	<body style="padding-top: 70px; background: #e7e8eb;">
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation" data-ng-controller="navCtrl">
@@ -39,7 +40,7 @@
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="/user#/calendar">{{userInfo.loginName}}</a></li>
-				<li><a href='/main/logout' style="margin-right: 50px;">Logout</a></li>
+				<li><a href='/main/logout' style="margin-right: 50px;">Log out</a></li>
 			</ul>
 		</nav>
 		<div ng-view>
@@ -54,7 +55,9 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<div class="modal-body" role="alert" >
-						{{cover.info}}
+						<div class="row" data-ng-repeat="item in cover.info track by $index">
+							{{item}}
+						</div>
 					</div>
 				</div>
 				<div class="modal-content alert alert-success" ng-show="cover.status=='success'">
@@ -62,7 +65,9 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					</div>
 					<div class="modal-body" role="alert" >
-						{{cover.info}}
+						<div class="row" data-ng-repeat="item in cover.info track by $index">
+							{{item}}
+						</div>
 					</div>
 				</div>
 				<div class="modal-content modal-body progress" style="padding:0" ng-show="cover.status=='load'">
@@ -96,6 +101,8 @@
 		<script type="text/javascript" src="/javascripts/moment.min.js"></script>
 		<script type="text/javascript" src="/javascripts/datetimepicker_modify.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery-ui.js"></script>
+		<script type="text/javascript" src="/javascripts/bootstrap-tagsinput.js"></script>
+		<script type="text/javascript" src="/javascripts/bootstrap-tagsinput-angular.min.js"></script>
 		<script type="text/javascript">
 			angular.module('SOApp', ['ngRoute', 'ngGrid', 'selfControllers', 'selfSOControllers', 'selfServices', 'selfPermissionCtrls', 'toggle-switch', 'angularFileUpload','selfRootController'])
 				.config(['$routeProvider', function($routeProvider) {

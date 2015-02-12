@@ -1,5 +1,6 @@
 <html ng-app="mainApp">
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>MSC</title>
 	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap-theme.min.css">
@@ -42,18 +43,47 @@
 			</div>
 		</p>
 	</div>
+	<div ng-controller="rootCtrl">
+			<div class="modal" id="extraModal" data-backdrop="false">
+			<div class="modal-dialog modal-dialog-center">
+				<div class="modal-content alert alert-danger" ng-show="cover.status=='danger'">
+					<div class="modal-header" style="padding:0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body" role="alert" >
+						{{cover.info}}
+					</div>
+				</div>
+				<div class="modal-content alert alert-success" ng-show="cover.status=='success'">
+					<div class="modal-header"  style="padding:0">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body" role="alert" >
+						{{cover.info}}
+					</div>
+				</div>
+				<div class="modal-content modal-body progress" style="padding:0" ng-show="cover.status=='load'">
+					<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+						<span>{{cover.info}}</span>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
 	<script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
 	<script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/javascripts/angular.js"></script>
 	<script type="text/javascript" src="/javascripts/angular-route.js"></script>
+	<script type="text/javascript" src="/javascripts/self-root.js"></script>
 	<script type="text/javascript" src="/javascripts/ng-grid.min.js"></script>
 	<script type="text/javascript" src="/javascripts/jquery.cookie.js"></script>
+	<script type="text/javascript" src="/javascripts/self-root.js"></script>
 	<script type="text/javascript">
 	// angular.module('mainApp',['ngRoute'])
 	// .config(['$routeProvider',function($routeProvider){
 
 	// }])
-		angular.module('mainApp', [])
+		angular.module('mainApp', ['selfRootController','selfRootController'])
 			.controller('loginCtrl', function($scope, $http, $rootScope) {
 				$rootScope.userInfo = {
 					name: 'Guest',
@@ -69,7 +99,7 @@
 
 
 				$scope.login = function() {
-
+					$rootScope.loadingShow('Log in...');
 					$http({
 						method: 'POST',
 						url: '/API/user/LOGIN',
@@ -88,11 +118,12 @@
 								window.location = '/main';
 							}
 						} else {
-							alert('Wrong login name or wrong password');
+							$rootScope.loadingHide();
+							$rootScope.dangerAlert('Wrong login name or wrong password');
 						}
 
 					}).error(function(data, status) {
-						alert(data);
+						$rootScope.dangerAlert(data);
 					});
 				};
 

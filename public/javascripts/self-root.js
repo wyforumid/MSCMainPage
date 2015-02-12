@@ -6,12 +6,12 @@ angular.module('selfRootController', [])
 		};
 		$rootScope.successAlert = function(msg) {
 			$rootScope.cover.status = 'success';
-			$rootScope.cover.info = msg;
+			$rootScope.cover.info = seperateInfo(msg);
 			$('#extraModal').modal('show');
 		}
 		$rootScope.dangerAlert = function(msg) {
 			$rootScope.cover.status = 'danger';
-			$rootScope.cover.info = msg;
+			$rootScope.cover.info = seperateInfo(msg);
 			$('#extraModal').modal('show');
 		}
 		$rootScope.loadingShow = function(msg) {
@@ -26,6 +26,19 @@ angular.module('selfRootController', [])
 			$rootScope.cover.status = 'load';
 			$rootScope.cover.info = null;
 			$('#extraModal').modal('hide');
+		}
+
+		function seperateInfo(data) {
+			if (!data || data.length == 0) {
+				return [];
+			}
+			var items = data.split('||');
+			for (var i = items.length; i--;) {
+				if (!items[i] || items[i] == '') {
+					items.splice(i, 1);
+				}
+			}
+			return items;
 		}
 
 		$('.modal').on('shown.bs.modal', function() {
@@ -53,6 +66,11 @@ angular.module('selfRootController', [])
 					return -($(this).outerWidth() / 2);
 				}
 			});
+		});
+
+		$('#extraModal').on('hidden.bs.modal', function() {
+			$rootScope.cover.status = null;
+			$rootScope.cover.info = null;
 		});
 
 	})

@@ -1,4 +1,12 @@
-angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggle-switch', 'selfFilters', 'angularFileUpload', 'ui.bootstrap.datetimepicker'])
+angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'toggle-switch', 'selfFilters', 'angularFileUpload', 'ui.bootstrap.datetimepicker'])
+	.config(['$httpProvider', function($httpProvider) {
+		//initialize get if not there
+		if (!$httpProvider.defaults.headers.get) {
+			$httpProvider.defaults.headers.get = {};
+		}
+		//disable IE ajax request caching
+		$httpProvider.defaults.headers.get['If-Modified-Since'] = '0';
+	}])
 	.controller('SOCtrl', function($scope, $http, $upload, $rootScope) {
 		$scope.mainResult = [];
 		//$scope.searchResult = [];
@@ -7,6 +15,7 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 		$scope.currentSORequest = {};
 		$scope.searchCondition = {
 			bookingId: null,
+			sender: null,
 			dispatchedGroup: null,
 			assignedUser: null,
 			service: null,
@@ -66,6 +75,7 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 					loadMainData(
 						function(data, status) {
 							if (data && data.length > 0) {
+								formatSORequestData(data);
 								$scope.refreshResult = data;
 								callback(null, $scope.refreshResult);
 							} else {
@@ -238,6 +248,7 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 
 		$scope.resetSearchCondition = function() {
 			$scope.searchCondition.bookingId = null;
+			$scope.searchCondition.sender = null;
 			$scope.searchCondition.dispatchedGroup = null;
 			$scope.searchCondition.assignedUser = null;
 			$scope.searchCondition.service = null;
@@ -253,6 +264,7 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 				url: '/restfulAPI/so/SEARCHSO',
 				params: {
 					soId: $scope.searchCondition.bookingId,
+					sender: $scope.searchCondition.sender == $scope.searchCondition.noResult ? null : $scope.searchCondition.sender,
 					group: $scope.searchCondition.dispatchedGroup == $scope.searchCondition.noResult ? null : $scope.searchCondition.dispatchedGroup,
 					user: $scope.searchCondition.assignedUser == $scope.searchCondition.noResult ? null : $scope.searchCondition.assignedUser,
 					service: $scope.searchCondition.service == $scope.searchCondition.noResult ? null : $scope.searchCondition.service,
@@ -458,16 +470,17 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 						$rootScope.successAlert('No result.');
 						return;
 					}
-					for (var i = data.length; i--;) {
-						if (!data[i]) {
-							data[i] = {};
-						}
-						if (data[i].ReceivedTime) {
-							data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
-						}
+					// for (var i = data.length; i--;) {
+					// 	if (!data[i]) {
+					// 		data[i] = {};
+					// 	}
+					// 	if (data[i].ReceivedTime) {
+					// 		data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+					// 	}
 
-						data[i].isUpdateOne = false;
-					}
+					// 	data[i].isUpdateOne = false;
+					// }
+					formatSORequestData(data);
 					$scope.mainResult = data;
 					copySearchingResultToFilterResult();
 					analyseSearchingResult();
@@ -481,59 +494,87 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 				$rootScope.dangerAlert('Fitch SO request error.' + status + data);
 			});
 
+		function formatSORequestData(data) {
+			for (var i = data.length; i--;) {
+				if (!data[i]) {
+					data[i] = {};
+				}
+				if (data[i].ReceivedTime) {
+					data[i].ReceivedTime = $.format.date(data[i].ReceivedTime, 'yyyy-MM-dd HH:mm:ss');
+				}
+				if (data[i].IsPreAssign && data[i].IsPreAssign == true) {
+					data[i].IsPreAssign = 'Yes';
+				} else {
+					data[i].IsPreAssign = 'No';
+				}
+
+				data[i].isUpdateOne = false;
+			}
+		}
 
 		function setInputterFullColumns() {
 			$scope.columnDefs = [{
-				field: 'SORequestId',
-				displayName: 'Id',
-				width: 80,
-				pinned: true,
-				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()" "><span ng-cell-text><a ng-click="showDetails(COL_FIELD,$event);">{{COL_FIELD}}</a></span></div>'
-			}, {
-				field: 'Remark',
-				displayName: 'Information',
-				width: 300
-			}, {
-				field: 'OriginalType',
-				displayName: 'Type',
-				width: 100
-			}, {
-				field: 'StatusName',
-				displayName: 'Status',
-				width: 100
-			}, {
-				field: 'ExecuteeName',
-				displayName: 'Executee',
-				width: 160
-			}, {
-				field: 'Service',
-				displayName: 'Service',
-				width: 160
-			}, {
-				field: 'Vessel',
-				displayName: 'Vessel',
-				width: 160
-			}, {
-				field: 'Voyage',
-				displayName: 'Voyage',
-				width: 160
-			}, {
-				field: 'POR',
-				displayName: 'POR',
-				width: 160
-			}, {
-				field: 'POL',
-				displayName: 'POL',
-				width: 160
-			}, {
-				field: 'IsPreAssign',
-				displayName: 'Is Pre Assign',
-				width: 100
-			}, {
-				field: 'ReceivedTime',
-				displayName: 'Received Time',
-				width: 150
-			}];
+					field: 'SORequestId',
+					displayName: 'Id',
+					width: 80,
+					pinned: true,
+					cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()" "><span ng-cell-text><a ng-click="showDetails(COL_FIELD,$event);">{{COL_FIELD}}</a></span></div>'
+				},
+				// {
+				// 	field: 'Remark',
+				// 	displayName: 'Information',
+				// 	width: 300
+				// }, 
+				{
+					field: 'OriginalType',
+					displayName: 'Type',
+					width: 100
+				}, {
+					field: 'StatusName',
+					displayName: 'Status',
+					width: 100
+				}, {
+					field: 'ExecuteeName',
+					displayName: 'Executee',
+					width: 160
+				}, {
+					field: 'Service',
+					displayName: 'Service',
+					width: 160
+				}, {
+					field: 'Vessel',
+					displayName: 'Vessel',
+					width: 160
+				}, {
+					field: 'Voyage',
+					displayName: 'Voyage',
+					width: 160
+				}, {
+					field: 'POR',
+					displayName: 'POR',
+					width: 160
+				}, {
+					field: 'POL',
+					displayName: 'POL',
+					width: 160
+				}, {
+					field: 'IsPreAssign',
+					displayName: 'Has bookingNo',
+					width: 100
+				}, {
+					field: 'Sender',
+					displayName: 'Sender',
+					width: 150
+				}, {
+					field: 'ReceivedTime',
+					displayName: 'Received Time',
+					width: 150
+				}, {
+					field: 'FinishTime',
+					displayName: 'Finish Time',
+					width: 150
+				}
+			];
 		}
 
 		function setInputterBriefColumns() {
@@ -541,6 +582,7 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 				field: 'SORequestId',
 				displayName: 'Id',
 				pinned: true,
+				// width: 100,
 				cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()" ng-click="showDetails(COL_FIELD,$event);"><span ng-cell-text><a >{{COL_FIELD}}</a></span><span class="glyphicon glyphicon-eye-open" ng-show="row.entity.checkingDetails" style="float:right;"></span></div>'
 			}];
 		}
@@ -1243,7 +1285,8 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 
 		$scope.newWorkFlow = {
 			type: null,
-			remark: null
+			remark: null,
+			books: null
 		}
 		$scope.uploadAttachmentWithWorkFlowInfo = function(sCb, eCb) {
 			$upload.upload({
@@ -1445,6 +1488,46 @@ angular.module('selfSOControllers', ['selfRootController','selfServices', 'toggl
 		initialAutoComplete('inputSearchUser', '/restfulAPI/foundation/AUTOCOMPLETEUSER', 'assignedUser');
 		initialAutoComplete('inputSearchPOR', '/restfulAPI/foundation/AUTOCOMPLETEPOR', 'por');
 		initialAutoComplete('inputSearchPOL', '/restfulAPI/foundation/AUTOCOMPLETEPOL', 'pol');
+		initialAutoComplete('inputSearchSender', '/restfulAPI/foundation/AUTOCOMPLETEUSER', 'sender');
 
+		$('#books').tagsinput({
+			maxChars: 20,
+			trimValue: true,
+			allowDuplicates: false,
+			inputSize: 20
+		});
+		$('#books').on('itemsAdded', function(event) {
+			$rootScope.loadingShow('Calculate the bookings. Please wait for a while...');
+			if (event.items && event.items.length > 0) {
+				var msg = '',
+					items = event.items;
+
+				for (var i = items.length; i--;) {
+					if (items[i].length == 17 || items[i].length == 19) {
+						if (items[i].substr(0, 3) != '181') {
+							(function(i) {
+								msg += 'Booking(' + items[i] + ')' + ' is not start with \'181\'.||';
+							})(i);
+							$('#books').tagsinput('remove', items[i]);
+						}
+					} else {
+						(function(i) {
+							msg += 'Booking(' + items[i] + ')' + '\'s length is not 17 or 19.||';
+						})(i);
+						$('#books').tagsinput('remove', items[i]);
+					}
+				}
+				$rootScope.dangerAlert(msg);
+			}
+			// if (event.item.length == 17 || event.item.length == 19) {
+			// 	if (event.item.substr(0, 3) != '181') {
+			// 		$rootScope.dangerAlert('Booking(' + event.item + ')' + ' is not start with \'181\'.');
+			// 		$('#books').tagsinput('remove', event.item);
+			// 	}
+			// } else {
+			// 	$rootScope.dangerAlert('Booking(' + event.item + ')' + '\'s length is not 17 or 19.');
+			// 	$('#books').tagsinput('remove', event.item);
+			// }
+		});
 
 	})
