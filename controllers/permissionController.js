@@ -110,7 +110,16 @@ module.exports = function() {
 				});
 
 			});
-		}
+		},
+		GROUPNAMEEXISTS: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+
+				permissionAPI.groupNameExist(req.body.groupName, function(err, data) {
+					callback(err, data);
+				});
+
+			});
+		} 
 	};
 
 	this.PUT = {};
