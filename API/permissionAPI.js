@@ -128,6 +128,13 @@ exports.getGroupRelation = function(groupId, userId, callback) {
 	db.qureyMultipleSP('SP_GetRelation', params, callback)
 }
 
+exports.groupNameExist = function(groupName, callback) {
+	var params = [];
+	params.push(new Parameter('groupName', mssql.NVarChar(60), groupName));
+	db.querySP('SP_IsContainsGroupName', params, callback)
+}
+
+
 exports.modifyGroup = function(modifyGroup, userId, callback) {
 	
 
