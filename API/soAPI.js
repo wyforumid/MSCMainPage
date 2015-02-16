@@ -19,11 +19,11 @@ exports.searchSO = function(soId, bookingNo, inttraNo, sender, groupName, assign
 	if (!_.isNumber(soId)) {
 		soId = null;
 	}
-	if(_s.isBlank(bookingNo)){
-		bookingNo=null;
+	if (_s.isBlank(bookingNo)) {
+		bookingNo = null;
 	}
-	if(_s.isBlank(inttraNo)){
-		inttraNo=null;
+	if (_s.isBlank(inttraNo)) {
+		inttraNo = null;
 	}
 	params.push(new Parameter('soId', mssql.Int, soId));
 	params.push(new Parameter('bookingNo', mssql.VarChar(30), bookingNo));
@@ -185,6 +185,11 @@ exports.getDispatchedGroupId = function(soRequestId, callback) {
 	var params = [];
 	params.push(new Parameter('soRequestId', mssql.Int, soRequestId));
 	db.querySP('SP_GetSODispatchedGroup', params, callback);
+}
+
+exports.getTodayStatisticInfo = function(callback) {
+	var params = []
+	db.querySP('SP_Statistic_TodayInfo', params, callback);
 }
 
 function dispatchAssignTable(data) {

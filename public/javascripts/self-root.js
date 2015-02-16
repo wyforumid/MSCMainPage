@@ -28,6 +28,33 @@ angular.module('selfRootController', [])
 			$('#extraModal').modal('hide');
 		}
 
+		$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
+		$rootScope.hasPermission = function(permissionIds) {
+			if (!$rootScope.userInfo) {
+				$rootScope.userInfo = JSON.parse($.cookie('userInfo'));
+			}
+			if (!$rootScope.userInfo || !$rootScope.userInfo.permissions || $rootScope.userInfo.permissions.length == 0) {
+				return false;
+			}
+			var owned = $rootScope.userInfo.permissions;
+
+			if (owned.indexOf(1) != -1) {
+				return true;
+			}
+			var result = false;
+			if (permissionIds && angular.isArray(permissionIds) && permissionIds.length > 0) {
+				$.each(permissionIds, function(i, v) {
+					if (owned.indexOf(v) != -1) {
+						result = true;
+						return false;
+					}
+				});
+				return result;
+			} else {
+				return false;
+			}
+		}
+
 		function seperateInfo(data) {
 			if (!data || data.length == 0) {
 				return [];

@@ -1,0 +1,53 @@
+<div class="row" style="height: 210px;">
+	<div class="col-md-4" style="height: 200px">
+		<div class="row" style="height: inherit">
+			<div class="col-md-6" style="height: inherit">
+				<canvas id="totalPie" width="200" height="200"></canvas>
+			</div>
+			<div class="col-md-6">
+				<div>
+					<div class="chart-spot" style="background-color: #46BFBD;">
+					</div>
+					<p>FS:finished SO;</p>
+				</div>
+				<div>
+					<div class="chart-spot" style="background-color: #FDB45C;">
+					</div>
+					<p>UTS:today unfinished SO;</p>
+				</div>
+				<div>
+					<div class="chart-spot" style="background-color: #F7464A;">
+					</div>
+					<p>UYS: yesterday unfinished SO;</p>
+				</div>
+				<p></p>
+				<p></p>
+			</div>
+		</div>
+		<div class="chart-botton-text">Total</div>
+	</div>
+	<div class="col-md-4" style="height: inherit">
+		<div style="width:100%;height:200px;">
+			<canvas id="topGroupBar" height="200" style="width:100%;height: 200px"></canvas>	
+		</div>
+		<div class="chart-botton-text">Group</div>
+	</div>
+	<div class="col-md-4" style="height: inherit">
+		<div style="width:100%;height:200px;">
+			<canvas id="topUserBar" height="200" style="width:100%;height: 200px"></canvas>
+		</div>
+		<div class="chart-botton-text">User</div>
+	</div>
+</div>
+<div style="width:100%;height: 1px;border-bottom: solid 1px #fff;margin-top: 20px;" >
+</div>
+
+<div class="row" style="height:210px" data-ng-repeat="item in sortGroupInfo" on-last-repeat>
+	<div class="col-md-6">
+		
+	</div>
+	<div class="col-md-6">
+		<canvas id="group_{{item.id}}_lineChart" style="width:100%;height:100%"></canvas>	
+	</div>
+	
+</div>

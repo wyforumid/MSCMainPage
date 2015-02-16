@@ -1533,3 +1533,378 @@ angular.module('selfSOControllers', ['selfRootController', 'selfServices', 'togg
 		});
 
 	})
+	.directive('onLastRepeat', function() {
+		return function(scope, element, attrs) {
+			if (scope.$last) setTimeout(function() {
+				scope.$emit('onRepeatLast', element, attrs);
+			}, 1);
+		};
+	})
+	.controller('statisticCtrl', function($scope, $http, $rootScope) {
+		$scope.baseData = null;
+		$scope.sortGroupInfo = [];
+		$scope.groupInfo = [];
+		$scope.sortUserInfo = [];
+		$scope.userInfo = [];
+
+		$scope.totalPieInfo = {
+			yesterdayUnfinished: {
+				value: 0,
+				color: '#F7464A',
+				highlight: '#FF5A5E',
+				label: 'UYS',
+				details: []
+			},
+			todayUnfinished: {
+				value: 0,
+				color: '#FDB45C',
+				highlight: '#FFC870',
+				label: 'UTS',
+				details: []
+			},
+			finished: {
+				value: 0,
+				color: '#46BFBD',
+				highlight: '#5AD3D1',
+				label: 'FS',
+				details: []
+			}
+		};
+
+		function loadTodayInfo() {
+			$rootScope.loadingShow('loading data...');
+			$http({
+				method: 'GET',
+				url: '/restfulAPI/so/GETTODAYSTATISTICINFO',
+				cache: false
+			}).success(function(data, status) {
+				$scope.baseData = data;
+				$rootScope.loadingChangeMessage('Analysing...');
+				if (tryAnalyseTodayInfo($scope.baseData)) {
+					refreshCharts();
+					$rootScope.loadingHide();
+				}
+
+
+			}).error(function(data, status) {
+				$rootScope.loadingHide();
+				$rootScope.dangerAlert('Fail to load data from server.');
+			});
+		}
+
+		function tryAnalyseTodayInfo(data) {
+
+			for (var i = data.length; i--;) {
+				(function(i) {
+					setTotalInfo(data[i]);
+					setGroupInfo(data[i]);
+					setUserInfo(data[i]);
+				})(i);
+			}
+			sortUserAndGroup();
+			analyseEachItem();
+			return true;
+		}
+
+		function analyseEachItem() {
+			for (var i = $scope.sortGroupInfo.length; i--;) {
+				analyseItem($scope.sortGroupInfo[i]);
+			}
+			for (var i = $scope.sortUserInfo.length; i--;) {
+				analyseItem($scope.sortUserInfo[i]);
+			}
+		}
+
+		function analyseItem(data) {
+			data.linefinishedData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			data.lineunfinishedData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			var clock_8 = moment({
+				hour: 8
+			});
+			var clock_9 = moment({
+				hour: 9
+			});
+			var clock_10 = moment({
+				hour: 10
+			});
+			var clock_11 = moment({
+				hour: 11
+			});
+			var clock_12 = moment({
+				hour: 12
+			});
+			var clock_13 = moment({
+				hour: 13
+			});
+			var clock_14 = moment({
+				hour: 14
+			});
+			var clock_15 = moment({
+				hour: 15
+			});
+			var clock_16 = moment({
+				hour: 16
+			});
+			var clock_17 = moment({
+				hour: 17
+			});
+			var clock_18 = moment({
+				hour: 18
+			});
+			var clock_19 = moment({
+				hour: 19
+			});
+			var clock_20 = moment({
+				hour: 20
+			});
+			var clock_21 = moment({
+				hour: 21
+			});
+			var clock_22 = moment({
+				hour: 22
+			});
+			var clock_23 = moment({
+				hour: 23
+			});
+			var startIndex, endIndex;
+			var details = data.details;
+			for (var i = details.length; i--;) {
+				var dt = moment(details[i].DispatchedTime),
+					et;
+				if (dt.isBefore(clock_8)) {
+					startIndex = 0;
+				} else {
+					startIndex = dt.hour() - 8;
+				}
+				if (details[i].EndTime && details[i].EndTime != '') {
+					et = moment(details[i].EndTime);
+				} else {
+					et = null;
+				}
+				if (et) {
+					if (et.isAfter(clock_23)) {
+						endIndex = 15;
+					} else {
+						endIndex = et.hour() - 8;
+					}
+				} else {
+					endIndex = 15
+				}
+
+				for (var k = startIndex; k < 16; k++) {
+					data.lineunfinishedData[k] ++;
+				}
+				if (endIndex < 15) {
+					for (var k = endIndex; k < 16; k++) {
+						data.linefinishedData[k] ++;
+						data.lineunfinishedData[k] --;
+					}
+				}
+
+
+			}
+
+		}
+
+		function sortUserAndGroup() {
+			for (var i = $scope.userInfo.length; i--;) {
+				if ($scope.userInfo[i]) {
+					$scope.sortUserInfo.push($scope.userInfo[i]);
+				}
+			}
+			for (var i = $scope.groupInfo.length; i--;) {
+				if ($scope.groupInfo[i]) {
+					$scope.sortGroupInfo.push($scope.groupInfo[i]);
+				}
+			}
+			$scope.sortUserInfo.sort(itemFinishedSort);
+			$scope.sortGroupInfo.sort(itemFinishedSort);
+		}
+
+		function itemFinishedSort(a, b) {
+			return -(a.finished - b.finished)
+		}
+
+
+
+		function setTotalInfo(item) {
+			var now = moment();
+			var statisticInfo = $scope.totalPieInfo;
+			if (item.EndTime && item.EndTime != '') {
+				statisticInfo.finished.value++;
+				statisticInfo.finished.details.push(item);
+				return;
+			}
+			if (item.EnterTime && item.EnterTime != '') {
+				if (!moment(item.EnterTime).isBefore(now, 'day')) {
+					statisticInfo.todayUnfinished.value++;
+					statisticInfo.todayUnfinished.details.push(item);
+					return;
+				}
+			}
+			statisticInfo.yesterdayUnfinished.value++;
+			statisticInfo.yesterdayUnfinished.details.push(item);
+		}
+
+		function setGroupInfo(item) {
+			var statisticInfo = $scope.groupInfo;
+			if (item.DispatchedGroupId && item.DispatchedGroupId != '') {
+				var data = statisticInfo[item.DispatchedGroupId.toString()];
+				if (!data) {
+					data = statisticInfo[item.DispatchedGroupId.toString()] = {
+						id: item.DispatchedGroupId,
+						name: item.GroupName,
+						unfinished: 0,
+						finished: 0,
+						details: []
+					};
+				}
+				data.details.push(item);
+				if (item.EndTime && item.EndTime != '') {
+					data.finished++;
+				} else {
+					data.unfinished++;
+				}
+			}
+		}
+
+		function setUserInfo(item) {
+			var statisticInfo = $scope.userInfo;
+			if (item.AssignedUserId && item.AssignedUserId != '') {
+				var data = statisticInfo[item.AssignedUserId.toString()];
+				if (!data) {
+					data = statisticInfo[item.AssignedUserId.toString()] = {
+						id: item.AssignedUserId,
+						name: item.UserName,
+						unfinished: 0,
+						finished: 0,
+						details: []
+					};
+				}
+				data.details.push(item);
+				if (item.EndTime && item.EndTime != '') {
+					data.finished++;
+				} else {
+					data.unfinished++;
+				}
+			}
+		}
+
+		function refreshCharts() {
+
+			refreshTotalChart();
+
+			refreshGroupBar();
+
+			refreshUserBar();
+		}
+
+		$scope.$on('onRepeatLast', function(scope, element, attrs) {
+			refreshGroups();
+		})
+
+		function refreshTotalChart() {
+			var ctx_totalPie = $('#totalPie').get(0).getContext('2d');
+			var chart_totalPie = new Chart(ctx_totalPie).Pie($scope.totalPieInfo);
+		}
+
+		function refreshGroupBar() {
+			refreshTopBar($scope.sortGroupInfo, 'topGroupBar');
+		}
+
+		function refreshUserBar() {
+			refreshTopBar($scope.sortUserInfo, 'topUserBar');
+		}
+
+		function refreshTopBar(data, elementId) {
+			var chart_label = [];
+			var chart_finishedValue = [];
+			var chart_unfinishedValue = [];
+			// var user = $scope.sortUserInfo;
+			var topCount = 5;
+			for (var i = 0; i < data.length; i++) {
+				chart_label.push(data[i].name);
+				chart_finishedValue.push(data[i].finished);
+				chart_unfinishedValue.push(data[i].unfinished);
+				if (i == (topCount - 1)) {
+					break;
+				}
+			}
+			var ctx_topBar = $('#' + elementId).get(0).getContext('2d');
+			var chart_topBar = new Chart(ctx_topBar).Bar({
+				labels: chart_label,
+				datasets: [{
+					fillColor: '#F7464A',
+					strokeColor: '#F7464A',
+					highlightFill: '#FF5A5E',
+					highlightStroke: '#FF5A5E',
+					data: chart_unfinishedValue
+				}, {
+					fillColor: '#46BFBD',
+					strokeColor: '#46BFBD',
+					highlightFill: '#5AD3D1',
+					highlightStroke: '#5AD3D1',
+					data: chart_finishedValue
+				}]
+			});
+		}
+
+		function refreshGroups() {
+			var data = {
+				labels: [
+					'8:00',
+					'9:00',
+					'10:00',
+					'11:00',
+					'12:00',
+					'13:00',
+					'14:00',
+					'15:00',
+					'16:00',
+					'17:00',
+					'18:00',
+					'19:00',
+					'20:00',
+					'21:00',
+					'22:00',
+					'23:00'
+				],
+				datasets: [{
+					label: "Unfinished",
+					fillColor: "#F7464A",
+					strokeColor: "#F7464A",
+					pointColor: "#F7464A",
+					pointStrokeColor: "#F7464A",
+					pointHighlightFill: "#FF5A5E",
+					pointHighlightStroke: "#FF5A5E",
+					data: null
+				}, {
+					label: "Finished",
+					fillColor: "#46BFBD",
+					strokeColor: "#46BFBD",
+					pointColor: "#46BFBD",
+					pointStrokeColor: "#46BFBD",
+					pointHighlightFill: "#5AD3D1",
+					pointHighlightStroke: "#5AD3D1",
+					data: null
+				}]
+			}
+			for (var i = $scope.sortGroupInfo.length; i--;) {
+				createLineChart(angular.copy(data), $scope.sortGroupInfo[i]);
+			}
+		}
+
+		function createLineChart(templateData, realData) {
+			var ctx = $('#' + 'group_' + realData.id + '_lineChart').get(0).getContext('2d');
+			templateData.datasets[0].data = realData.lineunfinishedData;
+			templateData.datasets[1].data = realData.linefinishedData;
+			var lineChart = new Chart(ctx).Line(templateData);
+		}
+
+		function getLineData(data) {
+
+		}
+
+		loadTodayInfo();
+
+	});

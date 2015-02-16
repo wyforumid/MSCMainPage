@@ -170,3 +170,13 @@ a {
 } 
 
 .bootstrap-tagsinput { width: 100%; }
+
+.chart-spot{
+	height: 1em;
+	width:1em; 
+	float:left
+}
+.chart-botton-text{
+	text-align: center; 
+	font-weight: bolder;
+}

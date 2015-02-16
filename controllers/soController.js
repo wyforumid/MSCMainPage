@@ -127,6 +127,17 @@ module.exports = function() {
 					}
 				});
 			});
+		},
+		GETTODAYSTATISTICINFO: function(req, res) {
+			func.jsonResponse(req, res, function(callback) {
+				soAPI.getTodayStatisticInfo(function(err, data) {
+					try {
+						callback(err, data);
+					} catch (ex) {
+						callback(err, data);
+					}
+				});
+			});
 		}
 	}
 

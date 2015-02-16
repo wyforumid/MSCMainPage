@@ -5,10 +5,10 @@
 	<div data-ng-class="{'col-md-2':listDivClass,'':detailDivClass}" ng-show="listDivClass">
 		<div class="row margin-botton-div" ng-show="hasSelectedSO">
 			<div class="col-md-12 margin-botton-div">
-				<button class="btn btn-primary" ng-show="hasPermission(3)" ng-click="openDispatchGroupDialog()" >Dispatch to Group</button>
+				<button class="btn btn-primary" ng-show="hasPermission([3])" ng-click="openDispatchGroupDialog()" >Dispatch to Group</button>
 			</div>
 			<div class="col-md-12 margin-botton-div" >
-				<button class="btn btn-primary" ng-show="hasPermission(2)" ng-click="openAssignUserDialog()">Assign to inputter</button>
+				<button class="btn btn-primary" ng-show="hasPermission([2])" ng-click="openAssignUserDialog()">Assign to inputter</button>
 			</div>
 		</div>
 		<div class="row margin-botton-div">
@@ -131,9 +131,9 @@
 	<div ng-class="{'col-md-10 col-md-offset-2':detailDivClass,'':listDivClass}" id="detailDiv" ng-show="detailDivClass">
 		<div class="margin-botton-div">
 			<button class="btn btn-primary" ng-click="bakcToList();">Back to list</button>
-			<button class="btn btn-primary" ng-show="hasPermission(4)" ng-click="openWorkFlowDialog();">Add workflow</button>
-			<button class="btn btn-primary" ng-show="hasPermission(2)" ng-click="openAssignUserDialog()">Assign</button>
-			<button class="btn btn-primary" ng-show="hasPermission(3)" ng-click="openDispatchGroupDialog()">Dispatch</button>
+			<button class="btn btn-primary" ng-show="hasPermission([4])" ng-click="openWorkFlowDialog();">Add workflow</button>
+			<button class="btn btn-primary" ng-show="hasPermission([2])" ng-click="openAssignUserDialog()">Assign</button>
+			<button class="btn btn-primary" ng-show="hasPermission([3])" ng-click="openDispatchGroupDialog()">Dispatch</button>
 		</div>
 		<div>
 			<ul class="nav nav-tabs" role="tablist" id="detailTab">
